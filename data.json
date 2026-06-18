@@ -1,0 +1,478 @@
+{
+  "pedidos": [
+    {
+      "id": "ga1agsu",
+      "numero": "29069",
+      "cliente": "Cliente: VS LAB LTDA",
+      "endereco": "R DOUTOR ALMINO AFONSO 418",
+      "destino": "MOSSORO RN CEP: 59610-210",
+      "cep": "87708-010",
+      "data": "",
+      "responsavel": "",
+      "obs": "",
+      "modelo": "Cilíndrica Polir + Blocadora Fusion + Gerador TLJR 2026",
+      "maquinas": [
+        {
+          "id": "p64vr4l",
+          "modelo": "cilindrica_polir",
+          "nome": "Cilíndrica Polir",
+          "itens": [
+            {
+              "id": "jmnuiw1",
+              "nome": "Desmontar pistola de ar",
+              "categoria": "⚙️ Desmontagem",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "2mt1fp0",
+              "nome": "Desmontar mangueira de ar",
+              "categoria": "⚙️ Desmontagem",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "nh94oq6",
+              "nome": "Refrigeração",
+              "categoria": "❄️ Sistema de Refrigeração",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "w5u61k6",
+              "nome": "Bomba",
+              "categoria": "❄️ Sistema de Refrigeração",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "itah13v",
+              "nome": "Niple e Engate Rápido",
+              "categoria": "❄️ Sistema de Refrigeração",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        },
+        {
+          "id": "tp3oid7",
+          "modelo": "blocadora_fusion",
+          "nome": "Blocadora Fusion",
+          "itens": [
+            {
+              "id": "ywhatoz",
+              "nome": "Filtro Regulador",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ho2effl",
+              "nome": "Gabarito",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "rm7l3rm",
+              "nome": "Pegador",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        },
+        {
+          "id": "mgf2mnx",
+          "modelo": "tljr2026",
+          "nome": "Gerador TLJR 2026",
+          "itens": [
+            {
+              "id": "abvavck",
+              "nome": "Gerador de Curvas CNC TLJR",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "r2cntm5",
+              "nome": "Arduino",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "z3x7qv4",
+              "nome": "Leitor de Código de Barras",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "avamsbn",
+              "nome": "Fonte para Leitor de Código de Barras",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "hzbgvet",
+              "nome": "Suporte do Leitor de Código de Barras",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "3jo0c5a",
+              "nome": "Teclado K120 USB",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "6yzzlbm",
+              "nome": "Windows e CD de Driver do EBN",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "qb1go6i",
+              "nome": "Programa de Cálculo",
+              "categoria": "🖥️ Eletrônicos e Controle",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "1ka1ose",
+              "nome": "Base e Espessímetro",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "qnjxsj9",
+              "nome": "Espessímetro Digital",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "2 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "tgcluiw",
+              "nome": "Caixa de Ferramentas",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ecuu3hx",
+              "nome": "Ferramenta de Corte TLJR / 1 com Diamante",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "2 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "awpwyf0",
+              "nome": "Jogo de Pastilhas com 06 unidades",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 jogo",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ziu6fe7",
+              "nome": "Jogo de Parafuso para Pastilha com 06 unidades",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 jogo",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "7o0l9sj",
+              "nome": "Chave Tork T15",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "uhgyh2r",
+              "nome": "Chave T4",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "pc5vw3j",
+              "nome": "Chave T3",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "9c0lc10",
+              "nome": "Jogo de Chave Allen",
+              "categoria": "🔧 Ferramentas e Instrumentos",
+              "qty": "1 jogo",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "s782pzf",
+              "nome": "Caixa d'Água para Gerador",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ubybi5g",
+              "nome": "Niple, Engate Rápido e Registro da Caixa",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "4x64rw9",
+              "nome": "Bomba",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "g0av56m",
+              "nome": "Suporte da Bomba",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "je4owq3",
+              "nome": "Peneira Caixa d'Água TLJR",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "utk31q4",
+              "nome": "Óleo Solúvel – 5 litros",
+              "categoria": "💧 Sistema Hidráulico",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "eqt6vzf",
+              "nome": "Morsa para Moldes Gerador TLJR",
+              "categoria": "🧩 Moldes e Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ninn5ia",
+              "nome": "Molde de Plástico – Bases 2, 4, 6, 9, 12",
+              "categoria": "🧩 Moldes e Acessórios",
+              "qty": "12 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "ayfy3jx",
+              "nome": "Adesivos",
+              "categoria": "🧩 Moldes e Acessórios",
+              "qty": "6 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "sh8wsq1",
+              "nome": "Parafuso M8 x 35",
+              "categoria": "🧩 Moldes e Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        }
+      ],
+      "criadoEm": "2026-05-11T20:45:49.511Z"
+    },
+    {
+      "id": "iyn67ld",
+      "numero": "29163",
+      "cliente": "Fabiano silva dos santos",
+      "endereco": "coelho rodrigues 1266",
+      "destino": "TERESINA PI",
+      "cep": "64000-080",
+      "data": "2026-05-04",
+      "responsavel": "",
+      "obs": "",
+      "modelo": "Blocadora Fusion",
+      "maquinas": [
+        {
+          "id": "pwtyqto",
+          "modelo": "blocadora_fusion",
+          "nome": "Blocadora Fusion",
+          "itens": [
+            {
+              "id": "i9o7j7z",
+              "nome": "Filtro Regulador",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "9ypjir8",
+              "nome": "Gabarito",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            },
+            {
+              "id": "8hc3yr4",
+              "nome": "Pegador",
+              "categoria": "🔧 Acessórios",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        }
+      ],
+      "criadoEm": "2026-05-11T20:37:17.144Z"
+    },
+    {
+      "id": "cqlohbd",
+      "numero": "29201",
+      "cliente": "DAVID MONTEIRO COELHO SILVEIRA",
+      "endereco": "R PERBOYRE E SILVA 111",
+      "destino": "FORTALEZA/CE",
+      "cep": "60030-200",
+      "data": "",
+      "responsavel": "vitor",
+      "obs": "",
+      "modelo": "Armário do Forno + Forno + Aplicador Anti-Risco",
+      "maquinas": [
+        {
+          "id": "x4kn4pu",
+          "modelo": "armario_forno",
+          "nome": "Armário do Forno",
+          "itens": [
+            {
+              "id": "bkrg5eb",
+              "nome": "Armário do Forno",
+              "categoria": "🔧 Equipamento",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        },
+        {
+          "id": "ynaduil",
+          "modelo": "forno",
+          "nome": "Forno",
+          "itens": [
+            {
+              "id": "uzlmqco",
+              "nome": "Forno",
+              "categoria": "🔧 Equipamento",
+              "qty": "1 un",
+              "temSerial": true,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        },
+        {
+          "id": "e3pq2n3",
+          "modelo": "anti_risco",
+          "nome": "Aplicador Anti-Risco",
+          "itens": [
+            {
+              "id": "euz27ns",
+              "nome": "Aplicador Anti-Risco",
+              "categoria": "🔧 Equipamento",
+              "qty": "1 un",
+              "temSerial": false,
+              "checked": false,
+              "serial": ""
+            }
+          ]
+        }
+      ],
+      "criadoEm": "2026-05-11T20:33:00.341Z"
+    }
+  ],
+  "historico": [],
+  "itensPadrao": []
+}

@@ -1,0 +1,1222 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tooling — SepLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080b0a;--bg2:#0d1210;--surface:#111714;--surface2:#182019;--surface3:#1e2a22;
+  --border:#243028;--border2:#2e3d32;
+  --green:#2ecc8a;--green2:#1aff99;--green-dim:#1a7a52;--green-glow:rgba(46,204,138,.18);
+  --text:#dff0e8;--muted:#6b8a76;--warn:#f0a500;--danger:#e05555;--radius:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-svg{width:34px;height:34px;flex-shrink:0;}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+.logo-text span{color:var(--green);text-shadow:0 0 12px rgba(46,204,138,.5);}
+.logo-divider{width:1px;height:22px;background:var(--border2);margin:0 8px;}
+.logo-sub{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:0 16px;height:44px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:color .2s,border-color .2s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+main{padding:16px;max-width:860px;margin:0 auto;padding-bottom:40px;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--green);color:#050e09;box-shadow:0 0 12px rgba(46,204,138,.25);}
+.btn-primary:hover{background:var(--green2);box-shadow:0 0 20px rgba(46,204,138,.4);}
+.btn-outline{background:transparent;color:var(--green);border:1px solid var(--green-dim);}
+.btn-outline:hover{border-color:var(--green);background:var(--green-glow);}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--surface3);}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(224,85,85,.3);}
+.btn-danger:hover{background:rgba(224,85,85,.1);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.btn-xs{padding:3px 8px;font-size:10px;}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.8px;text-transform:uppercase;}
+.badge-pending{background:rgba(240,165,0,.1);color:var(--warn);}
+.badge-progress{background:rgba(46,204,138,.1);color:var(--green);}
+.badge-done{background:rgba(46,204,138,.2);color:var(--green2);border:1px solid rgba(46,204,138,.3);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
+
+.pedido-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
+.pedido-card:hover{border-color:var(--border2);}
+.pedido-card.open-card{border-color:var(--green-dim);}
+.pedido-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
+.pedido-icon{width:36px;height:36px;border-radius:8px;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.pedido-info{flex:1;min-width:0;}
+.pedido-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.5px;color:var(--text);}
+.pedido-meta{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pedido-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.pct-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--green);line-height:1;}
+.progress-bar{width:72px;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;box-shadow:0 0 6px rgba(46,204,138,.5);transition:width .4s ease;}
+.chevron{color:var(--muted);font-size:12px;transition:transform .2s;flex-shrink:0;}
+.chevron.rotated{transform:rotate(180deg);}
+
+.pedido-body{border-top:1px solid var(--border);display:none;animation:fadeDown .2s ease;}
+.pedido-body.open{display:block;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.pedido-body-inner{padding:16px;}
+
+.cl-section-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green-dim);padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(36,48,40,.6);}
+.cl-item:last-child{border-bottom:none;}
+.check-box{width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid var(--border2);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;}
+.check-box:hover{border-color:var(--green);}
+.check-box.checked{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(46,204,138,.4);}
+.check-box.checked::after{content:'';width:5px;height:9px;border:2px solid #050e09;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);}
+.cl-item-right{flex:1;min-width:0;}
+.cl-item-name{font-size:14px;font-weight:500;line-height:1.3;transition:color .15s;}
+.cl-item-name.done{color:var(--muted);text-decoration:line-through;}
+.cl-item-serial{margin-top:5px;display:flex;align-items:center;gap:6px;}
+.serial-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.serial-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.5px;outline:none;transition:border .15s;max-width:200px;}
+.serial-input:focus{border-color:var(--green-dim);}
+.serial-input::placeholder{color:var(--border2);}
+.cl-item-qty{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);background:var(--surface3);padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:4px;display:inline-block;}
+
+.alerta-faltando{background:rgba(224,85,85,.06);border:1px solid rgba(224,85,85,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#e07878;margin-bottom:12px;line-height:1.5;}
+.alerta-obs{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f0b840;margin-bottom:12px;}
+
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border .2s;}
+.form-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 3px rgba(46,204,138,.06);}
+.form-input::placeholder{color:var(--border2);}
+textarea.form-input{resize:vertical;min-height:70px;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(3px);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px 16px 0 0;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;padding:6px 16px 36px;animation:slideUp .22s ease;}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-drag{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:10px auto 14px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:.5px;}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;text-align:center;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--green);opacity:.3;}
+.stat-card.hl::before{opacity:1;}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;color:var(--text);}
+.stat-card.hl .stat-num{color:var(--green);}
+.stat-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{padding:5px 13px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;}
+.chip:hover{color:var(--text);border-color:var(--border2);}
+.chip.active{background:var(--green);color:#050e09;border-color:var(--green);}
+
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;flex-wrap:wrap;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-state .e-icon{font-size:44px;margin-bottom:12px;display:block;opacity:.5;}
+.empty-state p{font-size:13px;line-height:1.6;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.serial-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--green);margin:2px 3px 2px 0;}
+.hist-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.hist-row:last-child{border-bottom:none;}
+.hist-row:hover .hist-num{color:var(--green);}
+.hist-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(46,204,138,.5);flex-shrink:0;}
+.hist-info{flex:1;min-width:0;}
+.hist-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;transition:color .15s;}
+.hist-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.maquina-card{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
+.maquina-card.open{border-color:var(--green-dim);}
+.maquina-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--surface2);user-select:none;gap:10px;}
+.maquina-header:hover{background:var(--surface3);}
+.maquina-nome{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;flex:1;}
+.maquina-prog{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.maquina-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--green);}
+.maquina-body{display:none;padding:4px 12px 12px;}
+.maquina-body.open{display:block;}
+
+@media(min-width:600px){main{padding:24px;}.modal-overlay{align-items:center;}.modal{border-radius:14px;max-height:82vh;}.modal-drag{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="login-overlay" style="position:fixed;inset:0;background:#080b0a;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#111714;border:1px solid #243028;border-radius:14px;padding:40px 32px;width:100%;max-width:320px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.7);">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:52px;height:52px;margin:0 auto 14px;display:block;">
+      <rect width="60" height="60" rx="10" fill="#0d1a14"/>
+      <circle cx="26" cy="20" r="7" stroke="#2ecc8a" stroke-width="2.2" fill="none"/>
+      <path d="M12 44 Q14 32 26 32 Q38 32 40 44" stroke="#2ecc8a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M38 14 L48 24 L44 28" stroke="#2ecc8a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+    </svg>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:3px;color:#dff0e8;margin-bottom:4px;">TOOLING</div>
+    <div style="font-size:10px;color:#6b8a76;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px;">SepLab</div>
+    <input id="senha-input" type="password" placeholder="••••" style="width:100%;background:#0d1210;border:1px solid #243028;border-radius:7px;color:#dff0e8;padding:12px;font-size:22px;text-align:center;outline:none;letter-spacing:8px;margin-bottom:10px;transition:border .2s;" onfocus="this.style.borderColor='#2ecc8a'" onblur="this.style.borderColor='#243028'" onkeydown="if(event.key==='Enter')verificarSenha()">
+    <div id="senha-erro" style="color:#e05555;font-size:12px;margin-bottom:10px;min-height:18px;"></div>
+    <button onclick="verificarSenha()" style="width:100%;background:#2ecc8a;color:#050e09;border:none;border-radius:7px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:2px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='#1aff99'" onmouseout="this.style.background='#2ecc8a'">ENTRAR</button>
+  </div>
+</div>
+
+<header>
+  <div class="logo-wrap">
+    <svg class="logo-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="60" height="60" rx="10" fill="#0d1a14"/>
+      <circle cx="26" cy="20" r="7" stroke="#2ecc8a" stroke-width="2.2" fill="none"/>
+      <path d="M12 44 Q14 32 26 32 Q38 32 40 44" stroke="#2ecc8a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M38 14 L48 24 L44 28" stroke="#2ecc8a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+    </svg>
+    <div class="logo-text">TOOLING</div>
+    <div class="logo-divider"></div>
+    <div class="logo-sub">SepLab</div>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="abrirNovoPedido()">+ Novo Pedido</button>
+</header>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="mudarTab('pedidos',this)">📦 Pedidos</button>
+  <button class="nav-tab" onclick="mudarTab('historico',this)">📋 Histórico</button>
+  <button class="nav-tab" onclick="mudarTab('painel',this)">📊 Painel</button>
+  <button class="nav-tab" onclick="mudarTab('itens',this)">🔧 Itens Padrão</button>
+</nav>
+
+<main id="app"></main>
+
+<!-- MODAL NOVO PEDIDO -->
+<div class="modal-overlay" id="mNovoPedido">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Novo Pedido</div>
+      <button class="modal-close" onclick="fecharModal('mNovoPedido')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Foto do Pedido</label>
+      <label style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px dashed var(--border2);border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--green);background:var(--surface2);transition:border-color .2s;" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border2)'">
+        📷 Tirar / Selecionar Foto
+        <input type="file" id="iFoto" accept="image/*" capture="environment" style="display:none" onchange="lerFoto(this)">
+      </label>
+      <div id="fotoPreview" style="display:none;margin-top:10px;">
+        <img id="fotoImg" style="max-width:100%;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:8px;">
+        <div id="ocrStatus" style="font-size:12px;color:var(--muted);margin-bottom:6px;"></div>
+        <div id="ocrTexto" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);white-space:pre-wrap;max-height:120px;overflow-y:auto;display:none;"></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;display:none;" id="btnPreencherOCR" onclick="preencherComOCR()">✨ Preencher campos com o texto lido</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Máquinas do Pedido</label>
+      <div id="listaMaquinas" style="margin-bottom:8px;min-height:32px;"></div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select class="form-input" id="iModelo" style="flex:1;">
+          <optgroup label="Gerador">
+            <option value="tljr2026">Gerador TLJR</option>
+            <option value="tl10">Gerador TL10</option>
+            <option value="tlmini">Gerador TLMINI</option>
+          </optgroup>
+          <optgroup label="Cilíndrica">
+            <option value="cilindrica_flex">Cilíndrica Flex</option>
+          </optgroup>
+          <optgroup label="Blocadora">
+            <option value="blocadora_fusion">Blocadora Fusion</option>
+            <option value="blocadora_cera">Blocadora de Cera</option>
+          </optgroup>
+          <optgroup label="Outros">
+            <option value="fritadeira">Fritadeira</option>
+            <option value="forno">Forno</option>
+          <option value="armario_forno">Armário do Forno</option>
+            <option value="polibox10">Polibox 10 Gavetas</option>
+            <option value="polibox12">Polibox 12 Gavetas</option>
+            <option value="porta_molde">Porta Molde Giratório</option>
+            <option value="anti_risco">Aplicador Anti-Risco</option>
+          </optgroup>
+        </select>
+        <input class="form-input" id="iQtdMaq" type="number" min="1" value="1" style="width:60px;text-align:center;">
+        <button class="btn btn-outline btn-sm" onclick="adicionarMaquina()" style="white-space:nowrap;">+ Add</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Número do Pedido</label><input class="form-input" id="iNum" placeholder="ex: 29201"></div>
+    <div class="form-group"><label class="form-label">Nome do Cliente</label><input class="form-input" id="iCliente" placeholder="Nome completo do cliente"></div>
+    <div class="form-group"><label class="form-label">Endereço (Rua e Número)</label><input class="form-input" id="iEndereco" placeholder="ex: R Perboyre e Silva 111"></div>
+    <div class="form-group"><label class="form-label">Cidade / UF</label><input class="form-input" id="iDestino" placeholder="ex: Fortaleza/CE"></div>
+    <div class="form-group"><label class="form-label">CEP</label><input class="form-input" id="iCep" placeholder="ex: 60030-200" style="max-width:180px;"></div>
+    <div class="form-group"><label class="form-label">Data de Envio Prevista</label><input class="form-input" id="iData" type="date"></div>
+    <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="iResp" placeholder="Nome do separador"></div>
+    <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="iObs" placeholder="Informações importantes..."></textarea></div>
+    <div id="infoItens" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--muted);">
+      ✅ Os itens padrão serão adicionados automaticamente.
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mNovoPedido')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="criarPedido()">Criar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ITENS PADRÃO -->
+<div class="modal-overlay" id="mItens">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Itens Padrão</div>
+      <button class="modal-close" onclick="fecharModal('mItens')">×</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Adicionados automaticamente em cada novo pedido.</p>
+    <div id="listaItens"></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input class="form-input" id="iNovoItem" placeholder="Nome do item...">
+      <select class="form-input" id="iCat" style="max-width:150px;">
+        <option>Equipamentos</option><option>Periféricos</option><option>Infraestrutura</option>
+        <option>Consumíveis</option><option>Documentação</option><option>Extras</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+      <input class="form-input" id="iQty" placeholder="Qtd (ex: 1 un)" style="max-width:140px;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;flex:1;">
+        <input type="checkbox" id="iSerial" style="accent-color:var(--green);width:16px;height:16px;"> Tem número de série?
+      </label>
+    </div>
+    <button class="btn btn-outline" style="width:100%;margin-bottom:8px;" onclick="addItemPadrao()">+ Adicionar Item</button>
+    <button class="btn btn-primary" style="width:100%;" onclick="fecharModal('mItens')">Pronto</button>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PEDIDO -->
+<div class="modal-overlay" id="mEditarPedido">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Editar Pedido</div>
+      <button class="modal-close" onclick="fecharModal('mEditarPedido')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Máquinas do Pedido</label>
+      <div id="editListaMaquinas" style="margin-bottom:8px;min-height:32px;"></div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select class="form-input" id="eModelo" style="flex:1;">
+          <optgroup label="Gerador">
+            <option value="tljr2026">Gerador TLJR</option>
+            <option value="tl10">Gerador TL10</option>
+            <option value="tlmini">Gerador TLMINI</option>
+          </optgroup>
+          <optgroup label="Cilíndrica">
+            <option value="cilindrica_flex">Cilíndrica Flex</option>
+          </optgroup>
+          <optgroup label="Blocadora">
+            <option value="blocadora_fusion">Blocadora Fusion</option>
+            <option value="blocadora_cera">Blocadora de Cera</option>
+          </optgroup>
+          <optgroup label="Outros">
+            <option value="fritadeira">Fritadeira</option>
+            <option value="forno">Forno</option>
+            <option value="armario_forno">Armário do Forno</option>
+            <option value="polibox10">Polibox 10 Gavetas</option>
+            <option value="polibox12">Polibox 12 Gavetas</option>
+            <option value="porta_molde">Porta Molde Giratório</option>
+            <option value="anti_risco">Aplicador Anti-Risco</option>
+          </optgroup>
+        </select>
+        <input class="form-input" id="eQtdMaq" type="number" min="1" value="1" style="width:60px;text-align:center;">
+        <button class="btn btn-outline btn-sm" onclick="adicionarMaquinaEdicao()" style="white-space:nowrap;">+ Add</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Número do Pedido</label><input class="form-input" id="eNum" placeholder="ex: 29201"></div>
+    <div class="form-group"><label class="form-label">Nome do Cliente</label><input class="form-input" id="eCliente" placeholder="Nome completo do cliente"></div>
+    <div class="form-group"><label class="form-label">Endereço (Rua e Número)</label><input class="form-input" id="eEndereco" placeholder="ex: R Perboyre e Silva 111"></div>
+    <div class="form-group"><label class="form-label">Cidade / UF</label><input class="form-input" id="eDestino" placeholder="ex: Fortaleza/CE"></div>
+    <div class="form-group"><label class="form-label">CEP</label><input class="form-input" id="eCep" placeholder="ex: 60030-200" style="max-width:180px;"></div>
+    <div class="form-group"><label class="form-label">Data de Envio Prevista</label><input class="form-input" id="eData" type="date"></div>
+    <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="eResp" placeholder="Nome do separador"></div>
+    <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="eObs" placeholder="Informações importantes..."></textarea></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mEditarPedido')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="salvarEdicao()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO DETALHE -->
+<div class="modal-overlay" id="mHist">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="histTitulo">Pedido</div>
+      <button class="modal-close" onclick="fecharModal('mHist')">×</button>
+    </div>
+    <div id="histConteudo"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const API='/api/data';
+async function loadFromServer(){try{const r=await fetch(API);const d=await r.json();return d||inicial();}catch{try{return JSON.parse(localStorage.getItem('tooling_seplab_v4'))||inicial();}catch{return inicial();}}}
+function save(){fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)}).catch(()=>{try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}});}
+
+function inicial(){return{
+  pedidos:[],historico:[],
+  itensPadrao:[
+    {id:u(),nome:'Gerador',categoria:'Máquinas',qty:'1 un',temSerial:true},
+    {id:u(),nome:'Máquina Cilíndrica',categoria:'Máquinas',qty:'1 un',temSerial:true},
+    {id:u(),nome:'Fritadeira',categoria:'Máquinas',qty:'1 un',temSerial:true},
+    {id:u(),nome:'Máquina Blocadora',categoria:'Máquinas',qty:'1 un',temSerial:true},
+  ]
+};}
+
+const MODELOS = {
+  tljr2022: {
+    nome: 'Gerador TLJR 2022',
+    itens: [
+      {nome:'Gerador de Curvas CNC TLJR',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte de Leitor para Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLJR',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLJR',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  tljr2026: {
+    nome: 'Gerador TLJR 2026',
+    itens: [
+      {nome:'Gerador de Curvas CNC TLJR',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLJR',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLJR',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  tl10: {
+    nome: 'Gerador TL10',
+    itens: [
+      {nome:'Gerador de Curvas CNC TL10',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TL10 / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TL10',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 10 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TL10',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'30 un',serial:false},
+      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  tlmini: {
+    nome: 'Gerador TLMINI',
+    itens: [
+      {nome:'Gerador de Curvas CNC TLMINI',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLMINI / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLMINI',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLMINI',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  cilindrica_flex: {
+    nome: 'Cilíndrica Flex',
+    itens: [
+      {nome:'Desmontar pistola de ar',cat:'⚙️ Desmontagem',qty:'1 un',serial:false},
+      {nome:'Desmontar mangueira de ar',cat:'⚙️ Desmontagem',qty:'1 un',serial:false},
+      {nome:'Refrigeração',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:true},
+      {nome:'Bomba',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:true},
+      {nome:'Niple e Engate Rápido',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:false},
+      {nome:'Caixa d\'Água',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Suporte da Caixa',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Suporte da Bomba',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Bomba Preta',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:true},
+      {nome:'Jogo de Allen',cat:'💧 Kit Lixa d\'Água',qty:'1 jogo',serial:false},
+      {nome:'Gabarito',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Niple e Engate Rápido',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+    ]
+  },
+  blocadora_fusion: {
+    nome: 'Blocadora Fusion',
+    itens: [
+      {nome:'Filtro Regulador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Gabarito',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Pegador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  blocadora_cera: {
+    nome: 'Blocadora de Cera',
+    itens: [
+      {nome:'Filtro Regulador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Gabarito',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  fritadeira: {
+    nome: 'Fritadeira',
+    itens: [
+      {nome:'Ferro de Solda',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+    ]
+  },
+  forno: {
+    nome: 'Forno',
+    itens: [
+      {nome:'Forno',cat:'🔧 Equipamento',qty:'1 un',serial:true},
+    ]
+  },
+  armario_forno: {
+    nome: 'Armário do Forno',
+    itens: [
+      {nome:'Armário do Forno',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+    ]
+  },
+  polibox10: {
+    nome: 'Polibox 10 Gavetas',
+    itens: [
+      {nome:'Polibox 10 Gavetas',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+    ]
+  },
+  polibox12: {
+    nome: 'Polibox 12 Gavetas',
+    itens: [
+      {nome:'Polibox 12 Gavetas',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+    ]
+  },
+  porta_molde: {
+    nome: 'Porta Molde Giratório',
+    itens: [
+      {nome:'Porta Molde Giratório',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+    ]
+  },
+  anti_risco: {
+    nome: 'Aplicador Anti-Risco',
+    itens: [
+      {nome:'Aplicador Anti-Risco',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+    ]
+  }
+};
+
+let S=null, tab='pedidos', filtro='todos';
+function u(){return Math.random().toString(36).slice(2,9);}
+
+function mudarTab(t,el){tab=t;document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');render();}
+
+function render(){
+  if(!S)return;
+  const app=document.getElementById('app');
+  if(tab==='pedidos')app.innerHTML=rPedidos();
+  else if(tab==='historico')app.innerHTML=rHistorico();
+  else if(tab==='painel')app.innerHTML=rPainel();
+  else if(tab==='itens'){rTabItens();return;}
+  bindEv();
+}
+
+function todosItens(p){return p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];}
+function pct(p){const its=todosItens(p);if(!its.length)return 0;return Math.round(its.filter(i=>i.checked).length/its.length*100);}
+function pctMaq(m){if(!m.itens.length)return 0;return Math.round(m.itens.filter(i=>i.checked).length/m.itens.length*100);}
+
+function bdg(p){const v=pct(p);if(v===100)return'<span class="badge badge-done">✅ Concluído</span>';if(v>0)return'<span class="badge badge-progress">🔄 Separando</span>';return'<span class="badge badge-pending">⏳ Aguardando</span>';}
+
+function rPedidos(){
+  let list=[...S.pedidos];
+  if(filtro==='aguardando')list=list.filter(p=>pct(p)===0);
+  else if(filtro==='separando')list=list.filter(p=>pct(p)>0&&pct(p)<100);
+  else if(filtro==='concluido')list=list.filter(p=>pct(p)===100);
+  const ordemFiltros=['todos','aguardando','separando','concluido'];
+  const nomesFiltros={todos:`Todos (${S.pedidos.length})`,aguardando:'⏳ Aguardando',separando:'🔄 Separando',concluido:'✅ Prontos'};
+  const idxAtual=ordemFiltros.indexOf(filtro);
+  const anterior=idxAtual>0?ordemFiltros[idxAtual-1]:null;
+  const proximo=idxAtual<ordemFiltros.length-1?ordemFiltros[idxAtual+1]:null;
+  const chips=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <button class="btn btn-ghost btn-sm" onclick="setFiltro('${anterior}')" style="padding:5px 10px;${!anterior?'opacity:.3;pointer-events:none;':''}" ${!anterior?'disabled':''}>◀</button>
+    <div class="chips" style="margin-bottom:0;flex:1;">
+      <button class="chip ${filtro==='todos'?'active':''}" onclick="setFiltro('todos')">Todos (${S.pedidos.length})</button>
+      <button class="chip ${filtro==='aguardando'?'active':''}" onclick="setFiltro('aguardando')">⏳ Aguardando</button>
+      <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">🔄 Separando</button>
+      <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">✅ Prontos</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="setFiltro('${proximo}')" style="padding:5px 10px;${!proximo?'opacity:.3;pointer-events:none;':''}" ${!proximo?'disabled':''}>▶</button>
+  </div>`;
+  if(!list.length)return chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
+  return chips+list.map(rCard).join('');
+}
+
+function rItemMaq(pid,mid,item){
+  return`<div class="cl-item">
+    <div class="check-box ${item.checked?'checked':''}" onclick="toggleItem('${pid}','${item.id}','${mid}')"></div>
+    <div class="cl-item-right">
+      <div class="cl-item-name ${item.checked?'done':''}">${item.nome}</div>
+      ${item.qty?`<span class="cl-item-qty">${item.qty}</span>`:''}
+      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input class="serial-input" value="${item.serial||''}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
+    </div>
+  </div>`;
+}
+
+function rMaquina(pid,m){
+  const v=pctMaq(m);
+  const done=m.itens.filter(i=>i.checked).length;
+  const cats=[...new Set(m.itens.map(i=>i.categoria))];
+  const itensHTML=cats.map(cat=>{
+    const items=m.itens.filter(i=>i.categoria===cat);
+    return`<div class="cl-section-title">${cat}<span style="color:var(--muted);font-size:10px">${items.filter(i=>i.checked).length}/${items.length}</span></div>`+items.map(item=>rItemMaq(pid,m.id,item)).join('');
+  }).join('');
+  const statusIcon=v===100?'✅':v>0?'🔄':'⏳';
+  return`<div class="maquina-card ${''}" id="maq-${m.id}">
+    <div class="maquina-header" onclick="toggleMaquina('${m.id}')">
+      <div class="maquina-nome">${statusIcon} ${m.nome}</div>
+      <div class="maquina-prog">
+        <div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:${v}%"></div></div>
+        <span class="maquina-pct">${done}/${m.itens.length}</span>
+        <span class="chevron" id="maqchv-${m.id}">▼</span>
+      </div>
+    </div>
+    <div class="maquina-body" id="maqbody-${m.id}">${itensHTML}</div>
+  </div>`;
+}
+
+function rCard(p){
+  const v=pct(p);
+  const its=todosItens(p);
+  const faltando=its.filter(i=>!i.checked);
+  const maquinasHTML=p.maquinas?p.maquinas.map(m=>rMaquina(p.id,m)).join(''):'';
+  return`<div class="pedido-card" id="card-${p.id}">
+    <div class="pedido-header" onclick="toggleCard('${p.id}')">
+      <div class="pedido-icon">📦</div>
+      <div class="pedido-info">
+        <div class="pedido-num">${p.cliente}</div>
+        <div class="pedido-meta">Pedido ${p.numero}${p.destino?' · '+p.destino:''}</div>
+        ${(p.endereco||p.cep)?`<div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.endereco?p.endereco+' · ':''}${p.cep||''}</div>`:''}
+      </div>
+      <div class="pedido-right">
+        ${bdg(p)}
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="progress-bar"><div class="progress-fill" style="width:${v}%"></div></div>
+          <span class="pct-text">${v}%</span>
+        </div>
+      </div>
+      <span class="chevron" id="chv-${p.id}">▼</span>
+    </div>
+    <div class="pedido-body" id="body-${p.id}">
+      <div class="pedido-body-inner">
+        ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
+        ${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.map(i=>i.nome).join(', ')}</div>`:''}
+        ${v===100?`<div style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:''}
+        ${p.responsavel?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">👤 <strong style="color:var(--text)">${p.responsavel}</strong></div>`:''}
+        ${maquinasHTML}
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">📋 Gerar Relatório</button>
+          <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">✏️ Editar</button>
+          ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">✅ Mover p/ Histórico</button>`:''}
+          <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">↺ Reset</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function rHistorico(){
+  if(!S.historico.length)return`<div class="empty-state"><span class="e-icon">📋</span><p>Nenhum pedido concluído ainda.</p></div>`;
+  return`<div class="toolbar"><div class="sec-title">Pedidos Concluídos (${S.historico.length})</div></div>
+  <div class="card">${S.historico.slice().reverse().map(p=>`
+    <div class="hist-row" onclick="verHist('${p.id}')">
+      <div class="hist-dot"></div>
+      <div class="hist-info">
+        <div class="hist-num">${p.numero} — ${p.cliente}</div>
+        <div class="hist-meta">${p.destino||''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
+      </div>
+      <button class="btn btn-outline btn-xs">Ver</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+function rPainel(){
+  const tot=S.pedidos.length, ag=S.pedidos.filter(p=>pct(p)===0).length, hi=S.historico.length;
+  const porItem={};
+  S.pedidos.forEach(p=>p.itens.forEach(i=>{if(!i.checked)porItem[i.nome]=(porItem[i.nome]||0)+1;}));
+  const top=Object.entries(porItem).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const emSep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100);
+  return`
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">${tot}</div><div class="stat-label">Em Aberto</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${ag}</div><div class="stat-label">Aguardando</div></div>
+    <div class="stat-card hl"><div class="stat-num">${hi}</div><div class="stat-label">Concluídos</div></div>
+  </div>
+  ${emSep.length?`<div class="sec-title">Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero}</div><div style="font-size:11px;color:var(--muted)">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div></div>
+      <div style="display:flex;align-items:center;gap:6px;"><div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:${pct(p)}%"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--green)">${pct(p)}%</span></div>
+    </div>`).join('')}</div>`:''}
+  <div class="sec-title">Itens Mais Frequentemente Faltando</div>
+  ${top.length?`<div class="card">${top.map(([nome,qtd],i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--muted);width:16px;text-align:right">${i+1}</span>
+      <span style="flex:1;font-size:14px">${nome}</span>
+      <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 9px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
+    </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>🎉 Nenhum item faltando!</p></div>`}`;
+}
+
+function rTabItens(){
+  const app=document.getElementById('app');
+  const cats=[...new Set(S.itensPadrao.map(i=>i.categoria))];
+  app.innerHTML=`<div class="toolbar"><div class="sec-title">Itens Padrão (${S.itensPadrao.length})</div><button class="btn btn-primary btn-sm" onclick="abrirModalItens()">Editar Lista</button></div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Incluídos automaticamente em cada novo pedido.</p>
+  ${cats.map(cat=>`<div class="card" style="margin-bottom:10px;"><div class="sec-title">${cat}</div>
+    ${S.itensPadrao.filter(i=>i.categoria===cat).map(item=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(36,48,40,.5);">
+        <div><span style="font-size:14px">${item.nome}</span>${item.temSerial?'<span style="font-size:10px;color:var(--green);margin-left:6px;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:.5px">SERIAL</span>':''}</div>
+        <span class="cl-item-qty">${item.qty}</span>
+      </div>`).join('')}
+  </div>`).join('')}`;
+}
+
+function setFiltro(f){filtro=f;render();}
+
+function toggleCard(id){
+  const b=document.getElementById('body-'+id),c=document.getElementById('chv-'+id),k=document.getElementById('card-'+id);
+  const o=b.classList.toggle('open');c.classList.toggle('rotated',o);k.classList.toggle('open-card',o);
+}
+
+function toggleMaquina(mid){
+  const b=document.getElementById('maqbody-'+mid),c=document.getElementById('maqchv-'+mid),k=document.getElementById('maq-'+mid);
+  const o=b.classList.toggle('open');c.classList.toggle('rotated',o);k.classList.toggle('open',o);
+}
+
+function toggleItem(pid,iid,mid){
+  const p=S.pedidos.find(x=>x.id===pid);
+  if(mid&&p.maquinas){p.maquinas.find(m=>m.id===mid).itens.find(x=>x.id===iid).checked^=true;}
+  else if(p.itens){p.itens.find(x=>x.id===iid).checked^=true;}
+  save();render();
+  setTimeout(()=>{
+    const b=document.getElementById('body-'+pid);
+    if(b&&b.classList.contains('open')){
+      const mb=document.getElementById('maqbody-'+mid);
+      if(mb)mb.classList.add('open');
+      const mc=document.getElementById('maqchv-'+mid);
+      if(mc)mc.classList.add('rotated');
+      const mk=document.getElementById('maq-'+mid);
+      if(mk)mk.classList.add('open');
+    }
+    if(b){b.classList.add('open');document.getElementById('chv-'+pid).classList.add('rotated');document.getElementById('card-'+pid).classList.add('open-card');}
+  },10);
+}
+
+function salvarSerial(pid,iid,val,mid){
+  const p=S.pedidos.find(x=>x.id===pid);
+  if(mid&&p.maquinas){p.maquinas.find(m=>m.id===mid).itens.find(x=>x.id===iid).serial=val;}
+  else if(p.itens){p.itens.find(x=>x.id===iid).serial=val;}
+  save();
+}
+
+let maquinasSelecionadas=[];
+
+function renderListaMaquinas(){
+  const el=document.getElementById('listaMaquinas');
+  if(!maquinasSelecionadas.length){el.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:6px 0;">Nenhuma máquina adicionada ainda.</div>`;atualizarInfoItens();return;}
+  el.innerHTML=maquinasSelecionadas.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+      <span style="flex:1;font-size:13px;font-weight:500;">${MODELOS[m.modelo].nome}</span>
+      <span style="background:var(--green);color:#050e09;border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;">x${m.qty}</span>
+      <button class="btn btn-danger btn-xs" onclick="removerMaquina(${i})">✕</button>
+    </div>`).join('');
+  atualizarInfoItens();
+}
+
+function adicionarMaquina(){
+  const modelo=document.getElementById('iModelo').value;
+  const qty=Math.max(1,parseInt(document.getElementById('iQtdMaq').value)||1);
+  const exist=maquinasSelecionadas.findIndex(m=>m.modelo===modelo);
+  if(exist>=0)maquinasSelecionadas[exist].qty+=qty;
+  else maquinasSelecionadas.push({modelo,qty});
+  document.getElementById('iQtdMaq').value=1;
+  renderListaMaquinas();
+}
+
+function removerMaquina(idx){maquinasSelecionadas.splice(idx,1);renderListaMaquinas();}
+
+function atualizarInfoItens(){
+  const el=document.getElementById('infoItens');
+  if(!maquinasSelecionadas.length){el.innerHTML='Adicione ao menos uma máquina acima.';return;}
+  const total=maquinasSelecionadas.reduce((acc,m)=>acc+MODELOS[m.modelo].itens.length*m.qty,0);
+  const nomes=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome} x${m.qty}`).join(', ');
+  el.innerHTML=`✅ <strong>${nomes}</strong> — ${total} itens no total.`;
+}
+
+function criarPedido(){
+  const numero=document.getElementById('iNum').value.trim(),cliente=document.getElementById('iCliente').value.trim();
+  if(!numero||!cliente){alert('Preencha número e cliente.');return;}
+  if(!maquinasSelecionadas.length){alert('Adicione ao menos uma máquina.');return;}
+  const maquinas=[];
+  maquinasSelecionadas.forEach(m=>{
+    const tmpl=MODELOS[m.modelo];
+    for(let q=1;q<=m.qty;q++){
+      const label=m.qty>1?`${tmpl.nome} (${q})`:tmpl.nome;
+      maquinas.push({id:u(),modelo:m.modelo,nome:label,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
+    }
+  });
+  const modeloNome=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome}${m.qty>1?' x'+m.qty:''}`).join(' + ');
+  S.pedidos.unshift({id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,criadoEm:new Date().toISOString()});
+  save();fecharModal('mNovoPedido');tab='pedidos';filtro='todos';
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===0));render();
+}
+
+function excluirPedido(id){if(!confirm('Excluir este pedido?'))return;S.pedidos=S.pedidos.filter(p=>p.id!==id);save();render();}
+
+let editandoId=null,editMaquinas=[];
+
+function editarPedido(id){
+  const p=S.pedidos.find(x=>x.id===id);
+  if(!p)return;
+  editandoId=id;
+  editMaquinas=p.maquinas?p.maquinas.map(m=>({...m,itens:m.itens.map(i=>({...i}))})):[];
+  document.getElementById('eNum').value=p.numero||'';
+  document.getElementById('eCliente').value=p.cliente||'';
+  document.getElementById('eEndereco').value=p.endereco||'';
+  document.getElementById('eDestino').value=p.destino||'';
+  document.getElementById('eCep').value=p.cep||'';
+  document.getElementById('eData').value=p.data||'';
+  document.getElementById('eResp').value=p.responsavel||'';
+  document.getElementById('eObs').value=p.obs||'';
+  renderEditMaquinas();
+  document.getElementById('mEditarPedido').classList.add('open');
+}
+
+function renderEditMaquinas(){
+  const el=document.getElementById('editListaMaquinas');
+  if(!editMaquinas.length){el.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:6px 0;">Nenhuma máquina no pedido.</div>`;return;}
+  el.innerHTML=editMaquinas.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+      <span style="flex:1;font-size:13px;font-weight:500;">${m.nome}</span>
+      <span style="background:var(--surface2);color:var(--muted);border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;">${m.itens.length} itens</span>
+      <button class="btn btn-danger btn-xs" onclick="removerMaquinaEdicao(${i})">✕</button>
+    </div>`).join('');
+}
+
+function adicionarMaquinaEdicao(){
+  const modelo=document.getElementById('eModelo').value;
+  const qty=Math.max(1,parseInt(document.getElementById('eQtdMaq').value)||1);
+  const tmpl=MODELOS[modelo];
+  for(let q=1;q<=qty;q++){
+    const label=qty>1?`${tmpl.nome} (${q})`:tmpl.nome;
+    editMaquinas.push({id:u(),modelo,nome:label,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
+  }
+  document.getElementById('eQtdMaq').value=1;
+  renderEditMaquinas();
+}
+
+function removerMaquinaEdicao(idx){editMaquinas.splice(idx,1);renderEditMaquinas();}
+
+function salvarEdicao(){
+  if(!editandoId)return;
+  const p=S.pedidos.find(x=>x.id===editandoId);
+  if(!p)return;
+  p.numero=document.getElementById('eNum').value.trim();
+  p.cliente=document.getElementById('eCliente').value.trim();
+  p.endereco=document.getElementById('eEndereco').value.trim();
+  p.destino=document.getElementById('eDestino').value.trim();
+  p.cep=document.getElementById('eCep').value.trim();
+  p.data=document.getElementById('eData').value;
+  p.responsavel=document.getElementById('eResp').value.trim();
+  p.obs=document.getElementById('eObs').value.trim();
+  p.maquinas=editMaquinas;
+  p.modelo=editMaquinas.map(m=>m.nome).join(' + ');
+  save();fecharModal('mEditarPedido');render();
+  setTimeout(()=>{const b=document.getElementById('body-'+editandoId);if(b){b.classList.add('open');document.getElementById('chv-'+editandoId).classList.add('rotated');}},10);
+}
+
+function resetarPedido(id){
+  if(!confirm('Resetar todos os itens?'))return;
+  const p=S.pedidos.find(x=>x.id===id);
+  if(p.maquinas)p.maquinas.forEach(m=>m.itens.forEach(i=>{i.checked=false;i.serial='';}));
+  else if(p.itens)p.itens.forEach(i=>i.checked=false);
+  save();render();
+  setTimeout(()=>{const b=document.getElementById('body-'+id);if(b){b.classList.add('open');document.getElementById('chv-'+id).classList.add('rotated');}},10);
+}
+
+function concluirPedido(id){
+  const p=S.pedidos.find(x=>x.id===id);
+  p.concluidoEm=new Date().toISOString();
+  S.historico.push({...p,itens:p.itens.map(i=>({...i}))});
+  S.pedidos=S.pedidos.filter(x=>x.id!==id);
+  save();alert('✅ Pedido '+p.numero+' movido para o Histórico!');render();
+}
+
+function addItemExtra(pid){
+  const nome=prompt('Nome do item extra:');if(!nome)return;
+  const qty=prompt('Quantidade:')||'';
+  const serial=confirm('Tem número de série?');
+  S.pedidos.find(x=>x.id===pid).itens.push({id:u(),nome:nome.trim(),categoria:'Extras',qty,temSerial:serial,checked:false,serial:''});
+  save();render();
+  setTimeout(()=>{const b=document.getElementById('body-'+pid);if(b){b.classList.add('open');document.getElementById('chv-'+pid).classList.add('rotated');document.getElementById('card-'+pid).classList.add('open-card');}},10);
+}
+
+function renderListaItens(){
+  document.getElementById('listaItens').innerHTML=S.itensPadrao.map(item=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span style="flex:1;font-size:13px">${item.nome} <span style="color:var(--muted);font-size:11px">(${item.categoria})</span>${item.temSerial?'<span style="color:var(--green);font-size:10px;margin-left:4px">SERIAL</span>':''}</span>
+      <button class="btn btn-danger btn-xs" onclick="rmItemPadrao('${item.id}')">✕</button>
+    </div>`).join('');
+}
+
+function addItemPadrao(){
+  const nome=document.getElementById('iNovoItem').value.trim();if(!nome)return;
+  S.itensPadrao.push({id:u(),nome,categoria:document.getElementById('iCat').value,qty:document.getElementById('iQty').value.trim()||'1 un',temSerial:document.getElementById('iSerial').checked});
+  save();document.getElementById('iNovoItem').value='';document.getElementById('iQty').value='';document.getElementById('iSerial').checked=false;renderListaItens();
+}
+
+function rmItemPadrao(id){S.itensPadrao=S.itensPadrao.filter(i=>i.id!==id);save();renderListaItens();}
+
+function verHist(id){
+  const p=S.historico.find(x=>x.id===id);if(!p)return;
+  document.getElementById('histTitulo').textContent=p.numero+' — '+p.cliente;
+  const seriais=p.itens.filter(i=>i.temSerial&&i.serial);
+  document.getElementById('histConteudo').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">📍 <strong style="color:var(--text)">${p.destino||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">👤 <strong style="color:var(--text)">${p.responsavel||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted)">📅 <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong></div>
+    </div>
+    ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
+    ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag">🔖 <strong>${i.nome}:</strong> ${i.serial}</div>`).join('')}</div>`:''}
+    <div class="sec-title">Itens (${p.itens.filter(i=>i.checked).length}/${p.itens.length})</div>
+    <div style="max-height:260px;overflow-y:auto;">
+      ${p.itens.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <span style="color:${i.checked?'var(--green)':'var(--danger)'};font-size:14px">${i.checked?'✅':'❌'}</span>
+        <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${i.nome}</span>
+        ${i.serial?`<span class="serial-tag" style="font-size:10px">${i.serial}</span>`:''}
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="gerarRelatorio('${p.id}',true)">📋 Gerar Relatório</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="rmHist('${p.id}')">Excluir</button>
+    </div>`;
+  document.getElementById('mHist').classList.add('open');
+}
+
+function rmHist(id){if(!confirm('Remover do histórico?'))return;S.historico=S.historico.filter(x=>x.id!==id);save();fecharModal('mHist');render();}
+
+function abrirNovoPedido(){
+  ['iNum','iCliente','iEndereco','iDestino','iCep','iResp','iObs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('iData').value='';
+  document.getElementById('iFoto').value='';
+  document.getElementById('fotoPreview').style.display='none';
+  document.getElementById('ocrTexto').style.display='none';
+  document.getElementById('btnPreencherOCR').style.display='none';
+  ocrTextoLido='';
+  maquinasSelecionadas=[];
+  renderListaMaquinas();
+  document.getElementById('iQtdMaq').value=1;
+  atualizarInfoItens();
+  document.getElementById('mNovoPedido').classList.add('open');
+}
+function abrirModalItens(){renderListaItens();document.getElementById('mItens').classList.add('open');}
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
+
+function fd(d){if(!d)return'';const[y,m,dia]=d.split('-');return`${dia}/${m}/${y}`;}
+function fdh(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+function bindEv(){document.querySelectorAll('.modal-overlay').forEach(m=>{m.onclick=e=>{if(e.target===m)m.classList.remove('open');};});}
+
+let ocrTextoLido='';
+
+async function lerFoto(input){
+  const file=input.files[0];if(!file)return;
+  const url=URL.createObjectURL(file);
+  const img=document.getElementById('fotoImg');
+  img.src=url;
+  document.getElementById('fotoPreview').style.display='block';
+  document.getElementById('ocrTexto').style.display='none';
+  document.getElementById('btnPreencherOCR').style.display='none';
+  const status=document.getElementById('ocrStatus');
+  status.style.color='var(--muted)';
+  status.textContent='🔍 Lendo texto da imagem, aguarde...';
+  try{
+    const result=await Tesseract.recognize(file,'por+eng',{logger:m=>{if(m.status==='recognizing text')status.textContent='🔍 Lendo… '+Math.round(m.progress*100)+'%';}});
+    ocrTextoLido=result.data.text.trim();
+    status.style.color='var(--green)';
+    status.textContent='✅ Texto extraído com sucesso!';
+    const el=document.getElementById('ocrTexto');
+    el.textContent=ocrTextoLido;
+    el.style.display='block';
+    document.getElementById('btnPreencherOCR').style.display='block';
+  }catch(e){
+    status.style.color='var(--danger)';
+    status.textContent='❌ Não foi possível ler a imagem. Tente outra foto.';
+  }
+}
+
+function detectarModelos(txt){
+  const t=txt.toUpperCase();
+  const detectados=[];
+  const regras=[
+    {chaves:['TLMINI'],modelo:'tlmini'},
+    {chaves:['TL10'],modelo:'tl10'},
+    {chaves:['TLJR'],modelo:'tljr2026'},
+    {chaves:['CILINDRICA'],modelo:'cilindrica_flex'},
+    {chaves:['BLOCADORA','CERA'],modelo:'blocadora_cera'},
+    {chaves:['BLOCADORA','DOUBLE'],modelo:'blocadora_cera'},
+    {chaves:['BLOCADORA','FUSION'],modelo:'blocadora_fusion'},
+    {chaves:['BLOCADORA'],modelo:'blocadora_fusion'},
+    {chaves:['FRITADEIRA'],modelo:'fritadeira'},
+    {chaves:['FRITAD'],modelo:'fritadeira'},
+    {chaves:['ARMARIO FORNO'],modelo:'armario_forno'},
+    {chaves:['ARMÁRIO FORNO'],modelo:'armario_forno'},
+    {chaves:['ARMARIO'],modelo:'armario_forno'},
+    {chaves:['FORNO UV'],modelo:'forno'},
+    {chaves:['FORNO'],modelo:'forno'},
+    {chaves:['COAT TOOL'],modelo:'anti_risco'},
+    {chaves:['APLICADOR'],modelo:'anti_risco'},
+    {chaves:['ANTI-RISCO'],modelo:'anti_risco'},
+    {chaves:['ANTI RISCO'],modelo:'anti_risco'},
+    {chaves:['PORTA MOLDE'],modelo:'porta_molde'},
+    {chaves:['PORTA-MOLDE'],modelo:'porta_molde'},
+    {chaves:['POLIBOX','12'],modelo:'polibox12'},
+    {chaves:['POLIBOX','10'],modelo:'polibox10'},
+    {chaves:['POLIBOX'],modelo:'polibox10'},
+  ];
+  for(const r of regras){
+    if(r.chaves.every(c=>t.includes(c))){
+      if(!detectados.includes(r.modelo))detectados.push(r.modelo);
+    }
+  }
+  return detectados;
+}
+
+function preencherComOCR(){
+  if(!ocrTextoLido)return;
+  // Detectar modelo automaticamente
+  // Detectar todas as máquinas
+  const modelos=detectarModelos(ocrTextoLido);
+  if(modelos.length){
+    maquinasSelecionadas=[];
+    modelos.forEach(m=>{
+      document.getElementById('iModelo').value=m;
+      document.getElementById('iQtdMaq').value=1;
+      adicionarMaquina();
+    });
+  }
+  // Número do pedido
+  const numMatch=ocrTextoLido.match(/pedido[:\s#.]*([0-9]+[\.\-]?[0-9]*)/i);
+  if(numMatch&&!document.getElementById('iNum').value)document.getElementById('iNum').value=numMatch[1].replace('.','').trim();
+  // Cliente
+  const clienteMatch=ocrTextoLido.match(/(?:cliente|destinat[aá]rio|comprador)[:\s]+([^\n]+)/i);
+  if(clienteMatch&&!document.getElementById('iCliente').value)document.getElementById('iCliente').value=clienteMatch[1].trim();
+  // Endereço (rua)
+  const endMatch=ocrTextoLido.match(/(?:endere[çc]o|rua|r\.)[:\s]+([^\n]+)/i);
+  if(endMatch&&!document.getElementById('iEndereco').value)document.getElementById('iEndereco').value=endMatch[1].trim();
+  // Cidade/UF
+  const destMatch=ocrTextoLido.match(/(?:cidade\/uf|cidade\/uf|cidade)[:\s]+([^\n]+)/i);
+  if(destMatch&&!document.getElementById('iDestino').value)document.getElementById('iDestino').value=destMatch[1].replace(/fone.*/i,'').trim();
+  // CEP
+  const cepMatch=ocrTextoLido.match(/(?:cep)[:\s]*([\d]{5}[\-\s]?[\d]{3})/i);
+  if(cepMatch&&!document.getElementById('iCep').value)document.getElementById('iCep').value=cepMatch[1].trim();
+  // Data
+  const dataMatch=ocrTextoLido.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+  if(dataMatch&&!document.getElementById('iData').value)document.getElementById('iData').value=`${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
+  // Observações + Dados Adicionais
+  if(!document.getElementById('iObs').value){
+    const obsArr=[];
+    const prazoMatch=ocrTextoLido.match(/prazo de entrega[:\s]+([^\n]+)/i);
+    if(prazoMatch)obsArr.push('Prazo: '+prazoMatch[1].trim());
+    const pgtoMatch=ocrTextoLido.match(/forma de pagamento[:\s]+([^\n]+)/i);
+    if(pgtoMatch)obsArr.push('Pagamento: '+pgtoMatch[1].trim());
+    const freteMatch=ocrTextoLido.match(/frete[:\s]+([^\n]+)/i);
+    if(freteMatch)obsArr.push('Frete: '+freteMatch[1].trim());
+    const obsMatch=ocrTextoLido.match(/observa[çc][oõ]es[:\s]+([^\n]+)/i);
+    if(obsMatch&&obsMatch[1].trim().length>2)obsArr.push('Obs: '+obsMatch[1].trim());
+    if(obsArr.length)document.getElementById('iObs').value=obsArr.join(' | ');
+  }
+  // Feedback
+  const status=document.getElementById('ocrStatus');
+  status.style.color='var(--green)';
+  status.textContent=modelos.length?`✅ ${modelos.length} máquina(s) detectada(s): ${modelos.map(m=>MODELOS[m].nome).join(', ')}`:'⚠️ Nenhuma máquina identificada — selecione manualmente.';
+}
+
+function gerarRelatorio(id, doHistorico=false){
+  const p=(doHistorico?S.historico:S.pedidos).find(x=>x.id===id)||S.historico.find(x=>x.id===id)||S.pedidos.find(x=>x.id===id);
+  if(!p)return;
+  const v=pct(p);
+  const now=new Date();
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório — ${p.numero}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:800px;margin:0 auto;font-size:13px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1A7A4A;padding-bottom:14px;margin-bottom:20px;}
+  .logo{font-size:26px;font-weight:900;color:#1A7A4A;letter-spacing:3px;}
+  .logo-sub{font-size:11px;color:#666;letter-spacing:2px;margin-top:2px;}
+  h1{font-size:20px;margin-bottom:14px;}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;background:#f5f5f5;padding:12px;border-radius:6px;}
+  .info-item{display:flex;gap:6px;}
+  .info-label{color:#555;font-weight:bold;}
+  .progress-wrap{margin-bottom:20px;}
+  .progress-label{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:5px;}
+  .progress-bar{width:100%;height:10px;background:#ddd;border-radius:5px;overflow:hidden;}
+  .progress-fill{height:100%;background:#1A7A4A;border-radius:5px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+  th{background:#1A7A4A;color:white;text-align:left;padding:9px 10px;font-size:12px;}
+  td{padding:8px 10px;border-bottom:1px solid #e0e0e0;}
+  tr:nth-child(even) td{background:#fafafa;}
+  .ok{color:#1A7A4A;font-weight:bold;}
+  .nok{color:#e05555;font-weight:bold;}
+  .obs-box{padding:10px 14px;background:#fff8e1;border-left:3px solid #f0a500;margin-bottom:20px;font-size:12px;}
+  .footer{border-top:1px solid #ddd;padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#666;}
+  .assinatura{border-top:1px solid #aaa;width:200px;text-align:center;padding-top:4px;margin-top:30px;}
+  @media print{body{padding:16px;}@page{margin:1.5cm;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="logo">TOOLING</div>
+    <div class="logo-sub">SepLab — Relatório de Conferência</div>
+  </div>
+  <div style="text-align:right;font-size:12px;color:#666;">
+    <div><strong>${now.toLocaleDateString('pt-BR')}</strong></div>
+    <div>${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  </div>
+</div>
+<h1>${p.numero}</h1>
+<div class="info-grid">
+  <div class="info-item"><span class="info-label">Cliente:</span>${p.cliente||'—'}</div>
+  <div class="info-item"><span class="info-label">Destino:</span>${p.destino||'—'}</div>
+  <div class="info-item"><span class="info-label">Responsável:</span>${p.responsavel||'—'}</div>
+  <div class="info-item"><span class="info-label">Data prevista:</span>${p.data?fd(p.data):'—'}</div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-label"><span>${p.itens.filter(i=>i.checked).length} de ${p.itens.length} itens separados</span><span style="color:#1A7A4A">${v}%</span></div>
+  <div class="progress-bar"><div class="progress-fill" style="width:${v}%"></div></div>
+</div>
+${p.obs?`<div class="obs-box"><strong>Observação:</strong> ${p.obs}</div>`:''}
+<table>
+  <tr><th>#</th><th>Item</th><th>Categoria</th><th>Qtd</th><th>Nº Série</th><th>Status</th></tr>
+  ${p.itens.map((item,i)=>`<tr>
+    <td>${i+1}</td>
+    <td>${item.nome}</td>
+    <td>${item.categoria}</td>
+    <td>${item.qty||'—'}</td>
+    <td>${item.serial||'—'}</td>
+    <td class="${item.checked?'ok':'nok'}">${item.checked?'✅ Separado':'❌ Pendente'}</td>
+  </tr>`).join('')}
+</table>
+<div class="footer">
+  <div>TOOLING — SepLab</div>
+  <div class="assinatura">${p.responsavel||'Responsável'}</div>
+  <div>${p.concluidoEm?fdh(p.concluidoEm):fdh(now.toISOString())}</div>
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`);
+  win.document.close();
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA')e.target.blur();});
+document.addEventListener('focusout',e=>{if(e.target.matches('.serial-input'))e.target.blur();});
+
+function verificarSenha(){
+  if(document.getElementById('senha-input').value==='1001'){
+    document.getElementById('login-overlay').style.display='none';
+  }else{
+    const err=document.getElementById('senha-erro');
+    err.textContent='Senha incorreta. Tente novamente.';
+    document.getElementById('senha-input').value='';
+    document.getElementById('senha-input').focus();
+    setTimeout(()=>err.textContent='',3000);
+  }
+}
+setTimeout(()=>document.getElementById('senha-input').focus(),200);
+
+loadFromServer().then(d=>{S=d;render();});
+</script>
+</body>
+</html>
