@@ -31,7 +31,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);height:58
 .nav-tab:hover{color:var(--text);}
 .nav-tab.active{color:var(--green);border-bottom-color:var(--green);}
 
-main{padding:16px;max-width:860px;margin:0 auto;padding-bottom:40px;}
+main{padding:16px;max-width:1100px;margin:0 auto;padding-bottom:40px;}
 
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
 .btn-primary{background:var(--green);color:#050e09;box-shadow:0 0 12px rgba(46,204,138,.25);}
@@ -52,20 +52,36 @@ main{padding:16px;max-width:860px;margin:0 auto;padding-bottom:40px;}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
 
-.pedido-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
-.pedido-card:hover{border-color:var(--border2);}
-.pedido-card.open-card{border-color:var(--green-dim);}
-.pedido-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
-.pedido-icon{width:36px;height:36px;border-radius:8px;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.pedido-info{flex:1;min-width:0;}
-.pedido-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.5px;color:var(--text);}
-.pedido-meta{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pedido-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-.pct-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--green);line-height:1;}
-.progress-bar{width:72px;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;background:var(--green);border-radius:2px;box-shadow:0 0 6px rgba(46,204,138,.5);transition:width .4s ease;}
-.chevron{color:var(--muted);font-size:12px;transition:transform .2s;flex-shrink:0;}
-.chevron.rotated{transform:rotate(180deg);}
+.pedido-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;border-left:3px solid var(--border2);}
+.pedido-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.35);}
+.pedido-card.open-card{border-color:var(--border2);box-shadow:0 4px 28px rgba(0,0,0,.4);}
+.pedido-card.status-aguardando{border-left-color:#4a5c52;}
+.pedido-card.status-separando{border-left-color:var(--warn);}
+.pedido-card.status-concluido{border-left-color:var(--green);}
+.pedido-header{padding:16px 16px 0;cursor:pointer;user-select:none;}
+.ph-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.ph-order-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:4px;border:1px solid var(--border);}
+.ph-spacer{flex:1;}
+.ph-bar-wrap{display:flex;align-items:center;gap:7px;}
+.ph-bar{width:80px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.ph-bar-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.ph-bar-fill.s-ok{background:var(--green);box-shadow:0 0 8px rgba(46,204,138,.5);}
+.ph-bar-fill.s-sep{background:var(--warn);box-shadow:0 0 6px rgba(240,165,0,.4);}
+.ph-bar-fill.s-wait{background:var(--border2);}
+.ph-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;line-height:1;min-width:38px;text-align:right;}
+.ph-pct.s-ok{color:var(--green);}
+.ph-pct.s-sep{color:var(--warn);}
+.ph-pct.s-wait{color:var(--muted);}
+.ph-chevron{color:var(--muted);font-size:11px;transition:transform .2s;margin-left:4px;}
+.ph-chevron.rotated{transform:rotate(180deg);}
+.ph-client{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:.3px;color:var(--text);margin-bottom:10px;line-height:1.1;}
+.ph-machines{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.maq-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:3px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;color:var(--text);}
+.ph-info-strip{display:flex;align-items:stretch;background:var(--surface2);border-top:1px solid var(--border);margin-left:-16px;margin-right:-16px;flex-wrap:wrap;}
+.ph-info-item{display:flex;align-items:center;gap:5px;padding:8px 14px;font-size:12px;color:var(--muted);border-right:1px solid var(--border);}
+.ph-info-item strong{color:var(--text);font-weight:500;}
+.ph-items-badge{margin-left:auto;display:flex;align-items:center;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);gap:5px;}
+.ph-items-badge span{font-size:16px;font-weight:800;color:var(--text);}
 
 .pedido-body{border-top:1px solid var(--border);display:none;animation:fadeDown .2s ease;}
 .pedido-body.open{display:block;}
@@ -73,21 +89,20 @@ main{padding:16px;max-width:860px;margin:0 auto;padding-bottom:40px;}
 .pedido-body-inner{padding:16px;}
 
 .cl-section-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--green-dim);padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;}
-.cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(36,48,40,.6);}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(36,48,40,.5);}
 .cl-item:last-child{border-bottom:none;}
-.check-box{width:22px;height:22px;min-width:22px;border-radius:5px;border:2px solid var(--border2);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;}
-.check-box:hover{border-color:var(--green);}
-.check-box.checked{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(46,204,138,.4);}
+.check-box{width:22px;height:22px;min-width:22px;border-radius:5px;border:1.5px solid var(--border2);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;flex-shrink:0;}
+.check-box:hover{border-color:var(--green);background:rgba(46,204,138,.05);}
+.check-box.checked{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(46,204,138,.3);}
 .check-box.checked::after{content:'';width:5px;height:9px;border:2px solid #050e09;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);}
 .cl-item-right{flex:1;min-width:0;}
-.cl-item-name{font-size:14px;font-weight:500;line-height:1.3;transition:color .15s;}
-.cl-item-name.done{color:var(--muted);text-decoration:line-through;}
-.cl-item-serial{margin-top:5px;display:flex;align-items:center;gap:6px;}
+.cl-item-name{font-size:14px;font-weight:500;line-height:1.35;transition:color .15s;}
+.cl-item-name.done{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(107,138,118,.4);}
+.cl-item-serial{margin-top:6px;display:flex;align-items:center;gap:6px;}
 .serial-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-.serial-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.5px;outline:none;transition:border .15s;max-width:200px;}
-.serial-input:focus{border-color:var(--green-dim);}
-.serial-input::placeholder{color:var(--border2);}
-.cl-item-qty{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);background:var(--surface3);padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:4px;display:inline-block;}
+.serial-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.5px;outline:none;transition:border .15s;max-width:220px;}
+.serial-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 2px rgba(46,204,138,.06);}
+.cl-item-qty{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);background:var(--surface3);padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:4px;display:inline-block;border:1px solid var(--border);}
 
 .alerta-faltando{background:rgba(224,85,85,.06);border:1px solid rgba(224,85,85,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#e07878;margin-bottom:12px;line-height:1.5;}
 .alerta-obs{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f0b840;margin-bottom:12px;}
@@ -137,50 +152,121 @@ textarea.form-input{resize:vertical;min-height:70px;}
 .hist-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;transition:color .15s;}
 .hist-meta{font-size:11px;color:var(--muted);margin-top:2px;}
 
-.maquina-card{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
-.maquina-card.open{border-color:var(--green-dim);}
-.maquina-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--surface2);user-select:none;gap:10px;}
+.maquina-card{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+.maquina-card.open{border-color:var(--green-dim);box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.maquina-header{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--surface2);user-select:none;gap:10px;}
 .maquina-header:hover{background:var(--surface3);}
-.maquina-nome{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;flex:1;}
+.maquina-nome{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex:1;}
 .maquina-prog{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.maquina-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--green);}
-.maquina-body{display:none;padding:4px 12px 12px;}
+.maquina-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--green);}
+.maquina-body{display:none;padding:4px 14px 12px;}
 .maquina-body.open{display:block;}
 
 @media(min-width:600px){main{padding:24px;}.modal-overlay{align-items:center;}.modal{border-radius:14px;max-height:82vh;}.modal-drag{display:none;}}
+
+/* LOGIN SPLIT */
+#login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:stretch;}
+.login-brand{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:60px;background:linear-gradient(145deg,#0a1510 0%,#0d1a14 60%,#0f2018 100%);position:relative;overflow:hidden;}
+.login-brand::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 20% 80%,rgba(46,204,138,.06) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(46,204,138,.04) 0%,transparent 50%);pointer-events:none;}
+.login-brand::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent,var(--border),transparent);}
+.login-brand-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25;}
+.login-brand-logo{display:flex;align-items:center;gap:14px;margin-bottom:56px;position:relative;}
+.login-brand-logo svg{width:48px;height:48px;filter:drop-shadow(0 0 16px rgba(46,204,138,.3));}
+.login-brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:4px;color:var(--text);text-transform:uppercase;}
+.login-brand-name span{color:var(--green);}
+.login-headline{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:52px;line-height:1.05;color:var(--text);letter-spacing:-1px;margin-bottom:18px;position:relative;}
+.login-headline em{color:var(--green);font-style:normal;}
+.login-tagline{font-size:15px;color:var(--muted);line-height:1.6;max-width:380px;position:relative;}
+.login-brand-footer{position:absolute;bottom:32px;left:60px;font-size:11px;color:var(--border2);letter-spacing:1px;}
+.login-form-side{width:420px;min-width:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 48px;background:var(--bg2);}
+.login-card{width:100%;max-width:340px;}
+.login-form-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:1px;color:var(--text);margin-bottom:4px;}
+.login-form-sub{font-size:12px;color:var(--muted);margin-bottom:36px;}
+.login-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.login-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:14px 16px;font-size:20px;outline:none;letter-spacing:6px;transition:border-color .2s,box-shadow .2s;margin-bottom:10px;}
+.login-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 3px rgba(46,204,138,.07);}
+.login-err{color:var(--danger);font-size:12px;min-height:18px;margin-bottom:12px;}
+.login-btn{width:100%;background:var(--green);color:#050e09;border:none;border-radius:8px;padding:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:3px;cursor:pointer;transition:background .15s,box-shadow .15s;}
+.login-btn:hover{background:var(--green2);box-shadow:0 4px 20px rgba(46,204,138,.25);}
+.login-ver{margin-top:40px;font-size:11px;color:var(--border2);text-align:center;}
+@media(max-width:760px){.login-brand{display:none;}.login-form-side{width:100%;padding:40px 28px;}}
+
+/* ESTOQUE */
+.est-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.est-search-wrap{flex:1;min-width:200px;position:relative;}
+.est-search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:9px 12px 9px 36px;font-size:14px;outline:none;transition:border .2s;}
+.est-search-wrap input:focus{border-color:var(--green-dim);}
+.est-search-wrap input::placeholder{color:var(--muted);}
+.est-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+.est-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.est-table-wrap table{width:100%;border-collapse:collapse;font-size:14px;}
+.est-table-wrap thead th{background:var(--surface2);color:var(--muted);padding:11px 14px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+.est-table-wrap tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+.est-table-wrap tbody tr:last-child{border-bottom:none;}
+.est-table-wrap tbody tr:hover{background:var(--surface2);}
+.est-table-wrap td{padding:11px 14px;color:var(--text);}
+.td-code{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--muted);}
+.td-qty{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;}
+.badge-ok{background:rgba(46,204,138,.1);color:var(--green);}
+.badge-low{background:rgba(240,165,0,.1);color:var(--warn);}
+.badge-out{background:rgba(224,85,85,.1);color:var(--danger);}
+.est-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:700px){.est-stats{grid-template-columns:repeat(2,1fr);}}
+#status-msg{font-size:12px;color:var(--green);transition:opacity .3s;}
 </style>
 </head>
 <body>
 
-<div id="login-overlay" style="position:fixed;inset:0;background:#080b0a;z-index:9999;display:flex;align-items:center;justify-content:center;">
-  <div style="background:#111714;border:1px solid #243028;border-radius:14px;padding:40px 32px;width:100%;max-width:320px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.7);">
-    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:52px;height:52px;margin:0 auto 14px;display:block;">
-      <rect width="60" height="60" rx="10" fill="#0d1a14"/>
-      <circle cx="26" cy="20" r="7" stroke="#2ecc8a" stroke-width="2.2" fill="none"/>
-      <path d="M12 44 Q14 32 26 32 Q38 32 40 44" stroke="#2ecc8a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <path d="M38 14 L48 24 L44 28" stroke="#2ecc8a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
-    </svg>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:3px;color:#dff0e8;margin-bottom:4px;">TOOLING</div>
-    <div style="font-size:10px;color:#6b8a76;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px;">SepLab</div>
-    <input id="senha-input" type="password" placeholder="••••" style="width:100%;background:#0d1210;border:1px solid #243028;border-radius:7px;color:#dff0e8;padding:12px;font-size:22px;text-align:center;outline:none;letter-spacing:8px;margin-bottom:10px;transition:border .2s;" onfocus="this.style.borderColor='#2ecc8a'" onblur="this.style.borderColor='#243028'" onkeydown="if(event.key==='Enter')verificarSenha()">
-    <div id="senha-erro" style="color:#e05555;font-size:12px;margin-bottom:10px;min-height:18px;"></div>
-    <button onclick="verificarSenha()" style="width:100%;background:#2ecc8a;color:#050e09;border:none;border-radius:7px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:2px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='#1aff99'" onmouseout="this.style.background='#2ecc8a'">ENTRAR</button>
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-brand">
+    <div class="login-brand-grid"></div>
+    <div class="login-brand-logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="10" fill="#0d2018"/>
+        <rect x="10" y="28" width="7" height="10" rx="1.5" fill="#2ecc8a"/>
+        <rect x="20" y="22" width="7" height="16" rx="1.5" fill="#2ecc8a" opacity=".75"/>
+        <rect x="30" y="16" width="7" height="22" rx="1.5" fill="#2ecc8a" opacity=".5"/>
+        <path d="M10 14 L22 20 L34 10" stroke="#2ecc8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="34" cy="10" r="2.5" fill="#2ecc8a"/>
+      </svg>
+      <span class="login-brand-name">SEP<span>LAB</span></span>
+    </div>
+    <div class="login-headline">Gestão<br>de <em>Pedidos</em><br>e Estoque.</div>
+    <div class="login-tagline">Separação de pedidos, controle de estoque e histórico completo — tudo em um só lugar.</div>
+    <div class="login-brand-footer">SepLab Tooling · v2.0</div>
+  </div>
+  <div class="login-form-side">
+    <div class="login-card">
+      <div class="login-form-title">Acesso ao sistema</div>
+      <div class="login-form-sub">Digite sua senha para continuar</div>
+      <label class="login-label" for="senha-input">Senha</label>
+      <input class="login-input" id="senha-input" type="password" placeholder="••••" onkeydown="if(event.key==='Enter')verificarSenha()">
+      <div class="login-err" id="senha-erro"></div>
+      <button class="login-btn" onclick="verificarSenha()">ENTRAR</button>
+      <div class="login-ver">Sistema interno · Acesso restrito</div>
+    </div>
   </div>
 </div>
 
 <header>
   <div class="logo-wrap">
-    <svg class="logo-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="60" height="60" rx="10" fill="#0d1a14"/>
-      <circle cx="26" cy="20" r="7" stroke="#2ecc8a" stroke-width="2.2" fill="none"/>
-      <path d="M12 44 Q14 32 26 32 Q38 32 40 44" stroke="#2ecc8a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <path d="M38 14 L48 24 L44 28" stroke="#2ecc8a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+    <svg class="logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="8" fill="#0d2018"/>
+      <rect x="10" y="28" width="7" height="10" rx="1.5" fill="#2ecc8a"/>
+      <rect x="20" y="22" width="7" height="16" rx="1.5" fill="#2ecc8a" opacity=".75"/>
+      <rect x="30" y="16" width="7" height="22" rx="1.5" fill="#2ecc8a" opacity=".5"/>
+      <path d="M10 14 L22 20 L34 10" stroke="#2ecc8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="34" cy="10" r="2.5" fill="#2ecc8a"/>
     </svg>
-    <div class="logo-text">TOOLING</div>
+    <div class="logo-text">SEP<span>LAB</span></div>
     <div class="logo-divider"></div>
-    <div class="logo-sub">SepLab</div>
+    <div class="logo-sub" id="logo-sub-text">Tooling</div>
   </div>
-  <button class="btn btn-primary btn-sm" onclick="abrirNovoPedido()">+ Novo Pedido</button>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="status-msg"></span>
+    <button class="btn btn-primary btn-sm" id="btn-acao-principal" onclick="abrirNovoPedido()">+ Novo Pedido</button>
+  </div>
 </header>
 
 <nav class="nav-tabs">
@@ -188,6 +274,7 @@ textarea.form-input{resize:vertical;min-height:70px;}
   <button class="nav-tab" onclick="mudarTab('historico',this)">📋 Histórico</button>
   <button class="nav-tab" onclick="mudarTab('painel',this)">📊 Painel</button>
   <button class="nav-tab" onclick="mudarTab('itens',this)">🔧 Itens Padrão</button>
+  <button class="nav-tab" onclick="mudarTab('estoque',this)">🏪 Estoque</button>
 </nav>
 
 <main id="app"></main>
@@ -357,6 +444,36 @@ textarea.form-input{resize:vertical;min-height:70px;}
   </div>
 </div>
 
+<!-- MODAL ESTOQUE -->
+<div class="modal-overlay" id="mEstoque" onclick="if(event.target===this)fecharModal('mEstoque')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="mEstoque-titulo">Novo Item</div>
+      <button class="modal-close" onclick="fecharModal('mEstoque')">×</button>
+    </div>
+    <div class="form-group"><label class="form-label">Código</label><input class="form-input" id="est-codigo" placeholder="ex: EL-001"></div>
+    <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="est-descricao" placeholder="Nome do item"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label class="form-label">Quantidade</label><input class="form-input" id="est-quantidade" type="number" min="0" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Estoque Mínimo</label><input class="form-input" id="est-minimo" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <select class="form-input" id="est-categoria">
+        <option value="">Selecione...</option>
+        <option>Eletrônico</option><option>Mecânico</option><option>Consumível</option>
+        <option>Ferramenta</option><option>Outro</option>
+      </select>
+    </div>
+    <input type="hidden" id="est-id">
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mEstoque')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="salvarItemEstoque()">Salvar Item</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 const API='/api/data';
@@ -370,7 +487,8 @@ function inicial(){return{
     {id:u(),nome:'Máquina Cilíndrica',categoria:'Máquinas',qty:'1 un',temSerial:true},
     {id:u(),nome:'Fritadeira',categoria:'Máquinas',qty:'1 un',temSerial:true},
     {id:u(),nome:'Máquina Blocadora',categoria:'Máquinas',qty:'1 un',temSerial:true},
-  ]
+  ],
+  estoque:{itens:[]}
 };}
 
 const MODELOS = {
@@ -582,18 +700,34 @@ const MODELOS = {
   }
 };
 
-let S=null, tab='pedidos', filtro='todos';
+let S=null, tab='pedidos', filtro='todos', estFiltro='todos', estBusca='';
 function u(){return Math.random().toString(36).slice(2,9);}
 
-function mudarTab(t,el){tab=t;document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');render();}
+function mudarTab(t,el){
+  tab=t;
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  const btnAcao=document.getElementById('btn-acao-principal');
+  const logoSub=document.getElementById('logo-sub-text');
+  if(t==='estoque'){
+    btnAcao.textContent='+ Novo Item';btnAcao.onclick=()=>abrirModalEstoque();
+    logoSub.textContent='Estoque';
+  } else {
+    btnAcao.textContent='+ Novo Pedido';btnAcao.onclick=()=>abrirNovoPedido();
+    logoSub.textContent='Tooling';
+  }
+  render();
+}
 
 function render(){
   if(!S)return;
+  if(!S.estoque)S.estoque={itens:[]};
   const app=document.getElementById('app');
   if(tab==='pedidos')app.innerHTML=rPedidos();
   else if(tab==='historico')app.innerHTML=rHistorico();
   else if(tab==='painel')app.innerHTML=rPainel();
   else if(tab==='itens'){rTabItens();return;}
+  else if(tab==='estoque'){rTabEstoque();return;}
   bindEv();
 }
 
@@ -608,8 +742,25 @@ function rPedidos(){
   if(filtro==='aguardando')list=list.filter(p=>pct(p)===0);
   else if(filtro==='separando')list=list.filter(p=>pct(p)>0&&pct(p)<100);
   else if(filtro==='concluido')list=list.filter(p=>pct(p)===100);
+  const sumStrip=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 12px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--text);margin-bottom:4px">${S.pedidos.length}</div>
+      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Total</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid #4a5c52;border-radius:8px;padding:14px 12px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--muted);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)===0).length}</div>
+      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Aguardando</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--warn);border-radius:8px;padding:14px 12px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--warn);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length}</div>
+      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Em Separação</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--green);border-radius:8px;padding:14px 12px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--green);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)===100).length}</div>
+      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Prontos</div>
+    </div>
+  </div>`;
   const ordemFiltros=['todos','aguardando','separando','concluido'];
-  const nomesFiltros={todos:`Todos (${S.pedidos.length})`,aguardando:'⏳ Aguardando',separando:'🔄 Separando',concluido:'✅ Prontos'};
   const idxAtual=ordemFiltros.indexOf(filtro);
   const anterior=idxAtual>0?ordemFiltros[idxAtual-1]:null;
   const proximo=idxAtual<ordemFiltros.length-1?ordemFiltros[idxAtual+1]:null;
@@ -623,8 +774,8 @@ function rPedidos(){
     </div>
     <button class="btn btn-ghost btn-sm" onclick="setFiltro('${proximo}')" style="padding:5px 10px;${!proximo?'opacity:.3;pointer-events:none;':''}" ${!proximo?'disabled':''}>▶</button>
   </div>`;
-  if(!list.length)return chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
-  return chips+list.map(rCard).join('');
+  if(!list.length)return sumStrip+chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
+  return sumStrip+chips+list.map(rCard).join('');
 }
 
 function rItemMaq(pid,mid,item){
@@ -647,13 +798,13 @@ function rMaquina(pid,m){
     return`<div class="cl-section-title">${cat}<span style="color:var(--muted);font-size:10px">${items.filter(i=>i.checked).length}/${items.length}</span></div>`+items.map(item=>rItemMaq(pid,m.id,item)).join('');
   }).join('');
   const statusIcon=v===100?'✅':v>0?'🔄':'⏳';
-  return`<div class="maquina-card ${''}" id="maq-${m.id}">
+  return`<div class="maquina-card" id="maq-${m.id}">
     <div class="maquina-header" onclick="toggleMaquina('${m.id}')">
       <div class="maquina-nome">${statusIcon} ${m.nome}</div>
       <div class="maquina-prog">
-        <div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:${v}%"></div></div>
+        <div style="width:60px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="height:100%;background:${v===100?'var(--green)':'var(--warn)'};border-radius:2px;width:${v}%;transition:width .4s;"></div></div>
         <span class="maquina-pct">${done}/${m.itens.length}</span>
-        <span class="chevron" id="maqchv-${m.id}">▼</span>
+        <span style="color:var(--muted);font-size:11px;transition:transform .2s;margin-left:2px;" id="maqchv-${m.id}">▼</span>
       </div>
     </div>
     <div class="maquina-body" id="maqbody-${m.id}">${itensHTML}</div>
@@ -663,34 +814,46 @@ function rMaquina(pid,m){
 function rCard(p){
   const v=pct(p);
   const its=todosItens(p);
+  const done=its.filter(i=>i.checked).length;
   const faltando=its.filter(i=>!i.checked);
   const maquinasHTML=p.maquinas?p.maquinas.map(m=>rMaquina(p.id,m)).join(''):'';
-  return`<div class="pedido-card" id="card-${p.id}">
+  const st=v===100?'s-ok':v>0?'s-sep':'s-wait';
+  const statusClass=v===100?'status-concluido':v>0?'status-separando':'status-aguardando';
+  const maqTags=p.maquinas&&p.maquinas.length
+    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">⚙️ ${m.nome}</span>`).join('')}</div>`
+    :'';
+  const infoItems=[];
+  if(p.destino) infoItems.push(`<div class="ph-info-item">📍 <strong>${p.destino}</strong></div>`);
+  if(p.endereco) infoItems.push(`<div class="ph-info-item">🏠 <strong>${p.endereco}${p.cep?' — '+p.cep:''}</strong></div>`);
+  if(p.responsavel) infoItems.push(`<div class="ph-info-item">👤 <strong>${p.responsavel}</strong></div>`);
+  if(p.data) infoItems.push(`<div class="ph-info-item">📅 <strong>${fd(p.data)}</strong></div>`);
+  return`<div class="pedido-card ${statusClass}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
-      <div class="pedido-icon">📦</div>
-      <div class="pedido-info">
-        <div class="pedido-num">${p.cliente}</div>
-        <div class="pedido-meta">Pedido ${p.numero}${p.destino?' · '+p.destino:''}</div>
-        ${(p.endereco||p.cep)?`<div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.endereco?p.endereco+' · ':''}${p.cep||''}</div>`:''}
-      </div>
-      <div class="pedido-right">
+      <div class="ph-top">
+        <span class="ph-order-num"># ${p.numero}</span>
         ${bdg(p)}
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="progress-bar"><div class="progress-fill" style="width:${v}%"></div></div>
-          <span class="pct-text">${v}%</span>
+        <div class="ph-spacer"></div>
+        <div class="ph-bar-wrap">
+          <div class="ph-bar"><div class="ph-bar-fill ${st}" style="width:${v}%"></div></div>
+          <span class="ph-pct ${st}">${v}%</span>
         </div>
+        <span class="ph-chevron" id="chv-${p.id}">▼</span>
       </div>
-      <span class="chevron" id="chv-${p.id}">▼</span>
+      <div class="ph-client">${p.cliente}</div>
+      ${maqTags}
+      <div class="ph-info-strip">
+        ${infoItems.join('')}
+        <div class="ph-items-badge"><span>${done}</span>/ ${its.length} itens</div>
+      </div>
     </div>
     <div class="pedido-body" id="body-${p.id}">
       <div class="pedido-body-inner">
         ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
-        ${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.map(i=>i.nome).join(', ')}</div>`:''}
+        ${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}
         ${v===100?`<div style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:''}
-        ${p.responsavel?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">👤 <strong style="color:var(--text)">${p.responsavel}</strong></div>`:''}
         ${maquinasHTML}
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">📋 Gerar Relatório</button>
+          <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">📋 Relatório</button>
           <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">✏️ Editar</button>
           ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">✅ Mover p/ Histórico</button>`:''}
           <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">↺ Reset</button>
@@ -703,43 +866,83 @@ function rCard(p){
 
 function rHistorico(){
   if(!S.historico.length)return`<div class="empty-state"><span class="e-icon">📋</span><p>Nenhum pedido concluído ainda.</p></div>`;
-  return`<div class="toolbar"><div class="sec-title">Pedidos Concluídos (${S.historico.length})</div></div>
-  <div class="card">${S.historico.slice().reverse().map(p=>`
-    <div class="hist-row" onclick="verHist('${p.id}')">
+  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">${S.historico.length} pedidos concluídos</div>
+    <span style="font-size:12px;color:var(--green)">✅ ${S.historico.length} pedidos</span>
+  </div>
+  <div class="card">${S.historico.slice().reverse().map(p=>{
+    const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];
+    const mods=p.maquinas?[...new Set(p.maquinas.map(m=>m.nome))].join(', '):p.modelo||'';
+    return`<div class="hist-row" onclick="verHist('${p.id}')">
       <div class="hist-dot"></div>
-      <div class="hist-info">
-        <div class="hist-num">${p.numero} — ${p.cliente}</div>
-        <div class="hist-meta">${p.destino||''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
+      <div class="hist-info" style="flex:1;min-width:0;">
+        <div class="hist-num">#${p.numero} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${p.cliente}</span></div>
+        <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?'📍 '+p.destino+' · ':''}${mods?'⚙️ '+mods:''}${p.concluidoEm?' · ✅ '+fdh(p.concluidoEm):''}</div>
       </div>
-      <button class="btn btn-outline btn-xs">Ver</button>
-    </div>`).join('')}
-  </div>`;
+      <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--green)">${its.length} itens</div>
+        <button class="btn btn-outline btn-xs" style="margin-top:4px;">Ver</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function rPainel(){
-  const tot=S.pedidos.length, ag=S.pedidos.filter(p=>pct(p)===0).length, hi=S.historico.length;
+  const tot=S.pedidos.length;
+  const ag=S.pedidos.filter(p=>pct(p)===0).length;
+  const sep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length;
+  const prontos=S.pedidos.filter(p=>pct(p)===100).length;
+  const hi=S.historico.length;
+  const totalItens=S.pedidos.reduce((a,p)=>a+todosItens(p).length,0);
+  const itensDone=S.pedidos.reduce((a,p)=>a+todosItens(p).filter(i=>i.checked).length,0);
   const porItem={};
-  S.pedidos.forEach(p=>p.itens.forEach(i=>{if(!i.checked)porItem[i.nome]=(porItem[i.nome]||0)+1;}));
-  const top=Object.entries(porItem).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  S.pedidos.forEach(p=>todosItens(p).forEach(i=>{if(!i.checked)porItem[i.nome]=(porItem[i.nome]||0)+1;}));
+  const top=Object.entries(porItem).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const emSep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100);
+  const vencendo=S.pedidos.filter(p=>{if(!p.data)return false;const d=new Date(p.data);const hoje=new Date();const diff=(d-hoje)/(1000*60*60*24);return diff>=0&&diff<=3&&pct(p)<100;});
   return`
-  <div class="stats-grid">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px;">
     <div class="stat-card"><div class="stat-num">${tot}</div><div class="stat-label">Em Aberto</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${ag}</div><div class="stat-label">Aguardando</div></div>
     <div class="stat-card hl"><div class="stat-num">${hi}</div><div class="stat-label">Concluídos</div></div>
   </div>
-  ${emSep.length?`<div class="sec-title">Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+    <div class="stat-card"><div class="stat-num" style="color:var(--muted);font-size:24px">${ag}</div><div class="stat-label">Aguardando</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--warn);font-size:24px">${sep}</div><div class="stat-label">Separando</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green);font-size:24px">${prontos}</div><div class="stat-label">Prontos</div></div>
+  </div>
+  ${totalItens>0?`<div class="card" style="margin-bottom:16px;">
+    <div class="sec-title" style="margin-bottom:10px">Progresso Geral dos Itens</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:13px;color:var(--muted)">${itensDone} de ${totalItens} itens separados</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--green)">${Math.round(itensDone/totalItens*100)}%</span>
+    </div>
+    <div style="width:100%;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
+      <div style="height:100%;background:var(--green);border-radius:3px;width:${Math.round(itensDone/totalItens*100)}%;box-shadow:0 0 8px rgba(46,204,138,.4);transition:width .4s;"></div>
+    </div>
+  </div>`:''}
+  ${vencendo.length?`<div class="sec-title" style="color:var(--warn)">⚠️ Envio nos Próximos 3 Dias</div><div class="card" style="margin-bottom:16px;border-color:rgba(240,165,0,.3);">${vencendo.map(p=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
-      <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero}</div><div style="font-size:11px;color:var(--muted)">${p.cliente}${p.responsavel?' · '+p.responsavel:''}</div></div>
-      <div style="display:flex;align-items:center;gap:6px;"><div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:${pct(p)}%"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--green)">${pct(p)}%</span></div>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
+        <div style="font-size:11px;color:var(--warn);margin-top:2px;">📅 ${fd(p.data)}${p.destino?' · '+p.destino:''}</div>
+      </div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span>
     </div>`).join('')}</div>`:''}
-  <div class="sec-title">Itens Mais Frequentemente Faltando</div>
+  ${emSep.length?`<div class="sec-title">🔄 Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.responsavel?'👤 '+p.responsavel+' · ':''}<span style="color:var(--text)">${todosItens(p).filter(i=>i.checked).length}/${todosItens(p).length} itens</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;"><div style="width:80px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="height:100%;background:var(--warn);border-radius:2px;box-shadow:0 0 6px rgba(240,165,0,.4);width:${pct(p)}%;transition:width .4s;"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span></div>
+    </div>`).join('')}</div>`:''}
+  <div class="sec-title">📦 Itens Mais Frequentemente Pendentes</div>
   ${top.length?`<div class="card">${top.map(([nome,qtd],i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--muted);width:16px;text-align:right">${i+1}</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--border2);width:18px;text-align:right">${i+1}</span>
       <span style="flex:1;font-size:14px">${nome}</span>
-      <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 9px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
-    </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>🎉 Nenhum item faltando!</p></div>`}`;
+      <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 10px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
+    </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>🎉 Nenhum item pendente!</p></div>`}`;
 }
 
 function rTabItens(){
@@ -1215,6 +1418,113 @@ function verificarSenha(){
   }
 }
 setTimeout(()=>document.getElementById('senha-input').focus(),200);
+
+/* ── ESTOQUE ── */
+function estStatus(it){if(it.quantidade===0)return'sem';if(it.quantidade<=it.minimo)return'baixo';return'ok';}
+
+function rTabEstoque(){
+  const app=document.getElementById('app');
+  if(!S.estoque)S.estoque={itens:[]};
+  const its=S.estoque.itens;
+  const total=its.length, ok=its.filter(i=>estStatus(i)==='ok').length,
+        baixo=its.filter(i=>estStatus(i)==='baixo').length, sem=its.filter(i=>estStatus(i)==='sem').length;
+  const busca=estBusca.toLowerCase();
+  let lista=its.filter(i=>{
+    const m=i.codigo.toLowerCase().includes(busca)||i.descricao.toLowerCase().includes(busca);
+    if(!m)return false;
+    if(estFiltro==='ok')return estStatus(i)==='ok';
+    if(estFiltro==='baixo')return estStatus(i)==='baixo';
+    if(estFiltro==='sem')return estStatus(i)==='sem';
+    return true;
+  });
+  app.innerHTML=`
+  <div class="est-stats">
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total de Itens</div></div>
+    <div class="stat-card hl"><div class="stat-num">${ok}</div><div class="stat-label">Em Estoque</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${baixo}</div><div class="stat-label">Estoque Baixo</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--danger)">${sem}</div><div class="stat-label">Sem Estoque</div></div>
+  </div>
+  <div class="est-toolbar">
+    <div class="est-search-wrap">
+      <span class="est-search-icon">🔍</span>
+      <input id="est-busca-input" placeholder="Buscar por código ou descrição..." value="${estBusca}" oninput="estBusca=this.value;rTabEstoque()">
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="chip ${estFiltro==='todos'?'active':''}" onclick="estFiltro='todos';rTabEstoque()">Todos</button>
+      <button class="chip ${estFiltro==='ok'?'active':''}" onclick="estFiltro='ok';rTabEstoque()">✅ OK</button>
+      <button class="chip ${estFiltro==='baixo'?'active':''}" onclick="estFiltro='baixo';rTabEstoque()">⚠️ Baixo</button>
+      <button class="chip ${estFiltro==='sem'?'active':''}" onclick="estFiltro='sem';rTabEstoque()">❌ Zerado</button>
+    </div>
+  </div>
+  <div class="est-table-wrap">
+    <table>
+      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th>Mínimo</th><th>Status</th><th></th></tr></thead>
+      <tbody>${lista.length?lista.map(i=>{
+        const st=estStatus(i);
+        const cor=st==='ok'?'var(--green)':st==='baixo'?'var(--warn)':'var(--danger)';
+        const badge=st==='ok'?'<span class="badge badge-ok">● OK</span>':st==='baixo'?'<span class="badge badge-low">▲ Baixo</span>':'<span class="badge badge-out">✕ Zerado</span>';
+        return`<tr>
+          <td><span class="td-code">${i.codigo}</span></td>
+          <td style="font-weight:500">${i.descricao}</td>
+          <td style="font-size:12px;color:var(--muted)">${i.categoria}</td>
+          <td><span class="td-qty" style="color:${cor}">${i.quantidade}</span></td>
+          <td style="color:var(--muted);font-size:13px">${i.minimo}</td>
+          <td>${badge}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn-edit btn btn-ghost btn-xs" onclick="editarItemEstoque('${i.id}')">Editar</button>
+            <button class="btn-del btn btn-danger btn-xs" onclick="removerItemEstoque('${i.id}')">Remover</button>
+          </td>
+        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">📦 Nenhum item encontrado.</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function abrirModalEstoque(){
+  ['est-id','est-codigo','est-descricao','est-quantidade','est-minimo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('est-categoria').value='';
+  document.getElementById('mEstoque-titulo').textContent='Novo Item';
+  document.getElementById('mEstoque').classList.add('open');
+  setTimeout(()=>document.getElementById('est-codigo').focus(),150);
+}
+
+function editarItemEstoque(id){
+  const it=S.estoque.itens.find(i=>i.id===id);if(!it)return;
+  document.getElementById('mEstoque-titulo').textContent='Editar Item';
+  document.getElementById('est-id').value=it.id;
+  document.getElementById('est-codigo').value=it.codigo;
+  document.getElementById('est-descricao').value=it.descricao;
+  document.getElementById('est-quantidade').value=it.quantidade;
+  document.getElementById('est-minimo').value=it.minimo;
+  document.getElementById('est-categoria').value=it.categoria;
+  document.getElementById('mEstoque').classList.add('open');
+}
+
+function salvarItemEstoque(){
+  if(!S.estoque)S.estoque={itens:[]};
+  const id=document.getElementById('est-id').value;
+  const codigo=document.getElementById('est-codigo').value.trim();
+  const descricao=document.getElementById('est-descricao').value.trim();
+  if(!codigo||!descricao){alert('Preencha código e descrição.');return;}
+  const it={id:id||u(),codigo,descricao,quantidade:parseInt(document.getElementById('est-quantidade').value)||0,minimo:parseInt(document.getElementById('est-minimo').value)||0,categoria:document.getElementById('est-categoria').value||'Outro'};
+  if(id){const idx=S.estoque.itens.findIndex(i=>i.id===id);if(idx>=0)S.estoque.itens[idx]=it;}
+  else S.estoque.itens.push(it);
+  save();fecharModal('mEstoque');
+  mostrarStatusEstoque('Salvo');
+  rTabEstoque();
+}
+
+function removerItemEstoque(id){
+  if(!confirm('Remover este item do estoque?'))return;
+  S.estoque.itens=S.estoque.itens.filter(i=>i.id!==id);
+  save();rTabEstoque();
+}
+
+function mostrarStatusEstoque(msg){
+  const el=document.getElementById('status-msg');
+  el.textContent=msg;el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0';},2000);
+}
 
 loadFromServer().then(d=>{S=d;render();});
 </script>
