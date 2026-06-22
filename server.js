@@ -7,7 +7,12 @@ const app = express();
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
+app.use(express.static(__dirname, { etag: false, lastModified: false }));
 
 function readData() {
   try {

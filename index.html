@@ -38,9 +38,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .login-form-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:1px;color:var(--text);margin-bottom:4px;}
 .login-form-sub{font-size:12px;color:var(--muted);margin-bottom:36px;}
 .login-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.login-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:14px 16px;font-size:20px;outline:none;letter-spacing:6px;transition:border-color .2s,box-shadow .2s;margin-bottom:10px;}
+.login-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:13px 16px;font-size:15px;outline:none;letter-spacing:.3px;transition:border-color .2s,box-shadow .2s;margin-bottom:10px;}
 .login-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 3px rgba(46,204,138,.07);}
-.login-input::placeholder{letter-spacing:3px;font-size:16px;}
+.login-input::placeholder{letter-spacing:.3px;font-size:14px;color:var(--border2);}
+.login-demo-hint{margin-top:14px;padding:10px 14px;background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.15);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.7;}
+.login-demo-hint strong{color:var(--green);font-weight:700;}
 .login-err{color:var(--danger);font-size:12px;min-height:18px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .login-btn{width:100%;background:var(--green);color:#050e09;border:none;border-radius:8px;padding:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:3px;cursor:pointer;transition:background .15s,box-shadow .15s;}
 .login-btn:hover{background:var(--green2);box-shadow:0 4px 20px rgba(46,204,138,.25);}
@@ -172,12 +174,19 @@ td{padding:12px 14px;color:var(--text);}
   <div class="login-form-side">
     <div class="login-card">
       <div class="login-form-title">Acesso ao sistema</div>
-      <div class="login-form-sub">Digite sua senha para continuar</div>
+      <div class="login-form-sub">Entre com suas credenciais para continuar</div>
+      <label class="login-label" for="usuario-input">Usuário</label>
+      <input class="login-input" id="usuario-input" type="text" placeholder="Digite seu usuário"
+        onkeydown="if(event.key==='Enter')document.getElementById('senha-input').focus()">
       <label class="login-label" for="senha-input">Senha</label>
-      <input class="login-input" id="senha-input" type="password" placeholder="••••"
+      <input class="login-input" id="senha-input" type="password" placeholder="Digite sua senha"
         onkeydown="if(event.key==='Enter')verificarSenha()">
       <div class="login-err" id="senha-erro"></div>
       <button class="login-btn" onclick="verificarSenha()">ENTRAR</button>
+      <div class="login-demo-hint">
+        Acesso demo — use as credenciais abaixo:<br>
+        <strong>Usuário:</strong> admin &nbsp;·&nbsp; <strong>Senha:</strong> 1001
+      </div>
       <div class="login-ver">Sistema interno · Acesso restrito</div>
     </div>
   </div>
@@ -447,17 +456,19 @@ function mostrarStatus(msg, erro = false) {
 }
 
 function verificarSenha() {
-  if (document.getElementById('senha-input').value === '1001') {
+  const usuario = document.getElementById('usuario-input').value.trim();
+  const senha = document.getElementById('senha-input').value;
+  const err = document.getElementById('senha-erro');
+  if (usuario === 'admin' && senha === '1001') {
     document.getElementById('login-overlay').style.display = 'none';
   } else {
-    const err = document.getElementById('senha-erro');
-    err.textContent = 'Senha incorreta. Tente novamente.';
+    err.textContent = usuario !== 'admin' ? 'Usuário não encontrado.' : 'Senha incorreta. Tente novamente.';
     document.getElementById('senha-input').value = '';
     document.getElementById('senha-input').focus();
     setTimeout(() => err.textContent = '', 3000);
   }
 }
-setTimeout(() => document.getElementById('senha-input').focus(), 200);
+setTimeout(() => document.getElementById('usuario-input').focus(), 200);
 
 carregar();
 </script>
