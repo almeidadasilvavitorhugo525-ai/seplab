@@ -86,15 +86,19 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 /* ── CARDS ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;}
 
-.pedido-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;border-left:3px solid var(--border2);}
-.pedido-card:hover{box-shadow:0 6px 30px rgba(0,0,0,.4);transform:translateY(-1px);}
-.pedido-card.open-card{border-color:var(--border2);box-shadow:var(--shadow);}
-.pedido-card.status-aguardando{border-left-color:#3a5244;}
+.pedido-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;border-left:3px solid var(--border2);}
+.pedido-card:hover{box-shadow:0 6px 28px rgba(0,0,0,.45);border-color:var(--border2);}
+.pedido-card.open-card{border-color:var(--border2);box-shadow:0 4px 28px rgba(0,0,0,.4);}
+.pedido-card.status-aguardando{border-left-color:#4a5c52;}
 .pedido-card.status-separando{border-left-color:var(--warn);}
 .pedido-card.status-concluido{border-left-color:var(--green);}
-.pedido-header{padding:18px 18px 0;cursor:pointer;user-select:none;}
-.ph-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.ph-order-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:var(--muted);background:var(--surface2);padding:4px 10px;border-radius:6px;border:1px solid var(--border);}
+.pedido-header{cursor:pointer;user-select:none;}
+.ph-row1{display:flex;align-items:center;gap:8px;padding:13px 16px 10px;}
+.ph-order-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:4px;border:1px solid var(--border);}
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+.sp-wait{background:rgba(74,92,82,.18);color:#7a9a88;border:1px solid rgba(74,92,82,.35);}
+.sp-sep{background:rgba(240,165,0,.1);color:var(--warn);border:1px solid rgba(240,165,0,.28);}
+.sp-done{background:rgba(46,204,138,.1);color:var(--green);border:1px solid rgba(46,204,138,.28);}
 .ph-spacer{flex:1;}
 .ph-bar-wrap{display:flex;align-items:center;gap:8px;}
 .ph-bar{width:90px;height:5px;background:var(--surface3);border-radius:4px;overflow:hidden;}
@@ -102,20 +106,28 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .ph-bar-fill.s-ok{background:var(--green);box-shadow:0 0 10px rgba(0,212,138,.4);}
 .ph-bar-fill.s-sep{background:var(--warn);}
 .ph-bar-fill.s-wait{background:var(--border2);}
-.ph-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;line-height:1;min-width:40px;text-align:right;}
+.ph-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;line-height:1;min-width:36px;text-align:right;}
 .ph-pct.s-ok{color:var(--green);}
 .ph-pct.s-sep{color:var(--warn);}
 .ph-pct.s-wait{color:var(--muted);}
 .ph-chevron{color:var(--muted);font-size:11px;transition:transform .22s;margin-left:4px;}
 .ph-chevron.rotated{transform:rotate(180deg);}
-.ph-client{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.2px;color:var(--text);margin-bottom:10px;line-height:1.1;}
-.ph-machines{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
-.maq-tag{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 11px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;color:var(--text2);}
-.ph-info-strip{display:flex;align-items:stretch;background:var(--surface2);border-top:1px solid var(--border);margin-left:-18px;margin-right:-18px;flex-wrap:wrap;}
-.ph-info-item{display:flex;align-items:center;gap:5px;padding:9px 16px;font-size:12px;color:var(--muted);border-right:1px solid var(--border);}
-.ph-info-item strong{color:var(--text2);font-weight:500;}
-.ph-items-badge{margin-left:auto;display:flex;align-items:center;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);gap:5px;}
-.ph-items-badge span{font-size:16px;font-weight:800;color:var(--text);}
+.ph-row2{padding:0 16px 12px;}
+.ph-client{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.3px;color:var(--text);margin-bottom:8px;line-height:1.1;}
+.ph-machines{display:flex;flex-wrap:wrap;gap:5px;}
+.maq-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;color:var(--muted);}
+.ph-info-strip{display:flex;align-items:stretch;background:var(--bg2);border-top:1px solid var(--border);flex-wrap:wrap;}
+.ph-info-item{display:flex;align-items:center;gap:5px;padding:8px 14px;font-size:12px;color:var(--muted);border-right:1px solid var(--border);}
+.ph-info-item strong{color:var(--text);font-weight:500;}
+.ph-items-badge{margin-left:auto;display:flex;align-items:center;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);gap:5px;white-space:nowrap;}
+.ph-items-badge span{font-size:15px;font-weight:800;color:var(--text);}
+.ped-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.ped-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 14px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s;}
+.ped-stat:hover{border-color:var(--border2);box-shadow:0 2px 14px rgba(0,0,0,.3);}
+.ped-stat-line{position:absolute;top:0;left:0;right:0;height:2px;}
+.ped-stat-num{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;line-height:1;margin-bottom:4px;}
+.ped-stat-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+@media(max-width:500px){.ped-stats{grid-template-columns:repeat(2,1fr);}}
 
 .pedido-body{border-top:1px solid var(--border);display:none;animation:fadeDown .2s ease;}
 .pedido-body.open{display:block;}
@@ -338,10 +350,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
         onkeydown="if(event.key==='Enter')verificarSenha()">
       <div class="login-err" id="senha-erro"></div>
       <button class="login-btn" onclick="verificarSenha()">ENTRAR</button>
-      <div class="login-demo-hint">
-        Acesso demo — use as credenciais abaixo:<br>
-        <strong>Usuário:</strong> admin &nbsp;·&nbsp; <strong>Senha:</strong> 1001
-      </div>
+
       <div class="login-ver">Sistema interno · Acesso restrito</div>
     </div>
   </div>
@@ -837,6 +846,7 @@ function u(){return Math.random().toString(36).slice(2,9);}
 
 function mudarTab(t,el){
   tab=t;
+  sessionStorage.setItem('sl_tab',t);
   document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
   const btnAcao=document.getElementById('btn-acao-principal');
@@ -874,47 +884,46 @@ function rPedidos(){
   if(filtro==='aguardando')list=list.filter(p=>pct(p)===0);
   else if(filtro==='separando')list=list.filter(p=>pct(p)>0&&pct(p)<100);
   else if(filtro==='concluido')list=list.filter(p=>pct(p)===100);
-  const sumStrip=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 12px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--text);margin-bottom:4px">${S.pedidos.length}</div>
-      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Total</div>
+  const nAg=S.pedidos.filter(p=>pct(p)===0).length;
+  const nSep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length;
+  const nPron=S.pedidos.filter(p=>pct(p)===100).length;
+  const stats=`<div class="ped-stats">
+    <div class="ped-stat" onclick="setFiltro('todos')">
+      <div class="ped-stat-line" style="background:var(--border2)"></div>
+      <div class="ped-stat-num">${S.pedidos.length}</div>
+      <div class="ped-stat-lbl">Total</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid #4a5c52;border-radius:8px;padding:14px 12px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--muted);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)===0).length}</div>
-      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Aguardando</div>
+    <div class="ped-stat" onclick="setFiltro('aguardando')">
+      <div class="ped-stat-line" style="background:#4a5c52"></div>
+      <div class="ped-stat-num" style="color:var(--muted)">${nAg}</div>
+      <div class="ped-stat-lbl">Aguardando</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--warn);border-radius:8px;padding:14px 12px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--warn);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length}</div>
-      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Em Separação</div>
+    <div class="ped-stat" onclick="setFiltro('separando')">
+      <div class="ped-stat-line" style="background:var(--warn)"></div>
+      <div class="ped-stat-num" style="color:var(--warn)">${nSep}</div>
+      <div class="ped-stat-lbl">Separando</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--green);border-radius:8px;padding:14px 12px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--green);margin-bottom:4px">${S.pedidos.filter(p=>pct(p)===100).length}</div>
-      <div style="font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Prontos</div>
+    <div class="ped-stat" onclick="setFiltro('concluido')">
+      <div class="ped-stat-line" style="background:var(--green)"></div>
+      <div class="ped-stat-num" style="color:var(--green)">${nPron}</div>
+      <div class="ped-stat-lbl">Prontos</div>
     </div>
   </div>`;
-  const ordemFiltros=['todos','aguardando','separando','concluido'];
-  const idxAtual=ordemFiltros.indexOf(filtro);
-  const anterior=idxAtual>0?ordemFiltros[idxAtual-1]:null;
-  const proximo=idxAtual<ordemFiltros.length-1?ordemFiltros[idxAtual+1]:null;
-  const chips=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-    <button class="btn btn-ghost btn-sm" onclick="setFiltro('${anterior}')" style="padding:5px 10px;${!anterior?'opacity:.3;pointer-events:none;':''}" ${!anterior?'disabled':''}>◀</button>
-    <div class="chips" style="margin-bottom:0;flex:1;">
-      <button class="chip ${filtro==='todos'?'active':''}" onclick="setFiltro('todos')">Todos (${S.pedidos.length})</button>
-      <button class="chip ${filtro==='aguardando'?'active':''}" onclick="setFiltro('aguardando')">⏳ Aguardando</button>
-      <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">🔄 Separando</button>
-      <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">✅ Prontos</button>
-    </div>
-    <button class="btn btn-ghost btn-sm" onclick="setFiltro('${proximo}')" style="padding:5px 10px;${!proximo?'opacity:.3;pointer-events:none;':''}" ${!proximo?'disabled':''}>▶</button>
+  const chips=`<div class="chips" style="margin-bottom:16px;">
+    <button class="chip ${filtro==='todos'?'active':''}" onclick="setFiltro('todos')">Todos · ${S.pedidos.length}</button>
+    <button class="chip ${filtro==='aguardando'?'active':''}" onclick="setFiltro('aguardando')">Aguardando · ${nAg}</button>
+    <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">Separando · ${nSep}</button>
+    <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">Prontos · ${nPron}</button>
   </div>`;
-  if(!list.length)return sumStrip+chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
-  return sumStrip+chips+list.map(rCard).join('');
+  if(!list.length)return stats+chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
+  return stats+chips+list.map(rCard).join('');
 }
 
 function rItemMaq(pid,mid,item){
   return`<div class="cl-item">
-    <div class="check-box ${item.checked?'checked':''}" onclick="toggleItem('${pid}','${item.id}','${mid}')"></div>
+    <div id="cb-${item.id}" class="check-box ${item.checked?'checked':''}" onclick="toggleItem('${pid}','${item.id}','${mid}')"></div>
     <div class="cl-item-right">
-      <div class="cl-item-name ${item.checked?'done':''}">${item.nome}</div>
+      <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${item.nome}</div>
       ${item.qty?`<span class="cl-item-qty">${item.qty}</span>`:''}
       ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input class="serial-input" value="${item.serial||''}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
     </div>
@@ -927,19 +936,27 @@ function rMaquina(pid,m){
   const cats=[...new Set(m.itens.map(i=>i.categoria))];
   const itensHTML=cats.map(cat=>{
     const items=m.itens.filter(i=>i.categoria===cat);
-    return`<div class="cl-section-title">${cat}<span style="color:var(--muted);font-size:10px">${items.filter(i=>i.checked).length}/${items.length}</span></div>`+items.map(item=>rItemMaq(pid,m.id,item)).join('');
+    return`<div class="cl-section-title">${cat}<span id="catpct-${m.id}-${cat.replace(/\s/g,'_')}" style="color:var(--muted);font-size:10px">${items.filter(i=>i.checked).length}/${items.length}</span></div>`+items.map(item=>rItemMaq(pid,m.id,item)).join('');
   }).join('');
   const statusIcon=v===100?'✅':v>0?'🔄':'⏳';
   return`<div class="maquina-card" id="maq-${m.id}">
     <div class="maquina-header" onclick="toggleMaquina('${m.id}')">
-      <div class="maquina-nome">${statusIcon} ${m.nome}</div>
+      <div class="maquina-nome"><span id="maqicon-${m.id}">${statusIcon}</span> ${m.nome}</div>
       <div class="maquina-prog">
-        <div style="width:60px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="height:100%;background:${v===100?'var(--green)':'var(--warn)'};border-radius:2px;width:${v}%;transition:width .4s;"></div></div>
-        <span class="maquina-pct">${done}/${m.itens.length}</span>
+        <div style="width:60px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div id="maqbarfill-${m.id}" style="height:100%;background:${v===100?'var(--green)':'var(--warn)'};border-radius:2px;width:${v}%;transition:width .4s;"></div></div>
+        <span id="maqpct-${m.id}" class="maquina-pct">${done}/${m.itens.length}</span>
         <span style="color:var(--muted);font-size:11px;transition:transform .2s;margin-left:2px;" id="maqchv-${m.id}">▼</span>
       </div>
     </div>
-    <div class="maquina-body" id="maqbody-${m.id}">${itensHTML}</div>
+    <div class="maquina-body" id="maqbody-${m.id}">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:8px;">
+        <span class="serial-label" style="white-space:nowrap;">Nº Série da Máquina</span>
+        <input class="serial-input" style="max-width:100%;flex:1;" value="${m.serial||''}" placeholder="Digite o número de série da máquina..."
+          onchange="salvarSerialMaquina('${pid}','${m.id}',this.value)"
+          onclick="event.stopPropagation()">
+      </div>
+      ${itensHTML}
+    </div>
   </div>`;
 }
 
@@ -951,8 +968,13 @@ function rCard(p){
   const maquinasHTML=p.maquinas?p.maquinas.map(m=>rMaquina(p.id,m)).join(''):'';
   const st=v===100?'s-ok':v>0?'s-sep':'s-wait';
   const statusClass=v===100?'status-concluido':v>0?'status-separando':'status-aguardando';
+  const statusPill=v===100
+    ?'<span class="status-pill sp-done">Pronto</span>'
+    :v>0
+    ?'<span class="status-pill sp-sep">Separando</span>'
+    :'<span class="status-pill sp-wait">Aguardando</span>';
   const maqTags=p.maquinas&&p.maquinas.length
-    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">⚙️ ${m.nome}</span>`).join('')}</div>`
+    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${m.nome}</span>`).join('')}</div>`
     :'';
   const infoItems=[];
   if(p.destino) infoItems.push(`<div class="ph-info-item">📍 <strong>${p.destino}</strong></div>`);
@@ -961,30 +983,32 @@ function rCard(p){
   if(p.data) infoItems.push(`<div class="ph-info-item">📅 <strong>${fd(p.data)}</strong></div>`);
   return`<div class="pedido-card ${statusClass}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
-      <div class="ph-top">
+      <div class="ph-row1">
         <span class="ph-order-num"># ${p.numero}</span>
-        ${bdg(p)}
+        <span id="ppill-${p.id}">${statusPill}</span>
         <div class="ph-spacer"></div>
         <div class="ph-bar-wrap">
-          <div class="ph-bar"><div class="ph-bar-fill ${st}" style="width:${v}%"></div></div>
-          <span class="ph-pct ${st}">${v}%</span>
+          <div class="ph-bar"><div id="pbarfill-${p.id}" class="ph-bar-fill ${st}" style="width:${v}%"></div></div>
+          <span id="ppct-${p.id}" class="ph-pct ${st}">${v}%</span>
         </div>
         <span class="ph-chevron" id="chv-${p.id}">▼</span>
       </div>
-      <div class="ph-client">${p.cliente}</div>
-      ${maqTags}
+      <div class="ph-row2">
+        <div class="ph-client">${p.cliente}</div>
+        ${maqTags}
+      </div>
       <div class="ph-info-strip">
         ${infoItems.join('')}
-        <div class="ph-items-badge"><span>${done}</span>/ ${its.length} itens</div>
+        <div id="pbadge-${p.id}" class="ph-items-badge"><span>${done}</span>/ ${its.length} itens</div>
       </div>
     </div>
     <div class="pedido-body" id="body-${p.id}">
       <div class="pedido-body-inner">
         ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
-        ${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}
-        ${v===100?`<div style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:''}
+        <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
+        <div id="pconcluido-${p.id}">${v===100?`<div style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:''}</div>
         ${maquinasHTML}
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <div id="pbotoes-${p.id}" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">📋 Relatório</button>
           <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">✏️ Editar</button>
           ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">✅ Mover p/ Histórico</button>`:''}
@@ -998,9 +1022,18 @@ function rCard(p){
 
 function rHistorico(){
   if(!S.historico.length)return`<div class="empty-state"><span class="e-icon">📋</span><p>Nenhum pedido concluído ainda.</p></div>`;
-  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+  const anos=[...new Set(S.historico.filter(p=>p.concluidoEm).map(p=>new Date(p.concluidoEm).getFullYear()))].sort((a,b)=>b-a);
+  const anoAtual=new Date().getFullYear();
+  const opcoesAnos=anos.map(a=>`<option value="${a}" ${a===anoAtual?'selected':''}>${a}</option>`).join('');
+  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
     <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">${S.historico.length} pedidos concluídos</div>
-    <span style="font-size:12px;color:var(--green)">✅ ${S.historico.length} pedidos</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <select id="selectAnoRelatorio" style="background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:13px;">
+        ${opcoesAnos}
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioAnual(+document.getElementById('selectAnoRelatorio').value)">📊 Relatório Anual</button>
+      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioMaquinas(+document.getElementById('selectAnoRelatorio').value)">⚙️ Relatório de Máquinas</button>
+    </div>
   </div>
   <div class="card">${S.historico.slice().reverse().map(p=>{
     const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];
@@ -1105,27 +1138,85 @@ function toggleMaquina(mid){
 
 function toggleItem(pid,iid,mid){
   const p=S.pedidos.find(x=>x.id===pid);
-  if(mid&&p.maquinas){p.maquinas.find(m=>m.id===mid).itens.find(x=>x.id===iid).checked^=true;}
-  else if(p.itens){p.itens.find(x=>x.id===iid).checked^=true;}
-  save();render();
-  setTimeout(()=>{
-    const b=document.getElementById('body-'+pid);
-    if(b&&b.classList.contains('open')){
-      const mb=document.getElementById('maqbody-'+mid);
-      if(mb)mb.classList.add('open');
-      const mc=document.getElementById('maqchv-'+mid);
-      if(mc)mc.classList.add('rotated');
-      const mk=document.getElementById('maq-'+mid);
-      if(mk)mk.classList.add('open');
-    }
-    if(b){b.classList.add('open');document.getElementById('chv-'+pid).classList.add('rotated');document.getElementById('card-'+pid).classList.add('open-card');}
-  },10);
+  let item;
+  if(mid&&p.maquinas){
+    const m=p.maquinas.find(x=>x.id===mid);
+    item=m.itens.find(x=>x.id===iid);
+    item.checked=!item.checked;
+    // atualiza checkbox e nome do item
+    const cb=document.getElementById('cb-'+iid);
+    if(cb)cb.classList.toggle('checked',item.checked);
+    const nm=document.getElementById('nm-'+iid);
+    if(nm)nm.classList.toggle('done',item.checked);
+    // atualiza contadores da máquina
+    const vm=pctMaq(m);
+    const doneM=m.itens.filter(i=>i.checked).length;
+    const pctEl=document.getElementById('maqpct-'+mid);
+    if(pctEl)pctEl.textContent=doneM+'/'+m.itens.length;
+    const barEl=document.getElementById('maqbarfill-'+mid);
+    if(barEl){barEl.style.width=vm+'%';barEl.style.background=vm===100?'var(--green)':'var(--warn)';}
+    const iconEl=document.getElementById('maqicon-'+mid);
+    if(iconEl)iconEl.textContent=vm===100?'✅':vm>0?'🔄':'⏳';
+    // atualiza contador da categoria
+    const catKey='catpct-'+mid+'-'+item.categoria.replace(/\s/g,'_');
+    const catEl=document.getElementById(catKey);
+    if(catEl){const its=m.itens.filter(i=>i.categoria===item.categoria);catEl.textContent=its.filter(i=>i.checked).length+'/'+its.length;}
+  }else if(p.itens){
+    item=p.itens.find(x=>x.id===iid);
+    item.checked=!item.checked;
+    const cb=document.getElementById('cb-'+iid);
+    if(cb)cb.classList.toggle('checked',item.checked);
+    const nm=document.getElementById('nm-'+iid);
+    if(nm)nm.classList.toggle('done',item.checked);
+  }
+  save();
+  // atualiza cabeçalho do pedido
+  const its=todosItens(p);
+  const doneP=its.filter(i=>i.checked).length;
+  const vP=pct(p);
+  const st=vP===100?'s-ok':vP>0?'s-sep':'s-wait';
+  const faltando=its.filter(i=>!i.checked);
+  // badge de itens
+  const badgeEl=document.getElementById('pbadge-'+pid);
+  if(badgeEl)badgeEl.innerHTML=`<span>${doneP}</span>/ ${its.length} itens`;
+  // barra de progresso
+  const barP=document.getElementById('pbarfill-'+pid);
+  if(barP){barP.style.width=vP+'%';barP.className='ph-bar-fill '+st;}
+  // percentual
+  const pctP=document.getElementById('ppct-'+pid);
+  if(pctP){pctP.textContent=vP+'%';pctP.className='ph-pct '+st;}
+  // status pill
+  const pillEl=document.getElementById('ppill-'+pid);
+  if(pillEl)pillEl.innerHTML=vP===100?'<span class="status-pill sp-done">Pronto</span>':vP>0?'<span class="status-pill sp-sep">Separando</span>':'<span class="status-pill sp-wait">Aguardando</span>';
+  // classe do card
+  const cardEl=document.getElementById('card-'+pid);
+  if(cardEl){cardEl.classList.remove('status-concluido','status-separando','status-aguardando');cardEl.classList.add(vP===100?'status-concluido':vP>0?'status-separando':'status-aguardando');}
+  // alerta faltando
+  const faltEl=document.getElementById('pfaltando-'+pid);
+  if(faltEl)faltEl.innerHTML=faltando.length>0&&vP>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:'';
+  // mensagem concluído
+  const concEl=document.getElementById('pconcluido-'+pid);
+  if(concEl)concEl.innerHTML=vP===100?`<div style="background:rgba(46,204,138,.06);border:1px solid rgba(46,204,138,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:'';
+  // auto-move para histórico quando 100%
+  if(vP===100){
+    setTimeout(()=>{
+      if(confirm('✅ Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
+        concluirPedido(pid);
+      }
+    },400);
+  }
 }
 
 function salvarSerial(pid,iid,val,mid){
   const p=S.pedidos.find(x=>x.id===pid);
   if(mid&&p.maquinas){p.maquinas.find(m=>m.id===mid).itens.find(x=>x.id===iid).serial=val;}
   else if(p.itens){p.itens.find(x=>x.id===iid).serial=val;}
+  save();
+}
+
+function salvarSerialMaquina(pid,mid,val){
+  const p=S.pedidos.find(x=>x.id===pid);
+  if(p&&p.maquinas){const m=p.maquinas.find(m=>m.id===mid);if(m)m.serial=val;}
   save();
 }
 
@@ -1256,10 +1347,15 @@ function resetarPedido(id){
 
 function concluirPedido(id){
   const p=S.pedidos.find(x=>x.id===id);
+  if(!p)return;
   p.concluidoEm=new Date().toISOString();
-  S.historico.push({...p,itens:p.itens.map(i=>({...i}))});
+  const copia={...p,
+    maquinas:p.maquinas?p.maquinas.map(m=>({...m,itens:m.itens.map(i=>({...i}))})):undefined,
+    itens:p.itens?p.itens.map(i=>({...i})):undefined
+  };
+  S.historico.push(copia);
   S.pedidos=S.pedidos.filter(x=>x.id!==id);
-  save();alert('✅ Pedido '+p.numero+' movido para o Histórico!');render();
+  save();render();
 }
 
 function addItemExtra(pid){
@@ -1453,86 +1549,440 @@ function preencherComOCR(){
   status.textContent=modelos.length?`✅ ${modelos.length} máquina(s) detectada(s): ${modelos.map(m=>MODELOS[m].nome).join(', ')}`:'⚠️ Nenhuma máquina identificada — selecione manualmente.';
 }
 
+function gerarRelatorioMaquinas(ano){
+  const pedidosAno=S.historico.filter(p=>p.concluidoEm&&new Date(p.concluidoEm).getFullYear()===ano);
+  // coleta todas as máquinas do ano
+  const maquinas=[];
+  pedidosAno.forEach(p=>{
+    if(!p.maquinas||!p.maquinas.length)return;
+    p.maquinas.forEach(m=>{
+      maquinas.push({
+        nome:m.nome, serial:m.serial||'—',
+        pedido:p.numero, cliente:p.cliente||'—',
+        destino:p.destino||'—', concluidoEm:p.concluidoEm
+      });
+    });
+  });
+  if(!maquinas.length){alert('Nenhuma máquina encontrada em pedidos de '+ano+'.');return;}
+
+  // agrupa por modelo
+  const porModelo={};
+  maquinas.forEach(m=>{
+    if(!porModelo[m.nome])porModelo[m.nome]=[];
+    porModelo[m.nome].push(m);
+  });
+  const modelos=Object.entries(porModelo).sort((a,b)=>b[1].length-a[1].length);
+  const now=new Date();
+
+  const html=`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório de Máquinas ${ano} — TOOLING SepLab</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:960px;margin:0 auto;font-size:13px;}
+  @media print{body{padding:16px;}@page{margin:1.5cm;size:A4;}}
+  h2{font-size:14px;font-weight:bold;border-bottom:2px solid #1A7A4A;padding-bottom:6px;margin:24px 0 12px;color:#1A7A4A;display:flex;justify-content:space-between;}
+  h2 span{font-size:12px;font-weight:normal;color:#888;}
+  table{width:100%;border-collapse:collapse;margin-bottom:4px;font-size:12px;}
+  th{background:#1A7A4A;color:white;text-align:left;padding:8px 10px;}
+  td{padding:7px 10px;border-bottom:1px solid #e5e5e5;vertical-align:middle;}
+  tr:nth-child(even) td{background:#f9f9f9;}
+  .serial{font-family:monospace;font-size:12px;background:#f0f0f0;padding:2px 7px;border-radius:4px;}
+  .serial.vazio{color:#aaa;font-style:italic;background:none;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+  .stat-box{background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:14px 16px;text-align:center;}
+  .stat-num{font-size:28px;font-weight:900;color:#1A7A4A;}
+  .stat-lbl{font-size:11px;color:#666;margin-top:2px;}
+  .rank-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .rank-label{font-size:12px;min-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rank-bar{height:16px;background:#1A7A4A;border-radius:3px;min-width:4px;}
+  .rank-num{font-size:12px;font-weight:bold;color:#1A7A4A;min-width:30px;}
+</style>
+</head>
+<body>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1A7A4A;padding-bottom:16px;margin-bottom:22px;">
+  <div>
+    <div style="font-size:28px;font-weight:900;color:#1A7A4A;letter-spacing:3px;">TOOLING</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório de Máquinas Enviadas</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-size:22px;font-weight:900;color:#111;">${ano}</div>
+    <div style="font-size:11px;color:#888;">Gerado em ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  </div>
+</div>
+
+<!-- RESUMO -->
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num">${maquinas.length}</div><div class="stat-lbl">Máquinas enviadas</div></div>
+  <div class="stat-box"><div class="stat-num">${modelos.length}</div><div class="stat-lbl">Modelos diferentes</div></div>
+  <div class="stat-box"><div class="stat-num">${maquinas.filter(m=>m.serial&&m.serial!=='—').length}</div><div class="stat-lbl">Com nº de série</div></div>
+</div>
+
+<!-- RANKING DE MODELOS -->
+<h2>🏆 Modelos Mais Enviados <span>${modelos.length} modelos</span></h2>
+<div style="margin-bottom:20px;">
+  ${modelos.map(([nome,its])=>{
+    const max=modelos[0][1].length;
+    const w=Math.round((its.length/max)*240);
+    return`<div class="rank-bar-wrap">
+      <div class="rank-label" title="${nome}">${nome}</div>
+      <div class="rank-bar" style="width:${w}px"></div>
+      <div class="rank-num">${its.length}</div>
+    </div>`;
+  }).join('')}
+</div>
+
+<!-- TABELA POR MODELO -->
+${modelos.map(([nome,its])=>`
+  <h2>⚙️ ${nome} <span>${its.length} unidade${its.length>1?'s':''}</span></h2>
+  <table>
+    <tr><th>#</th><th>Nº Série</th><th>Pedido</th><th>Cliente</th><th>Destino</th><th>Data de Envio</th></tr>
+    ${its.map((m,i)=>`<tr>
+      <td style="color:#999;width:30px">${i+1}</td>
+      <td>${m.serial!=='—'?`<span class="serial">${m.serial}</span>`:`<span class="serial vazio">não informado</span>`}</td>
+      <td><strong>#${m.pedido}</strong></td>
+      <td>${m.cliente}</td>
+      <td>${m.destino}</td>
+      <td>${m.concluidoEm?fdh(m.concluidoEm):'—'}</td>
+    </tr>`).join('')}
+  </table>
+`).join('')}
+
+<div style="border-top:1px solid #ddd;padding-top:12px;margin-top:16px;font-size:11px;color:#aaa;display:flex;justify-content:space-between;">
+  <span>TOOLING — SepLab · Relatório de Máquinas ${ano}</span>
+  <span>Gerado em ${now.toLocaleDateString('pt-BR')}</span>
+</div>
+
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+
+function gerarRelatorioAnual(ano){
+  const pedidosAno=S.historico.filter(p=>p.concluidoEm&&new Date(p.concluidoEm).getFullYear()===ano)
+    .slice().sort((a,b)=>new Date(a.concluidoEm)-new Date(b.concluidoEm));
+  if(!pedidosAno.length){alert('Nenhum pedido concluído em '+ano+'.');return;}
+
+  // ranking de itens
+  const contagem={};
+  pedidosAno.forEach(p=>{
+    const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];
+    its.forEach(i=>{
+      const k=i.nome;
+      if(!contagem[k])contagem[k]={nome:k,categoria:i.categoria||'—',total:0};
+      contagem[k].total++;
+    });
+  });
+  const ranking=Object.values(contagem).sort((a,b)=>b.total-a.total);
+
+  // ranking de clientes
+  const clientes={};
+  pedidosAno.forEach(p=>{
+    const k=p.cliente||'—';
+    if(!clientes[k])clientes[k]=0;
+    clientes[k]++;
+  });
+  const rankClientes=Object.entries(clientes).sort((a,b)=>b[1]-a[1]);
+
+  const totalItens=pedidosAno.reduce((a,p)=>{const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];return a+its.length;},0);
+  const now=new Date();
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const porMes=Array(12).fill(0);
+  pedidosAno.forEach(p=>{porMes[new Date(p.concluidoEm).getMonth()]++;});
+
+  const html=`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Anual ${ano} — TOOLING SepLab</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:960px;margin:0 auto;font-size:13px;}
+  @media print{body{padding:16px;}@page{margin:1.5cm;size:A4;}}
+  h2{font-size:15px;font-weight:bold;border-bottom:2px solid #1A7A4A;padding-bottom:6px;margin:24px 0 12px;color:#1A7A4A;}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:12px;}
+  th{background:#1A7A4A;color:white;text-align:left;padding:8px 10px;}
+  td{padding:7px 10px;border-bottom:1px solid #e5e5e5;}
+  tr:nth-child(even) td{background:#f9f9f9;}
+  .badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:bold;}
+  .badge-gold{background:#fff3cd;color:#856404;}
+  .badge-silver{background:#e9ecef;color:#495057;}
+  .badge-bronze{background:#fde8d8;color:#7d3c00;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .stat-box{background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:14px 16px;text-align:center;}
+  .stat-num{font-size:26px;font-weight:900;color:#1A7A4A;}
+  .stat-lbl{font-size:11px;color:#666;margin-top:2px;}
+  .mes-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:24px;}
+  .mes-col{text-align:center;}
+  .mes-bar-wrap{height:60px;display:flex;align-items:flex-end;justify-content:center;}
+  .mes-bar{width:100%;background:#1A7A4A;border-radius:3px 3px 0 0;min-height:2px;}
+  .mes-lbl{font-size:9px;color:#888;margin-top:3px;}
+  .mes-num{font-size:10px;font-weight:bold;color:#333;}
+  .rank-num{font-family:monospace;font-weight:bold;font-size:13px;color:#1A7A4A;}
+</style>
+</head>
+<body>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1A7A4A;padding-bottom:16px;margin-bottom:22px;">
+  <div>
+    <div style="font-size:28px;font-weight:900;color:#1A7A4A;letter-spacing:3px;">TOOLING</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório Anual de Pedidos</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-size:22px;font-weight:900;color:#111;">${ano}</div>
+    <div style="font-size:11px;color:#888;">Gerado em ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  </div>
+</div>
+
+<!-- RESUMO -->
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num">${pedidosAno.length}</div><div class="stat-lbl">Pedidos concluídos</div></div>
+  <div class="stat-box"><div class="stat-num">${totalItens}</div><div class="stat-lbl">Itens enviados</div></div>
+  <div class="stat-box"><div class="stat-num">${rankClientes.length}</div><div class="stat-lbl">Clientes atendidos</div></div>
+  <div class="stat-box"><div class="stat-num">${ranking.length}</div><div class="stat-lbl">Itens diferentes</div></div>
+</div>
+
+<!-- GRÁFICO POR MÊS -->
+<h2>📅 Pedidos por Mês</h2>
+<div class="mes-grid">
+  ${porMes.map((n,i)=>{
+    const max=Math.max(...porMes,1);
+    const h=Math.round((n/max)*56);
+    return`<div class="mes-col">
+      <div class="mes-num">${n||''}</div>
+      <div class="mes-bar-wrap"><div class="mes-bar" style="height:${h}px;opacity:${n?1:.15}"></div></div>
+      <div class="mes-lbl">${meses[i]}</div>
+    </div>`;
+  }).join('')}
+</div>
+
+<!-- MAIS ENVIADOS -->
+<h2>🏆 Itens Mais Enviados</h2>
+<table>
+  <tr><th style="width:40px">#</th><th>Item</th><th>Categoria</th><th style="width:80px;text-align:center">Qtd enviada</th></tr>
+  ${ranking.map((it,i)=>`<tr>
+    <td><span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º'}</span></td>
+    <td><strong>${it.nome}</strong></td>
+    <td style="color:#555">${it.categoria}</td>
+    <td style="text-align:center;font-weight:bold;color:#1A7A4A">${it.total}</td>
+  </tr>`).join('')}
+</table>
+
+<!-- TOP CLIENTES -->
+<h2>👥 Clientes com Mais Pedidos</h2>
+<table>
+  <tr><th style="width:40px">#</th><th>Cliente</th><th style="width:120px;text-align:center">Pedidos</th></tr>
+  ${rankClientes.map(([cli,n],i)=>`<tr>
+    <td><span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º'}</span></td>
+    <td><strong>${cli}</strong></td>
+    <td style="text-align:center;font-weight:bold;color:#1A7A4A">${n}</td>
+  </tr>`).join('')}
+</table>
+
+<!-- LISTA DE PEDIDOS -->
+<h2>📋 Todos os Pedidos de ${ano}</h2>
+<table>
+  <tr><th>Pedido</th><th>Cliente</th><th>Destino</th><th>Modelo / Máquinas</th><th style="text-align:center">Itens</th><th>Concluído em</th></tr>
+  ${pedidosAno.map(p=>{
+    const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];
+    const mods=p.maquinas?[...new Set(p.maquinas.map(m=>m.nome))].join(', '):p.modelo||'—';
+    return`<tr>
+      <td><strong>#${p.numero}</strong></td>
+      <td>${p.cliente||'—'}</td>
+      <td>${p.destino||'—'}</td>
+      <td style="font-size:11px;color:#555">${mods}</td>
+      <td style="text-align:center">${its.length}</td>
+      <td style="font-size:11px">${p.concluidoEm?fdh(p.concluidoEm):'—'}</td>
+    </tr>`;
+  }).join('')}
+</table>
+
+<div style="border-top:1px solid #ddd;padding-top:12px;margin-top:8px;font-size:11px;color:#aaa;display:flex;justify-content:space-between;">
+  <span>TOOLING — SepLab · Relatório Anual ${ano}</span>
+  <span>Gerado em ${now.toLocaleDateString('pt-BR')}</span>
+</div>
+
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+
 function gerarRelatorio(id, doHistorico=false){
   const p=(doHistorico?S.historico:S.pedidos).find(x=>x.id===id)||S.historico.find(x=>x.id===id)||S.pedidos.find(x=>x.id===id);
   if(!p)return;
   const v=pct(p);
   const now=new Date();
-  const win=window.open('','_blank');
-  win.document.write(`<!DOCTYPE html>
+  const todosIt=todosItens(p);
+  const separados=todosIt.filter(i=>i.checked);
+  const pendentes=todosIt.filter(i=>!i.checked);
+  const statusLabel=v===100?'CONCLUÍDO':v>0?'EM SEPARAÇÃO':'AGUARDANDO';
+  const statusColor=v===100?'#1A7A4A':v>0?'#b87a00':'#5a6e7f';
+
+  function renderItensTabela(itens){
+    if(!itens.length)return'<tr><td colspan="6" style="color:#999;text-align:center;padding:14px;">Nenhum item</td></tr>';
+    return itens.map((item,i)=>`<tr>
+      <td style="width:32px;color:#999">${i+1}</td>
+      <td><strong>${item.nome}</strong></td>
+      <td style="color:#555">${item.categoria||'—'}</td>
+      <td style="text-align:center">${item.qty||'—'}</td>
+      <td style="font-family:monospace;font-size:12px">${item.serial||'—'}</td>
+      <td style="font-weight:bold;color:${item.checked?'#1A7A4A':'#c0392b'}">${item.checked?'✅ Separado':'❌ Pendente'}</td>
+    </tr>`).join('');
+  }
+
+  function renderMaquinas(){
+    if(!p.maquinas||!p.maquinas.length)return'';
+    return p.maquinas.map(m=>{
+      const vm=pctMaq(m);
+      const sepM=m.itens.filter(i=>i.checked).length;
+      const cats=[...new Set(m.itens.map(i=>i.categoria))];
+      const itensHTML=cats.map(cat=>{
+        const its=m.itens.filter(i=>i.categoria===cat);
+        return`<tr style="background:#f0f0f0"><td colspan="6" style="font-weight:bold;font-size:11px;letter-spacing:1px;padding:7px 10px;color:#333">${cat.toUpperCase()}</td></tr>`+renderItensTabela(its);
+      }).join('');
+      return`<div style="margin-bottom:22px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+        <div style="background:#1A7A4A;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-weight:bold;font-size:14px">⚙️ ${m.nome}</span>
+            ${m.serial?`<span style="font-size:11px;opacity:.8;margin-left:10px;">Nº Série: ${m.serial}</span>`:''}
+          </div>
+          <span style="font-size:12px">${sepM}/${m.itens.length} itens · ${vm}%</span>
+        </div>
+        <div style="padding:0 0 4px;background:#f9f9f9;">
+          <div style="height:6px;background:#ddd;"><div style="height:100%;width:${vm}%;background:${vm===100?'#1A7A4A':'#f0a500'};"></div></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr style="background:#eee"><th style="padding:7px 10px;text-align:left;font-size:11px">#</th><th style="padding:7px 10px;text-align:left;font-size:11px">Item</th><th style="padding:7px 10px;text-align:left;font-size:11px">Categoria</th><th style="padding:7px 10px;text-align:center;font-size:11px">Qtd</th><th style="padding:7px 10px;text-align:left;font-size:11px">Nº Série</th><th style="padding:7px 10px;text-align:left;font-size:11px">Status</th></tr>
+          ${itensHTML}
+        </table>
+      </div>`;
+    }).join('');
+  }
+
+  function renderItensDiretos(){
+    if(p.maquinas&&p.maquinas.length)return'';
+    return`<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+      <tr><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:left;font-size:11px">#</th><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:left;font-size:11px">Item</th><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:left;font-size:11px">Categoria</th><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:center;font-size:11px">Qtd</th><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:left;font-size:11px">Nº Série</th><th style="background:#1A7A4A;color:white;padding:9px 10px;text-align:left;font-size:11px">Status</th></tr>
+      ${renderItensTabela(p.itens||[])}
+    </table>`;
+  }
+
+  function renderPendentesResumo(){
+    if(!pendentes.length)return'';
+    return`<div style="background:#fff3f3;border-left:4px solid #c0392b;padding:12px 16px;margin-bottom:18px;border-radius:0 6px 6px 0;">
+      <div style="font-weight:bold;color:#c0392b;margin-bottom:8px;">⚠️ ITENS PENDENTES (${pendentes.length})</div>
+      ${pendentes.map(i=>`<div style="padding:3px 0;font-size:12px;color:#333">• <strong>${i.nome}</strong>${i.qty?' — Qtd: '+i.qty:''}</div>`).join('')}
+    </div>`;
+  }
+
+  const html=`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>Relatório — ${p.numero}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:800px;margin:0 auto;font-size:13px;}
-  .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1A7A4A;padding-bottom:14px;margin-bottom:20px;}
-  .logo{font-size:26px;font-weight:900;color:#1A7A4A;letter-spacing:3px;}
-  .logo-sub{font-size:11px;color:#666;letter-spacing:2px;margin-top:2px;}
-  h1{font-size:20px;margin-bottom:14px;}
-  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;background:#f5f5f5;padding:12px;border-radius:6px;}
-  .info-item{display:flex;gap:6px;}
-  .info-label{color:#555;font-weight:bold;}
-  .progress-wrap{margin-bottom:20px;}
-  .progress-label{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:5px;}
-  .progress-bar{width:100%;height:10px;background:#ddd;border-radius:5px;overflow:hidden;}
-  .progress-fill{height:100%;background:#1A7A4A;border-radius:5px;}
-  table{width:100%;border-collapse:collapse;margin-bottom:20px;}
-  th{background:#1A7A4A;color:white;text-align:left;padding:9px 10px;font-size:12px;}
-  td{padding:8px 10px;border-bottom:1px solid #e0e0e0;}
-  tr:nth-child(even) td{background:#fafafa;}
-  .ok{color:#1A7A4A;font-weight:bold;}
-  .nok{color:#e05555;font-weight:bold;}
-  .obs-box{padding:10px 14px;background:#fff8e1;border-left:3px solid #f0a500;margin-bottom:20px;font-size:12px;}
-  .footer{border-top:1px solid #ddd;padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#666;}
-  .assinatura{border-top:1px solid #aaa;width:200px;text-align:center;padding-top:4px;margin-top:30px;}
+  body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:860px;margin:0 auto;font-size:13px;}
   @media print{body{padding:16px;}@page{margin:1.5cm;}}
 </style>
 </head>
 <body>
-<div class="header">
+
+<!-- CABEÇALHO -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1A7A4A;padding-bottom:16px;margin-bottom:22px;">
   <div>
-    <div class="logo">TOOLING</div>
-    <div class="logo-sub">SepLab — Relatório de Conferência</div>
+    <div style="font-size:28px;font-weight:900;color:#1A7A4A;letter-spacing:3px;">TOOLING</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório de Status do Pedido</div>
   </div>
-  <div style="text-align:right;font-size:12px;color:#666;">
-    <div><strong>${now.toLocaleDateString('pt-BR')}</strong></div>
-    <div>${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  <div style="text-align:right;">
+    <div style="font-size:12px;color:#555;">Gerado em</div>
+    <div style="font-weight:bold;font-size:13px;">${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+    ${p.criadoEm?`<div style="font-size:11px;color:#888;margin-top:4px;">Criado em ${fdh(p.criadoEm)}</div>`:''}
   </div>
 </div>
-<h1>${p.numero}</h1>
-<div class="info-grid">
-  <div class="info-item"><span class="info-label">Cliente:</span>${p.cliente||'—'}</div>
-  <div class="info-item"><span class="info-label">Destino:</span>${p.destino||'—'}</div>
-  <div class="info-item"><span class="info-label">Responsável:</span>${p.responsavel||'—'}</div>
-  <div class="info-item"><span class="info-label">Data prevista:</span>${p.data?fd(p.data):'—'}</div>
+
+<!-- NÚMERO E STATUS -->
+<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+  <div style="font-size:22px;font-weight:900;letter-spacing:1px;">#${p.numero}</div>
+  <div style="background:${statusColor};color:white;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:bold;letter-spacing:1.5px;">${statusLabel}</div>
+  ${v===100&&p.concluidoEm?`<div style="font-size:11px;color:#888;">Concluído em ${fdh(p.concluidoEm)}</div>`:''}
 </div>
-<div class="progress-wrap">
-  <div class="progress-label"><span>${p.itens.filter(i=>i.checked).length} de ${p.itens.length} itens separados</span><span style="color:#1A7A4A">${v}%</span></div>
-  <div class="progress-bar"><div class="progress-fill" style="width:${v}%"></div></div>
+
+<!-- INFORMAÇÕES DO PEDIDO -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;background:#f7f7f7;padding:14px 16px;border-radius:8px;border:1px solid #e0e0e0;">
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Cliente:</span><span>${p.cliente||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Responsável:</span><span>${p.responsavel||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Destino:</span><span>${p.destino||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Data prevista:</span><span>${p.data?fd(p.data):'—'}</span></div>
+  ${p.endereco?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Endereço:</span><span>${p.endereco}${p.cep?' — CEP '+p.cep:''}</span></div>`:''}
+  ${p.modelo?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Modelo(s):</span><span>${p.modelo}</span></div>`:''}
 </div>
-${p.obs?`<div class="obs-box"><strong>Observação:</strong> ${p.obs}</div>`:''}
-<table>
-  <tr><th>#</th><th>Item</th><th>Categoria</th><th>Qtd</th><th>Nº Série</th><th>Status</th></tr>
-  ${p.itens.map((item,i)=>`<tr>
-    <td>${i+1}</td>
-    <td>${item.nome}</td>
-    <td>${item.categoria}</td>
-    <td>${item.qty||'—'}</td>
-    <td>${item.serial||'—'}</td>
-    <td class="${item.checked?'ok':'nok'}">${item.checked?'✅ Separado':'❌ Pendente'}</td>
-  </tr>`).join('')}
-</table>
-<div class="footer">
-  <div>TOOLING — SepLab</div>
-  <div class="assinatura">${p.responsavel||'Responsável'}</div>
-  <div>${p.concluidoEm?fdh(p.concluidoEm):fdh(now.toISOString())}</div>
+
+<!-- PROGRESSO GERAL -->
+<div style="margin-bottom:20px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+    <span style="font-weight:bold;font-size:14px;">Progresso Geral</span>
+    <span style="font-size:18px;font-weight:900;color:${statusColor}">${v}%</span>
+  </div>
+  <div style="height:12px;background:#e0e0e0;border-radius:6px;overflow:hidden;">
+    <div style="height:100%;width:${v}%;background:${v===100?'#1A7A4A':v>0?'#f0a500':'#ccc'};border-radius:6px;transition:width .3s;"></div>
+  </div>
+  <div style="display:flex;gap:24px;margin-top:10px;font-size:12px;">
+    <span>Total: <strong>${todosIt.length} itens</strong></span>
+    <span style="color:#1A7A4A">Separados: <strong>${separados.length}</strong></span>
+    <span style="color:#c0392b">Pendentes: <strong>${pendentes.length}</strong></span>
+  </div>
 </div>
+
+${p.obs?`<div style="padding:10px 16px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:18px;border-radius:0 6px 6px 0;font-size:12px;"><strong>📝 Observação:</strong> ${p.obs}</div>`:''}
+
+${renderPendentesResumo()}
+
+<!-- ITENS -->
+<div style="margin-bottom:6px;font-weight:bold;font-size:14px;border-bottom:2px solid #1A7A4A;padding-bottom:6px;">Detalhamento dos Itens</div>
+<div style="margin-top:14px;">
+${renderMaquinas()}
+${renderItensDiretos()}
+</div>
+
+<!-- RODAPÉ -->
+<div style="border-top:1px solid #ddd;padding-top:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#888;">
+  <div>TOOLING — SepLab · Relatório gerado em ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  <div style="text-align:center;">
+    <div style="border-top:1px solid #aaa;width:180px;padding-top:4px;margin-top:30px;">${p.responsavel||'Responsável'}</div>
+  </div>
+</div>
+
 <script>window.onload=()=>window.print();<\/script>
 </body>
-</html>`);
-  win.document.close();
+</html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.target='_blank';
+  a.rel='noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA')e.target.blur();});
@@ -1544,12 +1994,24 @@ function verificarSenha(){
   const err=document.getElementById('senha-erro');
   if(usuario==='admin'&&senha==='1001'){
     document.getElementById('login-overlay').style.display='none';
+    sessionStorage.setItem('sl_logado','1');
+    return;
+  }
+  if(!usuario){
+    err.textContent='⚠️ O campo usuário está vazio.';
+    document.getElementById('usuario-input').focus();
+  }else if(usuario!=='admin'){
+    err.textContent=`❌ Usuário "${usuario}" não encontrado.`;
+    document.getElementById('usuario-input').select();
+  }else if(!senha){
+    err.textContent='⚠️ O campo senha está vazio.';
+    document.getElementById('senha-input').focus();
   }else{
-    err.textContent=usuario!=='admin'?'Usuário não encontrado.':'Senha incorreta. Tente novamente.';
+    err.textContent='🔒 Senha incorreta para o usuário "admin".';
     document.getElementById('senha-input').value='';
     document.getElementById('senha-input').focus();
-    setTimeout(()=>err.textContent='',3000);
   }
+  setTimeout(()=>err.textContent='',4000);
 }
 setTimeout(()=>document.getElementById('usuario-input').focus(),200);
 
@@ -1557,6 +2019,8 @@ function abrirLogout(){document.getElementById('logout-modal').classList.add('op
 function fecharLogout(){document.getElementById('logout-modal').classList.remove('open');}
 function confirmarLogout(){
   fecharLogout();
+  sessionStorage.removeItem('sl_logado');
+  sessionStorage.removeItem('sl_tab');
   document.getElementById('usuario-input').value='';
   document.getElementById('senha-input').value='';
   document.getElementById('senha-erro').textContent='';
@@ -1672,7 +2136,24 @@ function mostrarStatusEstoque(msg){
   setTimeout(()=>{el.style.opacity='0';},2000);
 }
 
-loadFromServer().then(d=>{S=d;render();});
+loadFromServer().then(d=>{
+  S=d;
+  if(sessionStorage.getItem('sl_logado')==='1'){
+    document.getElementById('login-overlay').style.display='none';
+    const tabSalva=sessionStorage.getItem('sl_tab');
+    if(tabSalva&&tabSalva!=='pedidos'){
+      tab=tabSalva;
+      const tabs={pedidos:0,historico:1,painel:2,itens:3,estoque:4};
+      const idx=tabs[tabSalva];
+      if(idx!==undefined){
+        const navTabs=document.querySelectorAll('.nav-tab');
+        navTabs.forEach(x=>x.classList.remove('active'));
+        if(navTabs[idx])navTabs[idx].classList.add('active');
+      }
+    }
+  }
+  render();
+});
 </script>
 </body>
 </html>
