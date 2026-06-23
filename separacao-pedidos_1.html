@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Volux</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap');
@@ -194,7 +195,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap;}
 .empty-state{text-align:center;padding:64px 20px;color:var(--muted);}
-.empty-state .e-icon{font-size:48px;margin-bottom:14px;display:block;opacity:.4;}
+.empty-state .e-icon{display:inline-flex;margin-bottom:14px;opacity:.35;color:var(--muted);}
 .empty-state p{font-size:13px;line-height:1.7;color:var(--muted);}
 .divider{height:1px;background:var(--border);margin:16px 0;}
 .serial-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border2);border-radius:5px;padding:3px 9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--green);margin:2px 3px 2px 0;}
@@ -214,6 +215,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .maquina-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--surface2);user-select:none;gap:10px;transition:background .15s;}
 .maquina-header:hover{background:var(--surface3);}
 .maquina-nome{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex:1;}
+.maq-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .maquina-prog{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .maquina-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--green);}
 .maquina-body{display:none;padding:6px 16px 14px;}
@@ -466,14 +468,14 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-group">
       <label class="form-label">Foto do Pedido</label>
       <label style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px dashed var(--border2);border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--green);background:var(--surface2);transition:border-color .2s;" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border2)'">
-        📷 Tirar / Selecionar Foto
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3.5"/></svg> Tirar / Selecionar Foto
         <input type="file" id="iFoto" accept="image/*" capture="environment" style="display:none" onchange="lerFoto(this)">
       </label>
       <div id="fotoPreview" style="display:none;margin-top:10px;">
         <img id="fotoImg" style="max-width:100%;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:8px;">
         <div id="ocrStatus" style="font-size:12px;color:var(--muted);margin-bottom:6px;"></div>
         <div id="ocrTexto" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);white-space:pre-wrap;max-height:120px;overflow-y:auto;display:none;"></div>
-        <button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;display:none;" id="btnPreencherOCR" onclick="preencherComOCR()">✨ Preencher campos com o texto lido</button>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;display:none;" id="btnPreencherOCR" onclick="preencherComOCR()">Preencher campos com o texto lido</button>
       </div>
     </div>
     <div class="form-group">
@@ -516,7 +518,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="iResp" placeholder="Nome do separador"></div>
     <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="iObs" placeholder="Informações importantes..."></textarea></div>
     <div id="infoItens" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--muted);">
-      ✅ Os itens padrão serão adicionados automaticamente.
+      Os itens padrão serão adicionados automaticamente.
     </div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mNovoPedido')">Cancelar</button>
@@ -671,207 +673,207 @@ const MODELOS = {
   tljr2022: {
     nome: 'Gerador TLJR 2022',
     itens: [
-      {nome:'Gerador de Curvas CNC TLJR',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Suporte de Leitor para Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
-      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
-      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
-      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
-      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Peneira Caixa d\'Água TLJR',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Morsa para Moldes Gerador TLJR',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
-      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
-      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
-      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Gerador de Curvas CNC TLJR',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte de Leitor para Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLJR',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLJR',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
     ]
   },
   tljr2026: {
     nome: 'Gerador TLJR 2026',
     itens: [
-      {nome:'Gerador de Curvas CNC TLJR',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
-      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
-      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
-      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Peneira Caixa d\'Água TLJR',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Morsa para Moldes Gerador TLJR',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
-      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
-      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
-      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Gerador de Curvas CNC TLJR',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLJR / 1 com Diamante',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLJR',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLJR',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
     ]
   },
   tl10: {
     nome: 'Gerador TL10',
     itens: [
-      {nome:'Gerador de Curvas CNC TL10',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
-      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Ferramenta de Corte TL10 / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
-      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
-      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Peneira Caixa d\'Água TL10',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Óleo Solúvel – 10 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Morsa para Moldes Gerador TL10',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
-      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'30 un',serial:false},
-      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
-      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Gerador de Curvas CNC TL10',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TL10 / 1 com Diamante',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TL10',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 10 litros',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TL10',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'Moldes e Acessórios',qty:'30 un',serial:false},
+      {nome:'Adesivos',cat:'Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
     ]
   },
   tlmini: {
     nome: 'Gerador TLMINI',
     itens: [
-      {nome:'Gerador de Curvas CNC TLMINI',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Arduino',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:true},
-      {nome:'Fonte para Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Suporte do Leitor de Código de Barras',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Teclado K120 USB',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Windows e CD de Driver do EBN',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Programa de Cálculo',cat:'🖥️ Eletrônicos e Controle',qty:'1 un',serial:false},
-      {nome:'Base e Espessímetro',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Espessímetro Digital',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:true},
-      {nome:'Caixa de Ferramentas',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Ferramenta de Corte TLMINI / 1 com Diamante',cat:'🔧 Ferramentas e Instrumentos',qty:'2 un',serial:false},
-      {nome:'Jogo de Pastilhas com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Chave Tork T15',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T4',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Chave T3',cat:'🔧 Ferramentas e Instrumentos',qty:'1 un',serial:false},
-      {nome:'Jogo de Chave Allen',cat:'🔧 Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
-      {nome:'Caixa d\'Água para Gerador',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:true},
-      {nome:'Suporte da Bomba',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Peneira Caixa d\'Água TLMINI',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Óleo Solúvel – 5 litros',cat:'💧 Sistema Hidráulico',qty:'1 un',serial:false},
-      {nome:'Morsa para Moldes Gerador TLMINI',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
-      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'🧩 Moldes e Acessórios',qty:'12 un',serial:false},
-      {nome:'Adesivos',cat:'🧩 Moldes e Acessórios',qty:'6 un',serial:false},
-      {nome:'Parafuso M8 x 35',cat:'🧩 Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Gerador de Curvas CNC TLMINI',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Arduino',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:true},
+      {nome:'Fonte para Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Suporte do Leitor de Código de Barras',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Teclado K120 USB',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Windows e CD de Driver do EBN',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Programa de Cálculo',cat:'Eletrônicos e Controle',qty:'1 un',serial:false},
+      {nome:'Base e Espessímetro',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Espessímetro Digital',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:true},
+      {nome:'Caixa de Ferramentas',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Ferramenta de Corte TLMINI / 1 com Diamante',cat:'Ferramentas e Instrumentos',qty:'2 un',serial:false},
+      {nome:'Jogo de Pastilhas com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Jogo de Parafuso para Pastilha com 06 unidades',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Chave Tork T15',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T4',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Chave T3',cat:'Ferramentas e Instrumentos',qty:'1 un',serial:false},
+      {nome:'Jogo de Chave Allen',cat:'Ferramentas e Instrumentos',qty:'1 jogo',serial:false},
+      {nome:'Caixa d\'Água para Gerador',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Niple, Engate Rápido e Registro da Caixa',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:true},
+      {nome:'Suporte da Bomba',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Peneira Caixa d\'Água TLMINI',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Óleo Solúvel – 5 litros',cat:'Sistema Hidráulico',qty:'1 un',serial:false},
+      {nome:'Morsa para Moldes Gerador TLMINI',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
+      {nome:'Molde de Plástico – Bases 2, 4, 6, 9, 12',cat:'Moldes e Acessórios',qty:'12 un',serial:false},
+      {nome:'Adesivos',cat:'Moldes e Acessórios',qty:'6 un',serial:false},
+      {nome:'Parafuso M8 x 35',cat:'Moldes e Acessórios',qty:'1 un',serial:false},
     ]
   },
   cilindrica_flex: {
     nome: 'Cilíndrica Flex',
     itens: [
-      {nome:'Desmontar pistola de ar',cat:'⚙️ Desmontagem',qty:'1 un',serial:false},
-      {nome:'Desmontar mangueira de ar',cat:'⚙️ Desmontagem',qty:'1 un',serial:false},
-      {nome:'Refrigeração',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:true},
-      {nome:'Bomba',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:true},
-      {nome:'Niple e Engate Rápido',cat:'❄️ Sistema de Refrigeração',qty:'1 un',serial:false},
-      {nome:'Caixa d\'Água',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
-      {nome:'Suporte da Caixa',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
-      {nome:'Suporte da Bomba',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
-      {nome:'Bomba Preta',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:true},
-      {nome:'Jogo de Allen',cat:'💧 Kit Lixa d\'Água',qty:'1 jogo',serial:false},
-      {nome:'Gabarito',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
-      {nome:'Niple e Engate Rápido',cat:'💧 Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Desmontar pistola de ar',cat:'Desmontagem',qty:'1 un',serial:false},
+      {nome:'Desmontar mangueira de ar',cat:'Desmontagem',qty:'1 un',serial:false},
+      {nome:'Refrigeração',cat:'Sistema de Refrigeração',qty:'1 un',serial:true},
+      {nome:'Bomba',cat:'Sistema de Refrigeração',qty:'1 un',serial:true},
+      {nome:'Niple e Engate Rápido',cat:'Sistema de Refrigeração',qty:'1 un',serial:false},
+      {nome:'Caixa d\'Água',cat:'Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Suporte da Caixa',cat:'Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Suporte da Bomba',cat:'Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Bomba Preta',cat:'Kit Lixa d\'Água',qty:'1 un',serial:true},
+      {nome:'Jogo de Allen',cat:'Kit Lixa d\'Água',qty:'1 jogo',serial:false},
+      {nome:'Gabarito',cat:'Kit Lixa d\'Água',qty:'1 un',serial:false},
+      {nome:'Niple e Engate Rápido',cat:'Kit Lixa d\'Água',qty:'1 un',serial:false},
     ]
   },
   blocadora_fusion: {
     nome: 'Blocadora Fusion',
     itens: [
-      {nome:'Filtro Regulador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
-      {nome:'Gabarito',cat:'🔧 Acessórios',qty:'1 un',serial:false},
-      {nome:'Pegador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Filtro Regulador',cat:'Acessórios',qty:'1 un',serial:false},
+      {nome:'Gabarito',cat:'Acessórios',qty:'1 un',serial:false},
+      {nome:'Pegador',cat:'Acessórios',qty:'1 un',serial:false},
     ]
   },
   blocadora_cera: {
     nome: 'Blocadora de Cera',
     itens: [
-      {nome:'Filtro Regulador',cat:'🔧 Acessórios',qty:'1 un',serial:false},
-      {nome:'Gabarito',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Filtro Regulador',cat:'Acessórios',qty:'1 un',serial:false},
+      {nome:'Gabarito',cat:'Acessórios',qty:'1 un',serial:false},
     ]
   },
   fritadeira: {
     nome: 'Fritadeira',
     itens: [
-      {nome:'Ferro de Solda',cat:'🔧 Acessórios',qty:'1 un',serial:false},
+      {nome:'Ferro de Solda',cat:'Acessórios',qty:'1 un',serial:false},
     ]
   },
   forno: {
     nome: 'Forno',
     itens: [
-      {nome:'Forno',cat:'🔧 Equipamento',qty:'1 un',serial:true},
+      {nome:'Forno',cat:'Equipamento',qty:'1 un',serial:true},
     ]
   },
   armario_forno: {
     nome: 'Armário do Forno',
     itens: [
-      {nome:'Armário do Forno',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+      {nome:'Armário do Forno',cat:'Equipamento',qty:'1 un',serial:false},
     ]
   },
   polibox10: {
     nome: 'Polibox 10 Gavetas',
     itens: [
-      {nome:'Polibox 10 Gavetas',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+      {nome:'Polibox 10 Gavetas',cat:'Equipamento',qty:'1 un',serial:false},
     ]
   },
   polibox12: {
     nome: 'Polibox 12 Gavetas',
     itens: [
-      {nome:'Polibox 12 Gavetas',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+      {nome:'Polibox 12 Gavetas',cat:'Equipamento',qty:'1 un',serial:false},
     ]
   },
   porta_molde: {
     nome: 'Porta Molde Giratório',
     itens: [
-      {nome:'Porta Molde Giratório',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+      {nome:'Porta Molde Giratório',cat:'Equipamento',qty:'1 un',serial:false},
     ]
   },
   anti_risco: {
     nome: 'Aplicador Anti-Risco',
     itens: [
-      {nome:'Aplicador Anti-Risco',cat:'🔧 Equipamento',qty:'1 un',serial:false},
+      {nome:'Aplicador Anti-Risco',cat:'Equipamento',qty:'1 un',serial:false},
     ]
   }
 };
@@ -912,7 +914,7 @@ function todosItens(p){return p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens|
 function pct(p){const its=todosItens(p);if(!its.length)return 0;return Math.round(its.filter(i=>i.checked).length/its.length*100);}
 function pctMaq(m){if(!m.itens.length)return 0;return Math.round(m.itens.filter(i=>i.checked).length/m.itens.length*100);}
 
-function bdg(p){const v=pct(p);if(v===100)return'<span class="badge badge-done">✅ Concluído</span>';if(v>0)return'<span class="badge badge-progress">🔄 Separando</span>';return'<span class="badge badge-pending">⏳ Aguardando</span>';}
+function bdg(p){const v=pct(p);if(v===100)return'<span class="badge badge-done">Concluído</span>';if(v>0)return'<span class="badge badge-progress">Separando</span>';return'<span class="badge badge-pending">Aguardando</span>';}
 
 function rPedidos(){
   let list=[...S.pedidos];
@@ -950,7 +952,7 @@ function rPedidos(){
     <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">Separando · ${nSep}</button>
     <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">Prontos · ${nPron}</button>
   </div>`;
-  if(!list.length)return stats+chips+`<div class="empty-state"><span class="e-icon">📦</span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
+  if(!list.length)return stats+chips+`<div class="empty-state"><span class="e-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
   return stats+chips+list.map(rCard).join('');
 }
 
@@ -973,10 +975,10 @@ function rMaquina(pid,m){
     const items=m.itens.filter(i=>i.categoria===cat);
     return`<div class="cl-section-title">${cat}<span id="catpct-${m.id}-${cat.replace(/\s/g,'_')}" style="color:var(--muted);font-size:10px">${items.filter(i=>i.checked).length}/${items.length}</span></div>`+items.map(item=>rItemMaq(pid,m.id,item)).join('');
   }).join('');
-  const statusIcon=v===100?'✅':v>0?'🔄':'⏳';
+  const statusCor=v===100?'var(--green)':v>0?'var(--warn)':'var(--border2)';
   return`<div class="maquina-card" id="maq-${m.id}">
     <div class="maquina-header" onclick="toggleMaquina('${m.id}')">
-      <div class="maquina-nome"><span id="maqicon-${m.id}">${statusIcon}</span> ${m.nome}</div>
+      <div class="maquina-nome"><span id="maqicon-${m.id}" class="maq-status-dot" style="background:${statusCor}"></span> ${m.nome}</div>
       <div class="maquina-prog">
         <div style="width:60px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div id="maqbarfill-${m.id}" style="height:100%;background:${v===100?'var(--green)':'var(--warn)'};border-radius:2px;width:${v}%;transition:width .4s;"></div></div>
         <span id="maqpct-${m.id}" class="maquina-pct">${done}/${m.itens.length}</span>
@@ -1012,10 +1014,10 @@ function rCard(p){
     ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${m.nome}</span>`).join('')}</div>`
     :'';
   const infoItems=[];
-  if(p.destino) infoItems.push(`<div class="ph-info-item">📍 <strong>${p.destino}</strong></div>`);
-  if(p.endereco) infoItems.push(`<div class="ph-info-item">🏠 <strong>${p.endereco}${p.cep?' — '+p.cep:''}</strong></div>`);
-  if(p.responsavel) infoItems.push(`<div class="ph-info-item">👤 <strong>${p.responsavel}</strong></div>`);
-  if(p.data) infoItems.push(`<div class="ph-info-item">📅 <strong>${fd(p.data)}</strong></div>`);
+  if(p.destino) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${p.destino}</strong></div>`);
+  if(p.endereco) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg> <strong>${p.endereco}${p.cep?' — '+p.cep:''}</strong></div>`);
+  if(p.responsavel) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <strong>${p.responsavel}</strong></div>`);
+  if(p.data) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <strong>${fd(p.data)}</strong></div>`);
   return`<div class="pedido-card ${statusClass}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
       <div class="ph-row1">
@@ -1039,15 +1041,15 @@ function rCard(p){
     </div>
     <div class="pedido-body" id="body-${p.id}">
       <div class="pedido-body-inner">
-        ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
-        <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
-        <div id="pconcluido-${p.id}">${v===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:''}</div>
+        ${p.obs?`<div class="alerta-obs">${p.obs}</div>`:''}
+        <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
+        <div id="pconcluido-${p.id}">${v===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">Todos os itens conferidos! Pedido pronto para envio.</div>`:''}</div>
         ${maquinasHTML}
         <div id="pbotoes-${p.id}" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">📋 Relatório</button>
-          <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">✏️ Editar</button>
-          ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">✅ Mover p/ Histórico</button>`:''}
-          <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">↺ Reset</button>
+          <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">Relatório</button>
+          <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">Editar</button>
+          ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">Mover p/ Histórico</button>`:''}
+          <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">Reset</button>
           <button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>
         </div>
       </div>
@@ -1056,7 +1058,7 @@ function rCard(p){
 }
 
 function rHistorico(){
-  if(!S.historico.length)return`<div class="empty-state"><span class="e-icon">📋</span><p>Nenhum pedido concluído ainda.</p></div>`;
+  if(!S.historico.length)return`<div class="empty-state"><span class="e-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 13h6"/><path d="M9 17h6"/></svg></span><p>Nenhum pedido concluído ainda.</p></div>`;
   const anos=[...new Set(S.historico.filter(p=>p.concluidoEm).map(p=>new Date(p.concluidoEm).getFullYear()))].sort((a,b)=>b-a);
   const anoAtual=new Date().getFullYear();
   const opcoesAnos=anos.map(a=>`<option value="${a}" ${a===anoAtual?'selected':''}>${a}</option>`).join('');
@@ -1066,8 +1068,8 @@ function rHistorico(){
       <select id="selectAnoRelatorio" style="background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:13px;">
         ${opcoesAnos}
       </select>
-      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioAnual(+document.getElementById('selectAnoRelatorio').value)">📊 Relatório Anual</button>
-      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioMaquinas(+document.getElementById('selectAnoRelatorio').value)">⚙️ Relatório de Máquinas</button>
+      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioAnual(+document.getElementById('selectAnoRelatorio').value)">Relatório Anual</button>
+      <button class="btn btn-outline btn-sm" onclick="gerarRelatorioMaquinas(+document.getElementById('selectAnoRelatorio').value)">Relatório de Máquinas</button>
     </div>
   </div>
   <div class="card">${S.historico.slice().reverse().map(p=>{
@@ -1077,7 +1079,7 @@ function rHistorico(){
       <div class="hist-dot"></div>
       <div class="hist-info" style="flex:1;min-width:0;">
         <div class="hist-num">#${p.numero} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${p.cliente}</span></div>
-        <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?'📍 '+p.destino+' · ':''}${mods?'⚙️ '+mods:''}${p.concluidoEm?' · ✅ '+fdh(p.concluidoEm):''}</div>
+        <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?p.destino+' · ':''}${mods?mods:''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:10px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--green)">${its.length} itens</div>
@@ -1120,29 +1122,29 @@ function rPainel(){
       <div style="height:100%;background:var(--green);border-radius:3px;width:${Math.round(itensDone/totalItens*100)}%;box-shadow:0 0 8px rgba(24,95,165,.3);transition:width .4s;"></div>
     </div>
   </div>`:''}
-  ${vencendo.length?`<div class="sec-title" style="color:var(--warn)">⚠️ Envio nos Próximos 3 Dias</div><div class="card" style="margin-bottom:16px;border-color:rgba(240,165,0,.3);">${vencendo.map(p=>`
+  ${vencendo.length?`<div class="sec-title" style="color:var(--warn)">Envio nos Próximos 3 Dias</div><div class="card" style="margin-bottom:16px;border-color:rgba(240,165,0,.3);">${vencendo.map(p=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
-        <div style="font-size:11px;color:var(--warn);margin-top:2px;">📅 ${fd(p.data)}${p.destino?' · '+p.destino:''}</div>
+        <div style="font-size:11px;color:var(--warn);margin-top:2px;">${fd(p.data)}${p.destino?' · '+p.destino:''}</div>
       </div>
       <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span>
     </div>`).join('')}</div>`:''}
-  ${emSep.length?`<div class="sec-title">🔄 Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
+  ${emSep.length?`<div class="sec-title">Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.responsavel?'👤 '+p.responsavel+' · ':''}<span style="color:var(--text)">${todosItens(p).filter(i=>i.checked).length}/${todosItens(p).length} itens</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.responsavel?p.responsavel+' · ':''}<span style="color:var(--text)">${todosItens(p).filter(i=>i.checked).length}/${todosItens(p).length} itens</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;"><div style="width:80px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="height:100%;background:var(--warn);border-radius:2px;box-shadow:0 0 6px rgba(240,165,0,.4);width:${pct(p)}%;transition:width .4s;"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span></div>
     </div>`).join('')}</div>`:''}
-  <div class="sec-title">📦 Itens Mais Frequentemente Pendentes</div>
+  <div class="sec-title">Itens Mais Frequentemente Pendentes</div>
   ${top.length?`<div class="card">${top.map(([nome,qtd],i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--border2);width:18px;text-align:right">${i+1}</span>
       <span style="flex:1;font-size:14px">${nome}</span>
       <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 10px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
-    </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>🎉 Nenhum item pendente!</p></div>`}`;
+    </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>Nenhum item pendente.</p></div>`}`;
 }
 
 function rTabItens(){
@@ -1191,7 +1193,7 @@ function toggleItem(pid,iid,mid){
     const barEl=document.getElementById('maqbarfill-'+mid);
     if(barEl){barEl.style.width=vm+'%';barEl.style.background=vm===100?'var(--green)':'var(--warn)';}
     const iconEl=document.getElementById('maqicon-'+mid);
-    if(iconEl)iconEl.textContent=vm===100?'✅':vm>0?'🔄':'⏳';
+    if(iconEl)iconEl.style.background=vm===100?'var(--green)':vm>0?'var(--warn)':'var(--border2)';
     // atualiza contador da categoria
     const catKey='catpct-'+mid+'-'+item.categoria.replace(/\s/g,'_');
     const catEl=document.getElementById(catKey);
@@ -1228,14 +1230,14 @@ function toggleItem(pid,iid,mid){
   if(cardEl){cardEl.classList.remove('status-concluido','status-separando','status-aguardando');cardEl.classList.add(vP===100?'status-concluido':vP>0?'status-separando':'status-aguardando');}
   // alerta faltando
   const faltEl=document.getElementById('pfaltando-'+pid);
-  if(faltEl)faltEl.innerHTML=faltando.length>0&&vP>0?`<div class="alerta-faltando">⚠️ <strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:'';
+  if(faltEl)faltEl.innerHTML=faltando.length>0&&vP>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:'';
   // mensagem concluído
   const concEl=document.getElementById('pconcluido-'+pid);
-  if(concEl)concEl.innerHTML=vP===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">✅ Todos os itens conferidos! Pedido pronto para envio.</div>`:'';
+  if(concEl)concEl.innerHTML=vP===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">Todos os itens conferidos! Pedido pronto para envio.</div>`:'';
   // auto-move para histórico quando 100%
   if(vP===100){
     setTimeout(()=>{
-      if(confirm('✅ Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
+      if(confirm('Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
         concluirPedido(pid);
       }
     },400);
@@ -1264,7 +1266,7 @@ function renderListaMaquinas(){
     <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
       <span style="flex:1;font-size:13px;font-weight:500;">${MODELOS[m.modelo].nome}</span>
       <span style="background:var(--green);color:#050e09;border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;">x${m.qty}</span>
-      <button class="btn btn-danger btn-xs" onclick="removerMaquina(${i})">✕</button>
+      <button class="btn btn-danger btn-xs" onclick="removerMaquina(${i})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`).join('');
   atualizarInfoItens();
 }
@@ -1286,7 +1288,7 @@ function atualizarInfoItens(){
   if(!maquinasSelecionadas.length){el.innerHTML='Adicione ao menos uma máquina acima.';return;}
   const total=maquinasSelecionadas.reduce((acc,m)=>acc+MODELOS[m.modelo].itens.length*m.qty,0);
   const nomes=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome} x${m.qty}`).join(', ');
-  el.innerHTML=`✅ <strong>${nomes}</strong> — ${total} itens no total.`;
+  el.innerHTML=`<strong>${nomes}</strong> — ${total} itens no total.`;
 }
 
 function criarPedido(){
@@ -1335,7 +1337,7 @@ function renderEditMaquinas(){
     <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
       <span style="flex:1;font-size:13px;font-weight:500;">${m.nome}</span>
       <span style="background:var(--surface2);color:var(--muted);border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;">${m.itens.length} itens</span>
-      <button class="btn btn-danger btn-xs" onclick="removerMaquinaEdicao(${i})">✕</button>
+      <button class="btn btn-danger btn-xs" onclick="removerMaquinaEdicao(${i})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`).join('');
 }
 
@@ -1406,7 +1408,7 @@ function renderListaItens(){
   document.getElementById('listaItens').innerHTML=S.itensPadrao.map(item=>`
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
       <span style="flex:1;font-size:13px">${item.nome} <span style="color:var(--muted);font-size:11px">(${item.categoria})</span>${item.temSerial?'<span style="color:var(--green);font-size:10px;margin-left:4px">SERIAL</span>':''}</span>
-      <button class="btn btn-danger btn-xs" onclick="rmItemPadrao('${item.id}')">✕</button>
+      <button class="btn btn-danger btn-xs" onclick="rmItemPadrao('${item.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`).join('');
 }
 
@@ -1424,22 +1426,22 @@ function verHist(id){
   const seriais=p.itens.filter(i=>i.temSerial&&i.serial);
   document.getElementById('histConteudo').innerHTML=`
     <div style="margin-bottom:12px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">📍 <strong style="color:var(--text)">${p.destino||'—'}</strong></div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">👤 <strong style="color:var(--text)">${p.responsavel||'—'}</strong></div>
-      <div style="font-size:12px;color:var(--muted)">📅 <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Destino: <strong style="color:var(--text)">${p.destino||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Responsável: <strong style="color:var(--text)">${p.responsavel||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted)">Concluído em: <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong></div>
     </div>
-    ${p.obs?`<div class="alerta-obs">📝 ${p.obs}</div>`:''}
-    ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag">🔖 <strong>${i.nome}:</strong> ${i.serial}</div>`).join('')}</div>`:''}
+    ${p.obs?`<div class="alerta-obs">${p.obs}</div>`:''}
+    ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag"><strong>${i.nome}:</strong> ${i.serial}</div>`).join('')}</div>`:''}
     <div class="sec-title">Itens (${p.itens.filter(i=>i.checked).length}/${p.itens.length})</div>
     <div style="max-height:260px;overflow-y:auto;">
       ${p.itens.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <span style="color:${i.checked?'var(--green)':'var(--danger)'};font-size:14px">${i.checked?'✅':'❌'}</span>
+        <span style="color:${i.checked?'var(--green)':'var(--danger)'};display:flex;">${i.checked?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}</span>
         <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${i.nome}</span>
         ${i.serial?`<span class="serial-tag" style="font-size:10px">${i.serial}</span>`:''}
       </div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
-      <button class="btn btn-outline" style="flex:1;" onclick="gerarRelatorio('${p.id}',true)">📋 Gerar Relatório</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="gerarRelatorio('${p.id}',true)">Gerar Relatório</button>
       <button class="btn btn-danger" style="flex:1;" onclick="rmHist('${p.id}')">Excluir</button>
     </div>`;
   document.getElementById('mHist').classList.add('open');
@@ -1481,19 +1483,19 @@ async function lerFoto(input){
   document.getElementById('btnPreencherOCR').style.display='none';
   const status=document.getElementById('ocrStatus');
   status.style.color='var(--muted)';
-  status.textContent='🔍 Lendo texto da imagem, aguarde...';
+  status.textContent='Lendo texto da imagem, aguarde...';
   try{
-    const result=await Tesseract.recognize(file,'por+eng',{logger:m=>{if(m.status==='recognizing text')status.textContent='🔍 Lendo… '+Math.round(m.progress*100)+'%';}});
+    const result=await Tesseract.recognize(file,'por+eng',{logger:m=>{if(m.status==='recognizing text')status.textContent='Lendo… '+Math.round(m.progress*100)+'%';}});
     ocrTextoLido=result.data.text.trim();
     status.style.color='var(--green)';
-    status.textContent='✅ Texto extraído com sucesso!';
+    status.textContent='Texto extraído com sucesso.';
     const el=document.getElementById('ocrTexto');
     el.textContent=ocrTextoLido;
     el.style.display='block';
     document.getElementById('btnPreencherOCR').style.display='block';
   }catch(e){
     status.style.color='var(--danger)';
-    status.textContent='❌ Não foi possível ler a imagem. Tente outra foto.';
+    status.textContent='Não foi possível ler a imagem. Tente outra foto.';
   }
 }
 
@@ -1581,7 +1583,7 @@ function preencherComOCR(){
   // Feedback
   const status=document.getElementById('ocrStatus');
   status.style.color='var(--green)';
-  status.textContent=modelos.length?`✅ ${modelos.length} máquina(s) detectada(s): ${modelos.map(m=>MODELOS[m].nome).join(', ')}`:'⚠️ Nenhuma máquina identificada — selecione manualmente.';
+  status.textContent=modelos.length?`${modelos.length} máquina(s) detectada(s): ${modelos.map(m=>MODELOS[m].nome).join(', ')}`:'Nenhuma máquina identificada — selecione manualmente.';
 }
 
 function gerarRelatorioMaquinas(ano){
@@ -1657,7 +1659,7 @@ function gerarRelatorioMaquinas(ano){
 </div>
 
 <!-- RANKING DE MODELOS -->
-<h2>🏆 Modelos Mais Enviados <span>${modelos.length} modelos</span></h2>
+<h2>Modelos Mais Enviados <span>${modelos.length} modelos</span></h2>
 <div style="margin-bottom:20px;">
   ${modelos.map(([nome,its])=>{
     const max=modelos[0][1].length;
@@ -1672,7 +1674,7 @@ function gerarRelatorioMaquinas(ano){
 
 <!-- TABELA POR MODELO -->
 ${modelos.map(([nome,its])=>`
-  <h2>⚙️ ${nome} <span>${its.length} unidade${its.length>1?'s':''}</span></h2>
+  <h2>${nome} <span>${its.length} unidade${its.length>1?'s':''}</span></h2>
   <table>
     <tr><th>#</th><th>Nº Série</th><th>Pedido</th><th>Cliente</th><th>Destino</th><th>Data de Envio</th></tr>
     ${its.map((m,i)=>`<tr>
@@ -1788,7 +1790,7 @@ function gerarRelatorioAnual(ano){
 </div>
 
 <!-- GRÁFICO POR MÊS -->
-<h2>📅 Pedidos por Mês</h2>
+<h2>Pedidos por Mês</h2>
 <div class="mes-grid">
   ${porMes.map((n,i)=>{
     const max=Math.max(...porMes,1);
@@ -1802,11 +1804,11 @@ function gerarRelatorioAnual(ano){
 </div>
 
 <!-- MAIS ENVIADOS -->
-<h2>🏆 Itens Mais Enviados</h2>
+<h2>Itens Mais Enviados</h2>
 <table>
   <tr><th style="width:40px">#</th><th>Item</th><th>Categoria</th><th style="width:80px;text-align:center">Qtd enviada</th></tr>
   ${ranking.map((it,i)=>`<tr>
-    <td><span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º'}</span></td>
+    <td><span class="rank-num">${(i+1)+'º'}</span></td>
     <td><strong>${it.nome}</strong></td>
     <td style="color:#555">${it.categoria}</td>
     <td style="text-align:center;font-weight:bold;color:#185FA5">${it.total}</td>
@@ -1814,18 +1816,18 @@ function gerarRelatorioAnual(ano){
 </table>
 
 <!-- TOP CLIENTES -->
-<h2>👥 Clientes com Mais Pedidos</h2>
+<h2>Clientes com Mais Pedidos</h2>
 <table>
   <tr><th style="width:40px">#</th><th>Cliente</th><th style="width:120px;text-align:center">Pedidos</th></tr>
   ${rankClientes.map(([cli,n],i)=>`<tr>
-    <td><span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º'}</span></td>
+    <td><span class="rank-num">${(i+1)+'º'}</span></td>
     <td><strong>${cli}</strong></td>
     <td style="text-align:center;font-weight:bold;color:#185FA5">${n}</td>
   </tr>`).join('')}
 </table>
 
 <!-- LISTA DE PEDIDOS -->
-<h2>📋 Todos os Pedidos de ${ano}</h2>
+<h2>Todos os Pedidos de ${ano}</h2>
 <table>
   <tr><th>Pedido</th><th>Cliente</th><th>Destino</th><th>Modelo / Máquinas</th><th style="text-align:center">Itens</th><th>Concluído em</th></tr>
   ${pedidosAno.map(p=>{
@@ -1878,7 +1880,7 @@ function gerarRelatorio(id, doHistorico=false){
       <td style="color:#555">${item.categoria||'—'}</td>
       <td style="text-align:center">${item.qty||'—'}</td>
       <td style="font-family:monospace;font-size:12px">${item.serial||'—'}</td>
-      <td style="font-weight:bold;color:${item.checked?'#185FA5':'#c0392b'}">${item.checked?'✅ Separado':'❌ Pendente'}</td>
+      <td style="font-weight:bold;color:${item.checked?'#185FA5':'#c0392b'}">${item.checked?'Separado':'Pendente'}</td>
     </tr>`).join('');
   }
 
@@ -1895,7 +1897,7 @@ function gerarRelatorio(id, doHistorico=false){
       return`<div style="margin-bottom:22px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
         <div style="background:#185FA5;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <span style="font-weight:bold;font-size:14px">⚙️ ${m.nome}</span>
+            <span style="font-weight:bold;font-size:14px">${m.nome}</span>
             ${m.serial?`<span style="font-size:11px;opacity:.8;margin-left:10px;">Nº Série: ${m.serial}</span>`:''}
           </div>
           <span style="font-size:12px">${sepM}/${m.itens.length} itens · ${vm}%</span>
@@ -1922,7 +1924,7 @@ function gerarRelatorio(id, doHistorico=false){
   function renderPendentesResumo(){
     if(!pendentes.length)return'';
     return`<div style="background:#fff3f3;border-left:4px solid #c0392b;padding:12px 16px;margin-bottom:18px;border-radius:0 6px 6px 0;">
-      <div style="font-weight:bold;color:#c0392b;margin-bottom:8px;">⚠️ ITENS PENDENTES (${pendentes.length})</div>
+      <div style="font-weight:bold;color:#c0392b;margin-bottom:8px;">ITENS PENDENTES (${pendentes.length})</div>
       ${pendentes.map(i=>`<div style="padding:3px 0;font-size:12px;color:#333">• <strong>${i.nome}</strong>${i.qty?' — Qtd: '+i.qty:''}</div>`).join('')}
     </div>`;
   }
@@ -1986,7 +1988,7 @@ function gerarRelatorio(id, doHistorico=false){
   </div>
 </div>
 
-${p.obs?`<div style="padding:10px 16px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:18px;border-radius:0 6px 6px 0;font-size:12px;"><strong>📝 Observação:</strong> ${p.obs}</div>`:''}
+${p.obs?`<div style="padding:10px 16px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:18px;border-radius:0 6px 6px 0;font-size:12px;"><strong>Observação:</strong> ${p.obs}</div>`:''}
 
 ${renderPendentesResumo()}
 
@@ -2102,14 +2104,14 @@ function rTabEstoque(){
   </div>
   <div class="est-toolbar">
     <div class="est-search-wrap">
-      <span class="est-search-icon">🔍</span>
+      <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       <input id="est-busca-input" placeholder="Buscar por código ou descrição..." value="${estBusca}" oninput="estBusca=this.value;rTabEstoque()">
     </div>
     <div style="display:flex;gap:6px;">
       <button class="chip ${estFiltro==='todos'?'active':''}" onclick="estFiltro='todos';rTabEstoque()">Todos</button>
-      <button class="chip ${estFiltro==='ok'?'active':''}" onclick="estFiltro='ok';rTabEstoque()">✅ OK</button>
-      <button class="chip ${estFiltro==='baixo'?'active':''}" onclick="estFiltro='baixo';rTabEstoque()">⚠️ Baixo</button>
-      <button class="chip ${estFiltro==='sem'?'active':''}" onclick="estFiltro='sem';rTabEstoque()">❌ Zerado</button>
+      <button class="chip ${estFiltro==='ok'?'active':''}" onclick="estFiltro='ok';rTabEstoque()">OK</button>
+      <button class="chip ${estFiltro==='baixo'?'active':''}" onclick="estFiltro='baixo';rTabEstoque()">Baixo</button>
+      <button class="chip ${estFiltro==='sem'?'active':''}" onclick="estFiltro='sem';rTabEstoque()">Zerado</button>
     </div>
   </div>
   <div class="est-table-wrap">
@@ -2118,7 +2120,7 @@ function rTabEstoque(){
       <tbody>${lista.length?lista.map(i=>{
         const st=estStatus(i);
         const cor=st==='ok'?'var(--green)':st==='baixo'?'var(--warn)':'var(--danger)';
-        const badge=st==='ok'?'<span class="badge badge-ok">● OK</span>':st==='baixo'?'<span class="badge badge-low">▲ Baixo</span>':'<span class="badge badge-out">✕ Zerado</span>';
+        const badge=st==='ok'?'<span class="badge badge-ok">OK</span>':st==='baixo'?'<span class="badge badge-low">Baixo</span>':'<span class="badge badge-out">Zerado</span>';
         return`<tr>
           <td><span class="td-code">${i.codigo}</span></td>
           <td style="font-weight:500">${i.descricao}</td>
@@ -2130,7 +2132,7 @@ function rTabEstoque(){
             <button class="btn-edit btn btn-ghost btn-xs" onclick="editarItemEstoque('${i.id}')">Editar</button>
             <button class="btn-del btn btn-danger btn-xs" onclick="removerItemEstoque('${i.id}')">Remover</button>
           </td>
-        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">📦 Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;

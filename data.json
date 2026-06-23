@@ -20,7 +20,7 @@
             {
               "id": "jmnuiw1",
               "nome": "Desmontar pistola de ar",
-              "categoria": "⚙️ Desmontagem",
+              "categoria": "Desmontagem",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -29,7 +29,7 @@
             {
               "id": "2mt1fp0",
               "nome": "Desmontar mangueira de ar",
-              "categoria": "⚙️ Desmontagem",
+              "categoria": "Desmontagem",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -38,7 +38,7 @@
             {
               "id": "nh94oq6",
               "nome": "Refrigeração",
-              "categoria": "❄️ Sistema de Refrigeração",
+              "categoria": "Sistema de Refrigeração",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -47,7 +47,7 @@
             {
               "id": "w5u61k6",
               "nome": "Bomba",
-              "categoria": "❄️ Sistema de Refrigeração",
+              "categoria": "Sistema de Refrigeração",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -56,7 +56,7 @@
             {
               "id": "itah13v",
               "nome": "Niple e Engate Rápido",
-              "categoria": "❄️ Sistema de Refrigeração",
+              "categoria": "Sistema de Refrigeração",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -72,7 +72,7 @@
             {
               "id": "ywhatoz",
               "nome": "Filtro Regulador",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -81,7 +81,7 @@
             {
               "id": "ho2effl",
               "nome": "Gabarito",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -90,7 +90,7 @@
             {
               "id": "rm7l3rm",
               "nome": "Pegador",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -106,7 +106,7 @@
             {
               "id": "abvavck",
               "nome": "Gerador de Curvas CNC TLJR",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -115,7 +115,7 @@
             {
               "id": "r2cntm5",
               "nome": "Arduino",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -124,7 +124,7 @@
             {
               "id": "z3x7qv4",
               "nome": "Leitor de Código de Barras",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -133,7 +133,7 @@
             {
               "id": "avamsbn",
               "nome": "Fonte para Leitor de Código de Barras",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -142,7 +142,7 @@
             {
               "id": "hzbgvet",
               "nome": "Suporte do Leitor de Código de Barras",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -151,7 +151,7 @@
             {
               "id": "3jo0c5a",
               "nome": "Teclado K120 USB",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -160,7 +160,7 @@
             {
               "id": "6yzzlbm",
               "nome": "Windows e CD de Driver do EBN",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -169,7 +169,7 @@
             {
               "id": "qb1go6i",
               "nome": "Programa de Cálculo",
-              "categoria": "🖥️ Eletrônicos e Controle",
+              "categoria": "Eletrônicos e Controle",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -178,7 +178,7 @@
             {
               "id": "1ka1ose",
               "nome": "Base e Espessímetro",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -187,7 +187,7 @@
             {
               "id": "qnjxsj9",
               "nome": "Espessímetro Digital",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "2 un",
               "temSerial": true,
               "checked": false,
@@ -196,7 +196,7 @@
             {
               "id": "tgcluiw",
               "nome": "Caixa de Ferramentas",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -205,7 +205,7 @@
             {
               "id": "ecuu3hx",
               "nome": "Ferramenta de Corte TLJR / 1 com Diamante",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "2 un",
               "temSerial": false,
               "checked": false,
@@ -214,7 +214,7 @@
             {
               "id": "awpwyf0",
               "nome": "Jogo de Pastilhas com 06 unidades",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 jogo",
               "temSerial": false,
               "checked": false,
@@ -223,7 +223,7 @@
             {
               "id": "ziu6fe7",
               "nome": "Jogo de Parafuso para Pastilha com 06 unidades",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 jogo",
               "temSerial": false,
               "checked": false,
@@ -232,7 +232,7 @@
             {
               "id": "7o0l9sj",
               "nome": "Chave Tork T15",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -241,7 +241,7 @@
             {
               "id": "uhgyh2r",
               "nome": "Chave T4",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -250,7 +250,7 @@
             {
               "id": "pc5vw3j",
               "nome": "Chave T3",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -259,7 +259,7 @@
             {
               "id": "9c0lc10",
               "nome": "Jogo de Chave Allen",
-              "categoria": "🔧 Ferramentas e Instrumentos",
+              "categoria": "Ferramentas e Instrumentos",
               "qty": "1 jogo",
               "temSerial": false,
               "checked": false,
@@ -268,7 +268,7 @@
             {
               "id": "s782pzf",
               "nome": "Caixa d'Água para Gerador",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -277,7 +277,7 @@
             {
               "id": "ubybi5g",
               "nome": "Niple, Engate Rápido e Registro da Caixa",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -286,7 +286,7 @@
             {
               "id": "4x64rw9",
               "nome": "Bomba",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -295,7 +295,7 @@
             {
               "id": "g0av56m",
               "nome": "Suporte da Bomba",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -304,7 +304,7 @@
             {
               "id": "je4owq3",
               "nome": "Peneira Caixa d'Água TLJR",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -313,7 +313,7 @@
             {
               "id": "utk31q4",
               "nome": "Óleo Solúvel – 5 litros",
-              "categoria": "💧 Sistema Hidráulico",
+              "categoria": "Sistema Hidráulico",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -322,7 +322,7 @@
             {
               "id": "eqt6vzf",
               "nome": "Morsa para Moldes Gerador TLJR",
-              "categoria": "🧩 Moldes e Acessórios",
+              "categoria": "Moldes e Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -331,7 +331,7 @@
             {
               "id": "ninn5ia",
               "nome": "Molde de Plástico – Bases 2, 4, 6, 9, 12",
-              "categoria": "🧩 Moldes e Acessórios",
+              "categoria": "Moldes e Acessórios",
               "qty": "12 un",
               "temSerial": false,
               "checked": false,
@@ -340,7 +340,7 @@
             {
               "id": "ayfy3jx",
               "nome": "Adesivos",
-              "categoria": "🧩 Moldes e Acessórios",
+              "categoria": "Moldes e Acessórios",
               "qty": "6 un",
               "temSerial": false,
               "checked": false,
@@ -349,7 +349,7 @@
             {
               "id": "sh8wsq1",
               "nome": "Parafuso M8 x 35",
-              "categoria": "🧩 Moldes e Acessórios",
+              "categoria": "Moldes e Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -380,7 +380,7 @@
             {
               "id": "i9o7j7z",
               "nome": "Filtro Regulador",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -389,7 +389,7 @@
             {
               "id": "9ypjir8",
               "nome": "Gabarito",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -398,7 +398,7 @@
             {
               "id": "8hc3yr4",
               "nome": "Pegador",
-              "categoria": "🔧 Acessórios",
+              "categoria": "Acessórios",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -429,7 +429,7 @@
             {
               "id": "bkrg5eb",
               "nome": "Armário do Forno",
-              "categoria": "🔧 Equipamento",
+              "categoria": "Equipamento",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,
@@ -445,7 +445,7 @@
             {
               "id": "uzlmqco",
               "nome": "Forno",
-              "categoria": "🔧 Equipamento",
+              "categoria": "Equipamento",
               "qty": "1 un",
               "temSerial": true,
               "checked": false,
@@ -461,7 +461,7 @@
             {
               "id": "euz27ns",
               "nome": "Aplicador Anti-Risco",
-              "categoria": "🔧 Equipamento",
+              "categoria": "Equipamento",
               "qty": "1 un",
               "temSerial": false,
               "checked": false,

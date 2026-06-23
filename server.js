@@ -5,6 +5,8 @@ const os = require('os');
 
 const app = express();
 const DATA_FILE = path.join(__dirname, 'data.json');
+const BACKUP_DIR = path.join(__dirname, 'backups');
+const MAX_BACKUPS = 30;
 
 app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
@@ -22,7 +24,21 @@ function readData() {
   }
 }
 
+function backupData() {
+  try {
+    if (!fs.existsSync(DATA_FILE)) return;
+    if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    fs.copyFileSync(DATA_FILE, path.join(BACKUP_DIR, `data-${stamp}.json`));
+    const files = fs.readdirSync(BACKUP_DIR).filter(f => f.endsWith('.json')).sort();
+    while (files.length > MAX_BACKUPS) {
+      fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
+    }
+  } catch {}
+}
+
 function writeData(data) {
+  backupData();
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
@@ -61,7 +77,7 @@ const localIP = getLocalIP();
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log('\n ╔══════════════════════════════════════════╗');
-  console.log(' ║        SepLab Tooling - ATIVO            ║');
+  console.log(' ║              VOLUX - ATIVO               ║');
   console.log(' ╠══════════════════════════════════════════╣');
   console.log(` ║  Local:  http://localhost:${PORT}           ║`);
   console.log(` ║  Rede:   http://${localIP}:${PORT}     ║`);
