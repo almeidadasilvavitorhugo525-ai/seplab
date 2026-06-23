@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tooling — SepLab</title>
+<title>Volux</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap');
@@ -44,7 +44,7 @@ header{background:rgba(240,246,255,.96);backdrop-filter:blur(16px);border-bottom
 .logo-wrap{display:flex;align-items:center;gap:12px;}
 .logo-svg{width:36px;height:36px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(24,95,165,.25));}
 .logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
-.logo-text span{color:var(--green);}
+.logo-text span{color:#29e0ff;}
 .logo-divider{width:1px;height:20px;background:var(--border2);margin:0 10px;}
 .logo-sub{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
 .header-right{display:flex;align-items:center;gap:10px;}
@@ -227,54 +227,68 @@ textarea.form-input{resize:vertical;min-height:80px;}
 }
 
 /* ── LOGIN ── */
-#login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:stretch;}
+#login-overlay{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:stretch;}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pillPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,211,245,.45);}50%{box-shadow:0 0 0 5px rgba(34,211,245,0);}}
 
 .login-brand{
-  flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:72px;
-  background:radial-gradient(ellipse at 30% 70%,rgba(24,95,165,.10) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 20%,rgba(55,138,221,.07) 0%,transparent 50%),
-             linear-gradient(160deg,#ddeaf8 0%,#e8f1fc 50%,#f0f6ff 100%);
+  flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:80px 88px;
+  background:
+    radial-gradient(circle at 88% 8%,rgba(34,211,245,.16) 0%,transparent 45%),
+    radial-gradient(circle at 8% 92%,rgba(31,111,255,.14) 0%,transparent 45%),
+    radial-gradient(circle at .5px .5px,rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(155deg,#060c24 0%,#0a1442 48%,#0d1f52 100%);
+  background-size:auto,auto,28px 28px,auto;
   position:relative;overflow:hidden;
 }
-.login-brand-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(24,95,165,.06) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(24,95,165,.06) 1px,transparent 1px);
-  background-size:52px 52px;
-}
-.login-brand::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent 10%,var(--border) 50%,transparent 90%);}
+.login-brand::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent 6%,rgba(255,255,255,.10) 50%,transparent 94%);}
 
-.login-brand-logo{display:flex;align-items:center;gap:14px;margin-bottom:64px;position:relative;}
-.login-brand-logo svg{width:52px;height:52px;filter:drop-shadow(0 0 16px rgba(24,95,165,.30));}
-.login-brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;letter-spacing:5px;color:var(--text);text-transform:uppercase;}
-.login-brand-name span{color:var(--green);}
+.login-brand-logo{display:flex;align-items:center;gap:14px;margin-bottom:60px;position:relative;animation:fadeInUp .55s ease both;}
+.login-brand-logo svg{width:48px;height:48px;filter:drop-shadow(0 0 18px rgba(34,211,245,.35));}
+.login-brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:5px;color:#f5f8ff;text-transform:uppercase;}
+.login-brand-name span{color:#4ee3ff;}
 
-.login-headline{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:58px;line-height:1.02;color:var(--text);letter-spacing:-1.5px;margin-bottom:20px;position:relative;}
-.login-headline em{color:var(--green);font-style:normal;}
+.login-headline{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:54px;line-height:1.04;color:#ffffff;letter-spacing:-1.5px;margin-bottom:20px;position:relative;animation:fadeInUp .55s ease .12s both;}
+.login-headline em{color:#4ee3ff;font-style:normal;}
 
-.login-tagline{font-size:15px;color:var(--muted);line-height:1.7;max-width:400px;position:relative;font-weight:300;}
-.login-brand-footer{position:absolute;bottom:36px;left:72px;font-size:11px;color:var(--border2);letter-spacing:1.5px;text-transform:uppercase;}
+.login-tagline{font-size:15px;color:rgba(223,232,250,.68);line-height:1.7;max-width:380px;position:relative;font-weight:300;animation:fadeInUp .55s ease .2s both;}
+.login-brand-footer{position:absolute;bottom:40px;left:88px;font-size:11px;color:rgba(223,232,250,.35);letter-spacing:1.5px;text-transform:uppercase;}
 
-.login-brand-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(24,95,165,.10);border:1px solid rgba(24,95,165,.22);border-radius:100px;padding:6px 14px;margin-bottom:28px;font-size:12px;color:var(--green);font-weight:500;position:relative;}
-.login-brand-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(24,95,165,.5);}
+.login-brand-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:6px 14px;margin-bottom:26px;font-size:12px;color:#dfe8fa;font-weight:500;position:relative;animation:fadeInUp .55s ease .03s both;}
+.login-brand-pill-dot{width:6px;height:6px;border-radius:50%;background:#4ee3ff;box-shadow:0 0 6px rgba(34,211,245,.6);animation:pillPulse 2.4s ease-in-out infinite;}
 
-.login-form-side{width:440px;min-width:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:64px 52px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-left:1px solid var(--border);}
-.login-card{width:100%;max-width:340px;}
+.login-features{display:flex;flex-direction:column;gap:14px;margin-top:32px;position:relative;animation:fadeInUp .55s ease .3s both;}
+.login-feature{display:flex;align-items:center;gap:12px;font-size:13.5px;color:rgba(223,232,250,.82);font-weight:400;}
+.login-feature-icon{width:22px;height:22px;min-width:22px;border-radius:7px;background:linear-gradient(135deg,#1f6fff,#22d3f5);display:flex;align-items:center;justify-content:center;color:#fff;}
 
-.login-form-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;color:var(--text);margin-bottom:6px;}
-.login-form-sub{font-size:13px;color:var(--muted);margin-bottom:40px;font-weight:300;}
-.login-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.login-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:14px 16px;font-size:15px;font-family:'Inter',sans-serif;outline:none;letter-spacing:.2px;transition:border-color .2s,box-shadow .2s;margin-bottom:12px;}
-.login-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 4px var(--green-subtle);}
-.login-input::placeholder{font-size:14px;color:var(--muted);}
-.login-err{color:var(--danger);font-size:12px;min-height:20px;margin-bottom:12px;display:flex;align-items:center;gap:5px;font-weight:500;}
-.login-btn{width:100%;background:var(--green);color:#ffffff;border:none;border-radius:var(--radius-sm);padding:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:3px;cursor:pointer;transition:background .18s,box-shadow .18s;text-transform:uppercase;}
-.login-btn:hover{background:var(--green2);box-shadow:0 6px 24px rgba(24,95,165,.30);}
+.login-form-side{width:460px;min-width:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:64px 56px;background:#ffffff;}
+.login-card{width:100%;max-width:340px;animation:fadeInUp .5s ease .08s both;}
+
+.login-form-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#1f6fff;margin-bottom:10px;}
+.login-form-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;letter-spacing:.3px;color:#0d1530;margin-bottom:6px;}
+.login-form-sub{font-size:13px;color:#7385a6;margin-bottom:36px;font-weight:300;}
+.login-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#8593ad;margin-bottom:8px;}
+.login-input-wrap{position:relative;margin-bottom:14px;}
+.login-input-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#9aa7c2;pointer-events:none;transition:color .2s;}
+.login-input-wrap:focus-within .login-input-icon{color:#1f6fff;}
+.login-input{width:100%;background:#f5f7fb;border:1px solid #e3e8f2;border-radius:10px;color:#0d1530;padding:14px 16px 14px 42px;font-size:15px;font-family:'Inter',sans-serif;outline:none;letter-spacing:.2px;transition:border-color .2s,box-shadow .2s,background .2s;}
+.login-input:focus{background:#fff;border-color:#1f6fff;box-shadow:0 0 0 4px rgba(31,111,255,.10);}
+.login-input::placeholder{font-size:14px;color:#a7b2c8;}
+#senha-input{padding-right:42px;}
+.login-input-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9aa7c2;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;transition:color .2s;}
+.login-input-toggle:hover{color:#1f6fff;}
+.login-err{color:var(--danger);font-size:12.5px;min-height:18px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:500;}
+.login-err svg{flex-shrink:0;}
+.login-btn{width:100%;background:linear-gradient(135deg,#0a1742 0%,#1f6fff 65%,#22d3f5 100%);color:#ffffff;border:none;border-radius:10px;padding:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:3px;cursor:pointer;transition:box-shadow .18s,transform .12s,filter .18s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;}
+.login-btn:hover{filter:brightness(1.08);box-shadow:0 8px 28px rgba(31,111,255,.32);}
+.login-btn:hover svg{transform:translateX(3px);}
+.login-btn svg{transition:transform .18s;}
 .login-btn:active{transform:scale(.99);}
 
-.login-demo-hint{margin-top:20px;padding:12px 16px;background:var(--green-subtle);border:1px solid rgba(24,95,165,.18);border-radius:var(--radius-sm);font-size:12px;color:var(--muted);line-height:1.8;}
-.login-demo-hint strong{color:var(--green);font-weight:600;}
-.login-ver{margin-top:32px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.5px;}
+.login-demo-hint{margin-top:20px;padding:12px 16px;background:#f0f5ff;border:1px solid #dce6fb;border-radius:10px;font-size:12px;color:#5d6c8a;line-height:1.8;}
+.login-demo-hint strong{color:#1f6fff;font-weight:600;}
+.login-ver{margin-top:32px;font-size:11px;color:#a7b2c8;text-align:center;letter-spacing:.5px;}
 
 @media(max-width:760px){.login-brand{display:none;}.login-form-side{width:100%;padding:44px 32px;}}
 
@@ -321,35 +335,54 @@ textarea.form-input{resize:vertical;min-height:80px;}
 <!-- LOGIN -->
 <div id="login-overlay">
   <div class="login-brand">
-    <div class="login-brand-grid"></div>
     <div class="login-brand-logo">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="48" height="48" rx="10" fill="#ddeaf8"/>
-        <rect x="10" y="28" width="7" height="10" rx="1.5" fill="#185FA5"/>
-        <rect x="20" y="22" width="7" height="16" rx="1.5" fill="#185FA5" opacity=".75"/>
-        <rect x="30" y="16" width="7" height="22" rx="1.5" fill="#185FA5" opacity=".5"/>
-        <path d="M10 14 L22 20 L34 10" stroke="#185FA5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="34" cy="10" r="2.5" fill="#185FA5"/>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="voluxRoofB" x1="16" y1="32" x2="84" y2="32"><stop offset="0" stop-color="#2a3f8a"/><stop offset="1" stop-color="#22d3f5"/></linearGradient>
+          <linearGradient id="voluxLeftB" x1="33" y1="40" x2="33" y2="96"><stop offset="0" stop-color="#34499e"/><stop offset="1" stop-color="#141d49"/></linearGradient>
+          <linearGradient id="voluxRightB" x1="67" y1="40" x2="67" y2="96"><stop offset="0" stop-color="#1f6fff"/><stop offset="1" stop-color="#22e1fb"/></linearGradient>
+        </defs>
+        <path d="M16 32 L50 6 L84 32" stroke="url(#voluxRoofB)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <polygon points="16,40 44,58 50,96 16,76" fill="url(#voluxLeftB)" stroke="rgba(255,255,255,.18)"/>
+        <polygon points="84,40 56,58 50,96 84,76" fill="url(#voluxRightB)" stroke="rgba(255,255,255,.18)"/>
       </svg>
-      <span class="login-brand-name">SEP<span>LAB</span></span>
+      <span class="login-brand-name">Volu<span>x</span></span>
     </div>
-    <div class="login-brand-pill"><span class="login-brand-pill-dot"></span> Sistema Ativo — v2.0</div>
+    <div class="login-brand-pill"><span class="login-brand-pill-dot"></span> Sistema Ativo</div>
     <div class="login-headline">Gestão<br>de <em>Pedidos</em><br>e Estoque.</div>
     <div class="login-tagline">Separação de pedidos, controle de estoque e histórico completo — tudo em um só lugar.</div>
-    <div class="login-brand-footer">SepLab Tooling · v2.0</div>
+    <div class="login-features">
+      <div class="login-feature"><span class="login-feature-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Separação de pedidos guiada por checklist</div>
+      <div class="login-feature"><span class="login-feature-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Controle de estoque em tempo real</div>
+      <div class="login-feature"><span class="login-feature-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Relatórios e histórico completos</div>
+    </div>
+    <div class="login-brand-footer">Volux · v2.0</div>
   </div>
   <div class="login-form-side">
-    <div class="login-card">
-      <div class="login-form-title">Acesso ao sistema</div>
+    <div class="login-card" id="login-card">
+      <div class="login-form-eyebrow">Área restrita</div>
+      <div class="login-form-title">Bem-vindo de volta</div>
       <div class="login-form-sub">Entre com suas credenciais para continuar</div>
       <label class="login-label" for="usuario-input">Usuário</label>
-      <input class="login-input" id="usuario-input" type="text" placeholder="Digite seu usuário"
-        onkeydown="if(event.key==='Enter')document.getElementById('senha-input').focus()">
+      <div class="login-input-wrap">
+        <svg class="login-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input class="login-input" id="usuario-input" type="text" placeholder="Digite seu usuário"
+          onkeydown="if(event.key==='Enter')document.getElementById('senha-input').focus()">
+      </div>
       <label class="login-label" for="senha-input">Senha</label>
-      <input class="login-input" id="senha-input" type="password" placeholder="Digite sua senha"
-        onkeydown="if(event.key==='Enter')verificarSenha()">
+      <div class="login-input-wrap">
+        <svg class="login-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input class="login-input" id="senha-input" type="password" placeholder="Digite sua senha"
+          onkeydown="if(event.key==='Enter')verificarSenha()">
+        <button type="button" class="login-input-toggle" id="toggle-senha-btn" onclick="toggleSenhaVisivel()" aria-label="Mostrar senha">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
       <div class="login-err" id="senha-erro"></div>
-      <button class="login-btn" onclick="verificarSenha()">ENTRAR</button>
+      <button class="login-btn" onclick="verificarSenha()">
+        ENTRAR
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
 
       <div class="login-ver">Sistema interno · Acesso restrito</div>
     </div>
@@ -358,17 +391,19 @@ textarea.form-input{resize:vertical;min-height:80px;}
 
 <header>
   <div class="logo-wrap">
-    <svg class="logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="48" height="48" rx="8" fill="#ddeaf8"/>
-      <rect x="10" y="28" width="7" height="10" rx="1.5" fill="#185FA5"/>
-      <rect x="20" y="22" width="7" height="16" rx="1.5" fill="#185FA5" opacity=".75"/>
-      <rect x="30" y="16" width="7" height="22" rx="1.5" fill="#185FA5" opacity=".5"/>
-      <path d="M10 14 L22 20 L34 10" stroke="#185FA5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="34" cy="10" r="2.5" fill="#185FA5"/>
+    <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="voluxRoofA" x1="16" y1="32" x2="84" y2="32"><stop offset="0" stop-color="#0a1742"/><stop offset="1" stop-color="#22d3f5"/></linearGradient>
+        <linearGradient id="voluxLeftA" x1="33" y1="40" x2="33" y2="96"><stop offset="0" stop-color="#16285c"/><stop offset="1" stop-color="#060c24"/></linearGradient>
+        <linearGradient id="voluxRightA" x1="67" y1="40" x2="67" y2="96"><stop offset="0" stop-color="#1f6fff"/><stop offset="1" stop-color="#22e1fb"/></linearGradient>
+      </defs>
+      <path d="M16 32 L50 6 L84 32" stroke="url(#voluxRoofA)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="16,40 44,58 50,96 16,76" fill="url(#voluxLeftA)"/>
+      <polygon points="84,40 56,58 50,96 84,76" fill="url(#voluxRightA)"/>
     </svg>
-    <div class="logo-text">SEP<span>LAB</span></div>
+    <div class="logo-text">Volu<span>x</span></div>
     <div class="logo-divider"></div>
-    <div class="logo-sub" id="logo-sub-text">Tooling</div>
+    <div class="logo-sub" id="logo-sub-text">Pedidos</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <span id="status-msg"></span>
@@ -856,7 +891,7 @@ function mudarTab(t,el){
     logoSub.textContent='Estoque';
   } else {
     btnAcao.textContent='+ Novo Pedido';btnAcao.onclick=()=>abrirNovoPedido();
-    logoSub.textContent='Tooling';
+    logoSub.textContent='Pedidos';
   }
   render();
 }
@@ -1578,7 +1613,7 @@ function gerarRelatorioMaquinas(ano){
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Relatório de Máquinas ${ano} — TOOLING SepLab</title>
+<title>Relatório de Máquinas ${ano} — Volux</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:960px;margin:0 auto;font-size:13px;}
@@ -1605,8 +1640,8 @@ function gerarRelatorioMaquinas(ano){
 
 <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #185FA5;padding-bottom:16px;margin-bottom:22px;">
   <div>
-    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">TOOLING</div>
-    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório de Máquinas Enviadas</div>
+    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">VOLUX</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">Volux — Relatório de Máquinas Enviadas</div>
   </div>
   <div style="text-align:right;">
     <div style="font-size:22px;font-weight:900;color:#111;">${ano}</div>
@@ -1652,7 +1687,7 @@ ${modelos.map(([nome,its])=>`
 `).join('')}
 
 <div style="border-top:1px solid #ddd;padding-top:12px;margin-top:16px;font-size:11px;color:#aaa;display:flex;justify-content:space-between;">
-  <span>TOOLING — SepLab · Relatório de Máquinas ${ano}</span>
+  <span>Volux · Relatório de Máquinas ${ano}</span>
   <span>Gerado em ${now.toLocaleDateString('pt-BR')}</span>
 </div>
 
@@ -1704,7 +1739,7 @@ function gerarRelatorioAnual(ano){
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Relatório Anual ${ano} — TOOLING SepLab</title>
+<title>Relatório Anual ${ano} — Volux</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:960px;margin:0 auto;font-size:13px;}
@@ -1735,8 +1770,8 @@ function gerarRelatorioAnual(ano){
 
 <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #185FA5;padding-bottom:16px;margin-bottom:22px;">
   <div>
-    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">TOOLING</div>
-    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório Anual de Pedidos</div>
+    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">VOLUX</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">Volux — Relatório Anual de Pedidos</div>
   </div>
   <div style="text-align:right;">
     <div style="font-size:22px;font-weight:900;color:#111;">${ano}</div>
@@ -1808,7 +1843,7 @@ function gerarRelatorioAnual(ano){
 </table>
 
 <div style="border-top:1px solid #ddd;padding-top:12px;margin-top:8px;font-size:11px;color:#aaa;display:flex;justify-content:space-between;">
-  <span>TOOLING — SepLab · Relatório Anual ${ano}</span>
+  <span>Volux · Relatório Anual ${ano}</span>
   <span>Gerado em ${now.toLocaleDateString('pt-BR')}</span>
 </div>
 
@@ -1908,8 +1943,8 @@ function gerarRelatorio(id, doHistorico=false){
 <!-- CABEÇALHO -->
 <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #185FA5;padding-bottom:16px;margin-bottom:22px;">
   <div>
-    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">TOOLING</div>
-    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">SepLab — Relatório de Status do Pedido</div>
+    <div style="font-size:28px;font-weight:900;color:#185FA5;letter-spacing:3px;">VOLUX</div>
+    <div style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">Volux — Relatório de Status do Pedido</div>
   </div>
   <div style="text-align:right;">
     <div style="font-size:12px;color:#555;">Gerado em</div>
@@ -1964,7 +1999,7 @@ ${renderItensDiretos()}
 
 <!-- RODAPÉ -->
 <div style="border-top:1px solid #ddd;padding-top:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#888;">
-  <div>TOOLING — SepLab · Relatório gerado em ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+  <div>Volux · Relatório gerado em ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
   <div style="text-align:center;">
     <div style="border-top:1px solid #aaa;width:180px;padding-top:4px;margin-top:30px;">${p.responsavel||'Responsável'}</div>
   </div>
@@ -1988,30 +2023,41 @@ ${renderItensDiretos()}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA')e.target.blur();});
 document.addEventListener('focusout',e=>{if(e.target.matches('.serial-input'))e.target.blur();});
 
+function toggleSenhaVisivel(){
+  const input=document.getElementById('senha-input');
+  const btn=document.getElementById('toggle-senha-btn');
+  const visivel=input.type==='text';
+  input.type=visivel?'password':'text';
+  btn.setAttribute('aria-label',visivel?'Mostrar senha':'Ocultar senha');
+  btn.innerHTML=visivel
+    ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
+    :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.22M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+}
 function verificarSenha(){
   const usuario=document.getElementById('usuario-input').value.trim();
   const senha=document.getElementById('senha-input').value;
   const err=document.getElementById('senha-erro');
+  const alertIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
   if(usuario==='admin'&&senha==='1001'){
     document.getElementById('login-overlay').style.display='none';
     sessionStorage.setItem('sl_logado','1');
     return;
   }
   if(!usuario){
-    err.textContent='⚠️ O campo usuário está vazio.';
+    err.innerHTML=alertIcon+'O campo usuário está vazio.';
     document.getElementById('usuario-input').focus();
   }else if(usuario!=='admin'){
-    err.textContent=`❌ Usuário "${usuario}" não encontrado.`;
+    err.innerHTML=alertIcon+`Usuário "${usuario}" não encontrado.`;
     document.getElementById('usuario-input').select();
   }else if(!senha){
-    err.textContent='⚠️ O campo senha está vazio.';
+    err.innerHTML=alertIcon+'O campo senha está vazio.';
     document.getElementById('senha-input').focus();
   }else{
-    err.textContent='🔒 Senha incorreta para o usuário "admin".';
+    err.innerHTML=alertIcon+'Senha incorreta para o usuário "admin".';
     document.getElementById('senha-input').value='';
     document.getElementById('senha-input').focus();
   }
-  setTimeout(()=>err.textContent='',4000);
+  setTimeout(()=>err.innerHTML='',4000);
 }
 setTimeout(()=>document.getElementById('usuario-input').focus(),200);
 
