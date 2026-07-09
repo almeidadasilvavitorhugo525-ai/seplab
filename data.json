@@ -474,5 +474,45 @@
     }
   ],
   "historico": [],
-  "itensPadrao": []
+  "itensPadrao": [],
+  "estoque": {
+    "itens": []
+  },
+  "catalogoItens": {
+    "Bomba Preta": {
+      "peso": 2.5,
+      "altura": 45,
+      "comprimento": 15,
+      "largura": 15
+    }
+  },
+  "embalagens": {
+    "caixas": [
+      {
+        "id": "elfxj18",
+        "nome": "CAIXA 100",
+        "comprimento": 45,
+        "largura": 37,
+        "altura": 22,
+        "pesoMax": 25
+      },
+      {
+        "id": "3lv3r8k",
+        "nome": "CAIXA 08",
+        "comprimento": 20,
+        "largura": 20,
+        "altura": 8,
+        "pesoMax": 5
+      },
+      {
+        "id": "ys8qaw0",
+        "nome": "CAIXA 28",
+        "comprimento": 36,
+        "largura": 26,
+        "altura": 10,
+        "pesoMax": 20
+      }
+    ],
+    "pallets": []
+  }
 }

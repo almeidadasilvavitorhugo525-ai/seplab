@@ -453,6 +453,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     Estoque
   </button>
+  <button class="nav-tab" onclick="mudarTab('catalogo',this)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+    Catálogo
+  </button>
 </nav>
 
 <main id="app"></main>
@@ -622,6 +626,54 @@ textarea.form-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<!-- MODAL SCAN CÂMERA -->
+<div class="modal-overlay" id="mScanCamera" onclick="if(event.target===this)fecharScanCamera()">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Escanear Código de Barras</div>
+      <button class="modal-close" onclick="fecharScanCamera()">×</button>
+    </div>
+    <div id="scanCameraArea" style="display:flex;justify-content:center;align-items:center;background:#000;border-radius:8px;overflow:hidden;min-height:220px;">
+      <video id="scanVideo" autoplay playsinline muted style="width:100%;max-height:320px;object-fit:cover;"></video>
+    </div>
+    <p id="scanCameraMsg" style="font-size:12px;color:var(--muted);margin-top:10px;"></p>
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharScanCamera()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CÓDIGO DE BARRAS -->
+<div class="modal-overlay" id="mBarcode" onclick="if(event.target===this)fecharModal('mBarcode')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="barcodeTitulo">Código de Barras</div>
+      <button class="modal-close" onclick="fecharModal('mBarcode')">×</button>
+    </div>
+    <div style="display:flex;justify-content:center;padding:16px 0;background:#fff;border-radius:8px;">
+      <svg id="barcodeSvg"></svg>
+    </div>
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mBarcode')">Fechar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="imprimirBarcode()">Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CÁLCULO DE EMBALAGEM -->
+<div class="modal-overlay" id="mEmbalagemCalc" onclick="if(event.target===this)fecharModal('mEmbalagemCalc')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="embTitulo">Cálculo de Embalagem</div>
+      <button class="modal-close" onclick="fecharModal('mEmbalagemCalc')">×</button>
+    </div>
+    <div id="embalagemConteudo"></div>
+  </div>
+</div>
+
 <!-- MODAL ESTOQUE -->
 <div class="modal-overlay" id="mEstoque" onclick="if(event.target===this)fecharModal('mEstoque')">
   <div class="modal">
@@ -652,7 +704,32 @@ textarea.form-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<!-- MODAL CAIXA/PALLET -->
+<div class="modal-overlay" id="mEmbalagem" onclick="if(event.target===this)fecharModal('mEmbalagem')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="mEmbalagem-titulo">Nova Caixa</div>
+      <button class="modal-close" onclick="fecharModal('mEmbalagem')">×</button>
+    </div>
+    <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="emb-nome" placeholder="ex: Caixa Grande"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="form-group"><label class="form-label">Compr. (cm)</label><input class="form-input" id="emb-comprimento" type="number" min="0" step="0.1" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Larg. (cm)</label><input class="form-input" id="emb-largura" type="number" min="0" step="0.1" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Alt. (cm)</label><input class="form-input" id="emb-altura" type="number" min="0" step="0.1" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Peso Máximo (kg)</label><input class="form-input" id="emb-pesoMax" type="number" min="0" step="0.1" placeholder="0"></div>
+    <input type="hidden" id="emb-id">
+    <input type="hidden" id="emb-tipo">
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mEmbalagem')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="salvarEmbalagem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
 const API='/api/data';
 async function loadFromServer(){try{const r=await fetch(API);const d=await r.json();return d||inicial();}catch{try{return JSON.parse(localStorage.getItem('tooling_seplab_v4'))||inicial();}catch{return inicial();}}}
@@ -666,7 +743,9 @@ function inicial(){return{
     {id:u(),nome:'Fritadeira',categoria:'Máquinas',qty:'1 un',temSerial:true},
     {id:u(),nome:'Máquina Blocadora',categoria:'Máquinas',qty:'1 un',temSerial:true},
   ],
-  estoque:{itens:[]}
+  estoque:{itens:[]},
+  catalogoItens:{},
+  embalagens:{caixas:[],pallets:[]}
 };}
 
 const MODELOS = {
@@ -889,9 +968,14 @@ function mudarTab(t,el){
   const btnAcao=document.getElementById('btn-acao-principal');
   const logoSub=document.getElementById('logo-sub-text');
   if(t==='estoque'){
+    btnAcao.style.display='';
     btnAcao.textContent='+ Novo Item';btnAcao.onclick=()=>abrirModalEstoque();
     logoSub.textContent='Estoque';
+  } else if(t==='catalogo'){
+    btnAcao.style.display='none';
+    logoSub.textContent='Catálogo';
   } else {
+    btnAcao.style.display='';
     btnAcao.textContent='+ Novo Pedido';btnAcao.onclick=()=>abrirNovoPedido();
     logoSub.textContent='Pedidos';
   }
@@ -901,12 +985,15 @@ function mudarTab(t,el){
 function render(){
   if(!S)return;
   if(!S.estoque)S.estoque={itens:[]};
+  if(!S.catalogoItens)S.catalogoItens={};
+  if(!S.embalagens)S.embalagens={caixas:[],pallets:[]};
   const app=document.getElementById('app');
-  if(tab==='pedidos')app.innerHTML=rPedidos();
+  if(tab==='pedidos'){app.innerHTML=rPedidos();focarScanInput();}
   else if(tab==='historico')app.innerHTML=rHistorico();
   else if(tab==='painel')app.innerHTML=rPainel();
   else if(tab==='itens'){rTabItens();return;}
   else if(tab==='estoque'){rTabEstoque();return;}
+  else if(tab==='catalogo'){rTabCatalogo();return;}
   bindEv();
 }
 
@@ -952,8 +1039,15 @@ function rPedidos(){
     <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">Separando · ${nSep}</button>
     <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">Prontos · ${nPron}</button>
   </div>`;
-  if(!list.length)return stats+chips+`<div class="empty-state"><span class="e-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
-  return stats+chips+list.map(rCard).join('');
+  const scanBar=`<div class="est-toolbar">
+    <div class="est-search-wrap">
+      <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/></svg></span>
+      <input id="scanInput" placeholder="Escanear ou digitar nº do pedido..." onkeydown="if(event.key==='Enter')buscarPorNumero(this.value)">
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="abrirScanCamera()">Câmera</button>
+  </div>`;
+  if(!list.length)return scanBar+stats+chips+`<div class="empty-state"><span class="e-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span><p>Nenhum pedido encontrado.<br>Toque em <strong>+ Novo Pedido</strong> para começar.</p></div>`;
+  return scanBar+stats+chips+list.map(rCard).join('');
 }
 
 function rItemMaq(pid,mid,item){
@@ -1022,6 +1116,7 @@ function rCard(p){
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
       <div class="ph-row1">
         <span class="ph-order-num"># ${p.numero}</span>
+        <button class="btn btn-ghost btn-xs" title="Código de barras" onclick="event.stopPropagation();verCodigoBarras('${p.id}')" style="padding:4px 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/></svg></button>
         <span id="ppill-${p.id}">${statusPill}</span>
         <div class="ph-spacer"></div>
         <div class="ph-bar-wrap">
@@ -1048,6 +1143,7 @@ function rCard(p){
         <div id="pbotoes-${p.id}" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">Relatório</button>
           <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">Editar</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirCalculoEmbalagem('${p.id}')">Calcular Embalagem</button>
           ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">Mover p/ Histórico</button>`:''}
           <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">Reset</button>
           <button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>
@@ -1166,6 +1262,34 @@ function setFiltro(f){filtro=f;render();}
 function toggleCard(id){
   const b=document.getElementById('body-'+id),c=document.getElementById('chv-'+id),k=document.getElementById('card-'+id);
   const o=b.classList.toggle('open');c.classList.toggle('rotated',o);k.classList.toggle('open-card',o);
+}
+
+function focarScanInput(){
+  const input=document.getElementById('scanInput');
+  if(input)setTimeout(()=>input.focus(),50);
+}
+
+function buscarPorNumero(valor){
+  const v=(valor||'').trim();
+  const input=document.getElementById('scanInput');
+  if(!v)return;
+  const p=S.pedidos.find(x=>x.numero===v);
+  if(!p){
+    if(input){
+      input.style.borderColor='var(--danger)';
+      setTimeout(()=>{if(input)input.style.borderColor='';},900);
+    }
+    return;
+  }
+  filtro='todos';
+  render();
+  setTimeout(()=>{
+    const body=document.getElementById('body-'+p.id);
+    if(body&&!body.classList.contains('open'))toggleCard(p.id);
+    const card=document.getElementById('card-'+p.id);
+    if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+    focarScanInput();
+  },30);
 }
 
 function toggleMaquina(mid){
@@ -1464,12 +1588,15 @@ function abrirNovoPedido(){
   document.getElementById('mNovoPedido').classList.add('open');
 }
 function abrirModalItens(){renderListaItens();document.getElementById('mItens').classList.add('open');}
-function fecharModal(id){document.getElementById(id).classList.remove('open');}
+function fecharModal(id){
+  if(id==='mScanCamera')pararScanCamera();
+  document.getElementById(id).classList.remove('open');
+}
 
 function fd(d){if(!d)return'';const[y,m,dia]=d.split('-');return`${dia}/${m}/${y}`;}
 function fdh(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 
-function bindEv(){document.querySelectorAll('.modal-overlay').forEach(m=>{m.onclick=e=>{if(e.target===m)m.classList.remove('open');};});}
+function bindEv(){document.querySelectorAll('.modal-overlay').forEach(m=>{m.onclick=e=>{if(e.target===m)fecharModal(m.id);};});}
 
 let ocrTextoLido='';
 
@@ -2184,6 +2311,322 @@ function mostrarStatusEstoque(msg){
   setTimeout(()=>{el.style.opacity='0';},2000);
 }
 
+/* ── CATÁLOGO: PESO/MEDIDAS E EMBALAGENS ── */
+let catalogoSubview='medidas', catBusca='';
+
+function nomesItensConhecidos(){
+  const nomes=new Set();
+  Object.values(MODELOS).forEach(m=>m.itens.forEach(i=>nomes.add(i.nome)));
+  S.itensPadrao.forEach(i=>nomes.add(i.nome));
+  S.pedidos.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
+  S.historico.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
+  return[...nomes].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+
+function rTabCatalogo(){
+  const app=document.getElementById('app');
+  app.innerHTML=`<div class="chips" style="margin-bottom:16px;">
+    <button class="chip ${catalogoSubview==='medidas'?'active':''}" onclick="catalogoSubview='medidas';rTabCatalogo()">Peso &amp; Medidas</button>
+    <button class="chip ${catalogoSubview==='embalagens'?'active':''}" onclick="catalogoSubview='embalagens';rTabCatalogo()">Caixas &amp; Pallets</button>
+  </div>
+  <div id="catalogoConteudo"></div>`;
+  if(catalogoSubview==='medidas')rMedidasItens();else rEmbalagensLista();
+}
+
+function rMedidasItens(){
+  const cont=document.getElementById('catalogoConteudo');
+  const nomes=nomesItensConhecidos();
+  const cadastrados=nomes.filter(n=>{const c=S.catalogoItens[n];return c&&(c.peso||c.comprimento||c.largura||c.altura);}).length;
+  const busca=catBusca.toLowerCase();
+  const lista=nomes.filter(n=>n.toLowerCase().includes(busca));
+  cont.innerHTML=`
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:13px;color:var(--muted)">${cadastrados} de ${nomes.length} itens com medidas cadastradas</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--green)">${nomes.length?Math.round(cadastrados/nomes.length*100):0}%</span>
+    </div>
+    <div style="width:100%;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
+      <div style="height:100%;background:var(--green);border-radius:3px;width:${nomes.length?Math.round(cadastrados/nomes.length*100):0}%;transition:width .4s;"></div>
+    </div>
+  </div>
+  <div class="est-toolbar">
+    <div class="est-search-wrap">
+      <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input placeholder="Buscar item..." value="${catBusca}" oninput="catBusca=this.value;rMedidasItens()">
+    </div>
+  </div>
+  <div class="est-table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
+      <tbody>${lista.length?lista.map((nome,idx)=>{
+        const c=S.catalogoItens[nome]||{};
+        const pendente=!(c.peso||c.comprimento||c.largura||c.altura);
+        return`<tr style="${pendente?'border-left:3px solid var(--warn)':''}">
+          <td style="font-weight:500">${nome}</td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.01" value="${c.peso||''}" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.comprimento||''}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.largura||''}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.altura||''}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
+        </tr>`;}).join(''):`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+  window._medidasLista=lista;
+}
+
+function salvarMedidaItem(idx,campo,valor){
+  const nome=window._medidasLista&&window._medidasLista[idx];if(!nome)return;
+  const atual=S.catalogoItens[nome]||{};
+  atual[campo]=parseFloat(valor)||0;
+  S.catalogoItens[nome]=atual;
+  save();
+}
+
+function rEmbalagensLista(){
+  const cont=document.getElementById('catalogoConteudo');
+  const rLinha=(e,tipo)=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);">
+    <div style="flex:1;">
+      <div style="font-weight:600;font-size:14px">${e.nome}</div>
+      <div style="font-size:12px;color:var(--muted)">${e.comprimento}×${e.largura}×${e.altura} cm · até ${e.pesoMax} kg</div>
+    </div>
+    <button class="btn btn-ghost btn-xs" onclick="editarEmbalagem('${tipo}','${e.id}')">Editar</button>
+    <button class="btn btn-danger btn-xs" onclick="removerEmbalagem('${tipo}','${e.id}')">Remover</button>
+  </div>`;
+  cont.innerHTML=`
+  <div class="card" style="margin-bottom:14px;">
+    <div class="toolbar" style="margin-bottom:8px;"><div class="sec-title">Caixas (${S.embalagens.caixas.length})</div><button class="btn btn-primary btn-sm" onclick="abrirModalCaixa('caixas')">+ Nova Caixa</button></div>
+    ${S.embalagens.caixas.length?S.embalagens.caixas.map(e=>rLinha(e,'caixas')).join(''):'<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhuma caixa cadastrada.</p>'}
+  </div>
+  <div class="card">
+    <div class="toolbar" style="margin-bottom:8px;"><div class="sec-title">Pallets (${S.embalagens.pallets.length})</div><button class="btn btn-primary btn-sm" onclick="abrirModalCaixa('pallets')">+ Novo Pallet</button></div>
+    ${S.embalagens.pallets.length?S.embalagens.pallets.map(e=>rLinha(e,'pallets')).join(''):'<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum pallet cadastrado.</p>'}
+  </div>`;
+}
+
+function abrirModalCaixa(tipo){
+  ['emb-id','emb-nome','emb-comprimento','emb-largura','emb-altura','emb-pesoMax'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('emb-tipo').value=tipo;
+  document.getElementById('mEmbalagem-titulo').textContent=tipo==='caixas'?'Nova Caixa':'Novo Pallet';
+  document.getElementById('mEmbalagem').classList.add('open');
+}
+
+function editarEmbalagem(tipo,id){
+  const e=S.embalagens[tipo].find(x=>x.id===id);if(!e)return;
+  document.getElementById('emb-id').value=e.id;
+  document.getElementById('emb-tipo').value=tipo;
+  document.getElementById('emb-nome').value=e.nome;
+  document.getElementById('emb-comprimento').value=e.comprimento;
+  document.getElementById('emb-largura').value=e.largura;
+  document.getElementById('emb-altura').value=e.altura;
+  document.getElementById('emb-pesoMax').value=e.pesoMax;
+  document.getElementById('mEmbalagem-titulo').textContent=tipo==='caixas'?'Editar Caixa':'Editar Pallet';
+  document.getElementById('mEmbalagem').classList.add('open');
+}
+
+function salvarEmbalagem(){
+  const tipo=document.getElementById('emb-tipo').value||'caixas';
+  const id=document.getElementById('emb-id').value;
+  const nome=document.getElementById('emb-nome').value.trim();
+  if(!nome){alert('Preencha o nome.');return;}
+  const e={
+    id:id||u(),nome,
+    comprimento:parseFloat(document.getElementById('emb-comprimento').value)||0,
+    largura:parseFloat(document.getElementById('emb-largura').value)||0,
+    altura:parseFloat(document.getElementById('emb-altura').value)||0,
+    pesoMax:parseFloat(document.getElementById('emb-pesoMax').value)||0
+  };
+  if(!S.embalagens)S.embalagens={caixas:[],pallets:[]};
+  if(id){const idx=S.embalagens[tipo].findIndex(x=>x.id===id);if(idx>=0)S.embalagens[tipo][idx]=e;}
+  else S.embalagens[tipo].push(e);
+  save();fecharModal('mEmbalagem');rEmbalagensLista();
+}
+
+function removerEmbalagem(tipo,id){
+  if(!confirm('Remover este item?'))return;
+  S.embalagens[tipo]=S.embalagens[tipo].filter(x=>x.id!==id);
+  save();rEmbalagensLista();
+}
+
+/* ── CÁLCULO DE EMBALAGEM (bin-packing por volume/peso, First-Fit-Decreasing) ── */
+function parseQty(qtyStr){const m=/(\d+)/.exec(qtyStr||'');return m?parseInt(m[1]):1;}
+
+function agruparNomes(itensArr){
+  const m={};
+  itensArr.forEach(n=>m[n]=(m[n]||0)+1);
+  return Object.entries(m).map(([nome,qtd])=>({nome,qtd}));
+}
+
+function empacotarUnidades(unidadesList,recipientes){
+  const tipos=recipientes.map(r=>({...r,vol:(r.comprimento||0)*(r.largura||0)*(r.altura||0)})).sort((a,b)=>a.vol-b.vol);
+  const ordenadas=[...unidadesList].sort((a,b)=>b.vol-a.vol);
+  const bins=[],naoCoube=[];
+  ordenadas.forEach(u=>{
+    let bin=bins.find(b=>b.volRestante>=u.vol&&b.pesoRestante>=u.peso);
+    if(!bin){
+      const tipo=tipos.find(t=>t.vol>=u.vol&&t.pesoMax>=u.peso);
+      if(!tipo){naoCoube.push(u);return;}
+      bin={caixaNome:tipo.nome,volRestante:tipo.vol,pesoRestante:tipo.pesoMax,itens:[],pesoTotal:0};
+      bins.push(bin);
+    }
+    bin.itens.push(u.nome);bin.volRestante-=u.vol;bin.pesoRestante-=u.peso;bin.pesoTotal+=u.peso;
+  });
+  return{bins,naoCoube};
+}
+
+function calcularEmbalagemPedido(pedido){
+  const itens=todosItens(pedido);
+  const unidades=[];const pendentesMap={};
+  itens.forEach(item=>{
+    const qtd=parseQty(item.qty);
+    const c=S.catalogoItens[item.nome];
+    const temMedida=c&&(c.peso||c.comprimento||c.largura||c.altura);
+    if(!temMedida){pendentesMap[item.nome]=(pendentesMap[item.nome]||0)+qtd;return;}
+    const vol=(c.comprimento||0)*(c.largura||0)*(c.altura||0);
+    for(let i=0;i<qtd;i++)unidades.push({nome:item.nome,peso:c.peso||0,vol});
+  });
+  const pendentes=Object.entries(pendentesMap).map(([nome,qtd])=>({nome,qtd}));
+  const pesoTotalPedido=unidades.reduce((a,u)=>a+u.peso,0);
+
+  let resultado={bins:[],naoCoube:unidades};
+  if(S.embalagens.caixas.length)resultado=empacotarUnidades(unidades,S.embalagens.caixas);
+
+  let palletBins=[],semEmbalagem=resultado.naoCoube;
+  if(resultado.naoCoube.length&&S.embalagens.pallets.length){
+    const r2=empacotarUnidades(resultado.naoCoube,S.embalagens.pallets);
+    palletBins=r2.bins;semEmbalagem=r2.naoCoube;
+  }
+
+  return{
+    bins:resultado.bins.map(b=>({caixaNome:b.caixaNome,itens:agruparNomes(b.itens),pesoTotal:+b.pesoTotal.toFixed(2)})),
+    palletBins:palletBins.map(b=>({caixaNome:b.caixaNome,itens:agruparNomes(b.itens),pesoTotal:+b.pesoTotal.toFixed(2)})),
+    pesoTotalPedido:+pesoTotalPedido.toFixed(2),
+    pendentes,
+    semEmbalagem:agruparNomes(semEmbalagem.map(u=>u.nome))
+  };
+}
+
+function abrirCalculoEmbalagem(id){
+  const p=S.pedidos.find(x=>x.id===id);if(!p)return;
+  document.getElementById('embTitulo').textContent='Embalagem — Pedido '+p.numero;
+  if(!S.embalagens.caixas.length&&!S.embalagens.pallets.length){
+    document.getElementById('embalagemConteudo').innerHTML=`<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhuma caixa ou pallet cadastrado ainda. Cadastre em <strong>Catálogo → Caixas &amp; Pallets</strong> para calcular a embalagem.</p>`;
+    document.getElementById('mEmbalagemCalc').classList.add('open');
+    return;
+  }
+  const r=calcularEmbalagemPedido(p);
+  const rBin=(b,icone)=>`<div class="card" style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <strong style="font-size:14px">${icone} ${b.caixaNome}</strong>
+      <span style="font-size:12px;color:var(--muted)">${b.pesoTotal} kg</span>
+    </div>
+    <div style="font-size:13px;color:var(--text2)">${b.itens.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+  </div>`;
+  document.getElementById('embalagemConteudo').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;color:var(--muted)">Peso total (itens com cadastro)</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--green)">${r.pesoTotalPedido} kg</span>
+    </div>
+    ${r.bins.length?`<div class="sec-title" style="margin-bottom:8px">Caixas Sugeridas (${r.bins.length})</div>${r.bins.map(b=>rBin(b,'📦')).join('')}`:''}
+    ${r.palletBins.length?`<div class="sec-title" style="margin-bottom:8px;margin-top:12px">Pallets Sugeridos (${r.palletBins.length})</div>${r.palletBins.map(b=>rBin(b,'🟫')).join('')}`:''}
+    ${r.semEmbalagem.length?`<div style="background:rgba(240,78,78,.08);border-left:4px solid var(--danger);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:12px;">
+      <div style="font-weight:700;color:var(--danger);font-size:12px;margin-bottom:4px;">SEM EMBALAGEM COMPATÍVEL</div>
+      <div style="font-size:13px">${r.semEmbalagem.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+    </div>`:''}
+    ${r.pendentes.length?`<div style="background:rgba(217,119,6,.08);border-left:4px solid var(--warn);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:12px;">
+      <div style="font-weight:700;color:var(--warn);font-size:12px;margin-bottom:4px;">ITENS SEM MEDIDA CADASTRADA (${r.pendentes.length})</div>
+      <div style="font-size:13px">${r.pendentes.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+    </div>`:''}
+    <p style="font-size:11px;color:var(--muted);margin-top:14px;">Cálculo aproximado por peso e volume — não considera o encaixe físico exato dos itens.</p>`;
+  document.getElementById('mEmbalagemCalc').classList.add('open');
+}
+
+/* ── CÓDIGO DE BARRAS ── */
+let barcodeAtualPedido=null;
+
+function verCodigoBarras(id){
+  const p=S.pedidos.find(x=>x.id===id);if(!p)return;
+  barcodeAtualPedido=p;
+  document.getElementById('barcodeTitulo').textContent='Pedido '+p.numero;
+  JsBarcode('#barcodeSvg',p.numero,{format:'CODE128',displayValue:true,fontSize:16,height:70,margin:10});
+  document.getElementById('mBarcode').classList.add('open');
+}
+
+function imprimirBarcode(){
+  if(!barcodeAtualPedido)return;
+  const svg=document.getElementById('barcodeSvg').outerHTML;
+  const html=`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Etiqueta — ${barcodeAtualPedido.numero}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  .info{font-size:14px;margin-top:10px;text-align:center;}
+  @media print{@page{margin:1cm;}}
+</style>
+</head>
+<body>
+${svg}
+<div class="info"><strong>${barcodeAtualPedido.cliente||''}</strong><br>${barcodeAtualPedido.destino||''}</div>
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+
+/* ── SCAN VIA CÂMERA ── */
+let scanCameraStream=null,scanCameraLoopId=null;
+
+async function abrirScanCamera(){
+  document.getElementById('mScanCamera').classList.add('open');
+  const msg=document.getElementById('scanCameraMsg');
+  msg.style.color='var(--muted)';msg.textContent='Aponte a câmera para o código de barras...';
+  if(!('BarcodeDetector'in window)){
+    msg.style.color='var(--warn)';
+    msg.textContent='Leitura por câmera não é suportada neste navegador. Use o leitor USB ou digite o número manualmente.';
+    return;
+  }
+  try{
+    scanCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+  }catch(e){
+    msg.style.color='var(--danger)';
+    msg.textContent='Não foi possível acessar a câmera: '+e.message;
+    return;
+  }
+  const video=document.getElementById('scanVideo');
+  video.srcObject=scanCameraStream;
+  const detector=new BarcodeDetector({formats:['code_128']});
+  const loop=async()=>{
+    if(!scanCameraStream)return;
+    try{
+      const codes=await detector.detect(video);
+      if(codes.length){
+        const valor=codes[0].rawValue;
+        fecharScanCamera();
+        buscarPorNumero(valor);
+        return;
+      }
+    }catch(e){}
+    scanCameraLoopId=requestAnimationFrame(loop);
+  };
+  scanCameraLoopId=requestAnimationFrame(loop);
+}
+
+function pararScanCamera(){
+  if(scanCameraLoopId){cancelAnimationFrame(scanCameraLoopId);scanCameraLoopId=null;}
+  if(scanCameraStream){scanCameraStream.getTracks().forEach(t=>t.stop());scanCameraStream=null;}
+  const video=document.getElementById('scanVideo');
+  if(video)video.srcObject=null;
+}
+
+function fecharScanCamera(){fecharModal('mScanCamera');}
+
 loadFromServer().then(d=>{
   S=d;
   if(sessionStorage.getItem('sl_logado')==='1'){
@@ -2191,7 +2634,7 @@ loadFromServer().then(d=>{
     const tabSalva=sessionStorage.getItem('sl_tab');
     if(tabSalva&&tabSalva!=='pedidos'){
       tab=tabSalva;
-      const tabs={pedidos:0,historico:1,painel:2,itens:3,estoque:4};
+      const tabs={pedidos:0,historico:1,painel:2,itens:3,estoque:4,catalogo:5};
       const idx=tabs[tabSalva];
       if(idx!==undefined){
         const navTabs=document.querySelectorAll('.nav-tab');
