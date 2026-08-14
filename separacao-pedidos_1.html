@@ -480,6 +480,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
     Catálogo
   </button>
+  <button class="nav-tab" id="nav-tab-usuarios" style="display:none" onclick="mudarTab('usuarios',this)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Usuários
+  </button>
 </nav>
 
 <main id="app"></main>
@@ -763,12 +767,132 @@ textarea.form-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<!-- MODAL IMPORTAR PRODUTOS (relatório Questor) -->
+<div class="modal-overlay" id="mImportarProdutos" onclick="if(event.target===this)fecharModal('mImportarProdutos')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Importar Relatório de Produtos</div>
+      <button class="modal-close" onclick="fecharModal('mImportarProdutos')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cole aqui o texto copiado do relatório (PDF, Excel etc.)</label>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Um produto por linha. Se a linha terminar com a quantidade vendida (ex: "Parafuso M6&#9;350"), ela é aproveitada para ordenar os mais vendidos primeiro. Selecione o texto do relatório (Ctrl+A, Ctrl+C) e cole com Ctrl+V no campo abaixo.</div>
+      <textarea class="form-input" id="importarProdutosTxt" rows="10" style="width:100%;font-family:monospace;font-size:12.5px;resize:vertical;" placeholder="Parafuso M6&#10;Correia XPTO&#9;120&#10;Sensor de Nível&#9;87"></textarea>
+    </div>
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mImportarProdutos')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmarImportarProdutos()">Importar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUÁRIO -->
+<div class="modal-overlay" id="mUsuario" onclick="if(event.target===this)fecharModal('mUsuario')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="mUsuario-titulo">Novo Usuário</div>
+      <button class="modal-close" onclick="fecharModal('mUsuario')">×</button>
+    </div>
+    <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="usr-nome" placeholder="ex: João Silva"></div>
+    <div class="form-group"><label class="form-label">Usuário (login)</label><input class="form-input" id="usr-usuario" placeholder="ex: joao"></div>
+    <div class="form-group"><label class="form-label">Senha</label><input class="form-input" id="usr-senha" type="password" placeholder="Senha"></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="usr-admin" style="width:16px;height:16px;">
+      <label class="form-label" for="usr-admin" style="margin:0">Administrador (pode excluir pedidos e gerenciar usuários)</label>
+    </div>
+    <div class="login-err" id="mUsuario-erro" style="margin-bottom:4px;"></div>
+    <input type="hidden" id="usr-id">
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mUsuario')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ITEM EXTRA -->
+<div class="modal-overlay" id="mItemExtra" onclick="if(event.target===this)fecharModal('mItemExtra')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title">Adicionar Item Extra</div>
+      <button class="modal-close" onclick="fecharModal('mItemExtra')">×</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Use para incluir algo no pedido que não faz parte do kit padrão da máquina.</div>
+    <div class="form-group"><label class="form-label">Nome do item</label><input class="form-input" id="itex-nome" placeholder="ex: Manual extra"></div>
+    <div class="form-group"><label class="form-label">Quantidade</label><input class="form-input" id="itex-qty" placeholder="ex: 1 un" value="1 un"></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="itex-serial" style="width:16px;height:16px;">
+      <label class="form-label" for="itex-serial" style="margin:0">Este item tem número de série</label>
+    </div>
+    <input type="hidden" id="itex-pid">
+    <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mItemExtra')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="salvarItemExtra()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ALERTA / CONFIRMAÇÃO (substitui alert()/confirm() nativos do navegador) -->
+<div class="modal-overlay" id="mAlerta" onclick="if(event.target===this)_resolverAlerta(false)">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div id="alerta-icone" style="margin:4px auto 14px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(31,111,255,.10);color:var(--green);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12.5"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div id="alerta-msg" style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:22px;white-space:pre-line;"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" id="alerta-btn-cancelar" style="flex:1;display:none" onclick="_resolverAlerta(false)">Cancelar</button>
+      <button class="btn btn-primary" id="alerta-btn-ok" style="flex:1" onclick="_resolverAlerta(true)">OK</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
 const API='/api/data';
-async function loadFromServer(){try{const r=await fetch(API);const d=await r.json();return d||inicial();}catch{try{return JSON.parse(localStorage.getItem('tooling_seplab_v4'))||inicial();}catch{return inicial();}}}
-function save(){fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)}).catch(()=>{try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}});}
+function authHeaders(){const t=sessionStorage.getItem('sl_token');return t?{'x-volux-token':t}:{};}
+function forcarRelogin(){
+  sessionStorage.removeItem('sl_logado');
+  sessionStorage.removeItem('sl_token');
+  const overlay=document.getElementById('login-overlay');
+  if(overlay)overlay.style.display='flex';
+  const err=document.getElementById('senha-erro');
+  if(err){
+    err.innerHTML='Sua sessão expirou. Faça login novamente.';
+    setTimeout(()=>err.innerHTML='',6000);
+  }
+}
+async function loadFromServer(){
+  try{
+    const r=await fetch(API,{headers:authHeaders()});
+    if(r.status===401){forcarRelogin();return inicial();}
+    const d=await r.json();return d||inicial();
+  }catch{try{return JSON.parse(localStorage.getItem('tooling_seplab_v4'))||inicial();}catch{return inicial();}}
+}
+function mostrarStatus(msg,cor){
+  const el=document.getElementById('status-msg');
+  if(!el)return;
+  el.textContent=msg;
+  el.style.color=cor||'var(--green)';
+  el.style.opacity='1';
+  clearTimeout(el._statusTimeout);
+  el._statusTimeout=setTimeout(()=>{el.style.opacity='0';},2200);
+}
+function save(){
+  mostrarStatus('Salvando...','var(--muted)');
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(S)})
+    .then(r=>{
+      if(r.status===401){forcarRelogin();return;}
+      if(!r.ok){mostrarStatus('Erro ao salvar','var(--danger)');return;}
+      mostrarStatus('Salvo');
+    })
+    .catch(()=>{
+      try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}
+      mostrarStatus('Sem conexão — salvo só neste dispositivo','var(--warn)');
+    });
+}
 
 function inicial(){return{
   pedidos:[],historico:[],
@@ -780,7 +904,8 @@ function inicial(){return{
   ],
   estoque:{itens:[]},
   catalogoItens:{},
-  embalagens:{caixas:[],pallets:[]}
+  embalagens:{caixas:[],pallets:[]},
+  produtosImportados:[]
 };}
 
 const MODELOS = {
@@ -993,8 +1118,10 @@ const MODELOS = {
 };
 
 let S=null, tab='pedidos', filtro='todos', estFiltro='todos', estBusca='';
+let SESSAO={nome:'',usuario:'',admin:false};
 let localizacaoNovo=null, localizacaoEdit=null;
 const MAPA_CENTRO_PADRAO=[-14.235,-51.9253], MAPA_ZOOM_PADRAO=4;
+const MAPA_LIMITES=L.latLngBounds([-85,-180],[85,180]);
 let mapaGeralLeaflet=null, mapaGeralMarkers=null;
 let mapaMiniNovoLeaflet=null, mapaMiniNovoMarker=null;
 let mapaMiniEditLeaflet=null, mapaMiniEditMarker=null;
@@ -1017,6 +1144,10 @@ function mudarTab(t,el){
   } else if(t==='mapa'){
     btnAcao.style.display='none';
     logoSub.textContent='Mapa';
+  } else if(t==='usuarios'){
+    btnAcao.style.display='';
+    btnAcao.textContent='+ Novo Usuário';btnAcao.onclick=()=>abrirModalUsuario();
+    logoSub.textContent='Usuários';
   } else {
     btnAcao.style.display='';
     btnAcao.textContent='+ Novo Pedido';btnAcao.onclick=()=>abrirNovoPedido();
@@ -1030,6 +1161,7 @@ function render(){
   if(!S.estoque)S.estoque={itens:[]};
   if(!S.catalogoItens)S.catalogoItens={};
   if(!S.embalagens)S.embalagens={caixas:[],pallets:[]};
+  if(!S.produtosImportados)S.produtosImportados=[];
   const app=document.getElementById('app');
   if(tab==='pedidos'){app.innerHTML=rPedidos();focarScanInput();}
   else if(tab==='historico')app.innerHTML=rHistorico();
@@ -1038,6 +1170,7 @@ function render(){
   else if(tab==='itens'){rTabItens();return;}
   else if(tab==='estoque'){rTabEstoque();return;}
   else if(tab==='catalogo'){rTabCatalogo();return;}
+  else if(tab==='usuarios'){rTabUsuarios();return;}
   bindEv();
 }
 
@@ -1058,13 +1191,16 @@ function iconVolux({clicavel=false,pulsante=false}={}){
 function criarTileLayer(){
   return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19,
+    minZoom:2,
+    noWrap:true,
+    bounds:MAPA_LIMITES,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   });
 }
 
 function criarMapaMini(containerId,modo){
   const c=document.getElementById(containerId);
-  const map=L.map(c,{scrollWheelZoom:false}).setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
+  const map=L.map(c,{scrollWheelZoom:false,minZoom:2,maxBounds:MAPA_LIMITES,maxBoundsViscosity:1.0}).setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
   criarTileLayer().addTo(map);
   map.on('click',e=>clicarMapa(e,modo));
   return map;
@@ -1120,7 +1256,7 @@ async function localizarEnderecoNoMapa(modo){
   const endereco=document.getElementById(pre+'Endereco').value.trim();
   const destino=document.getElementById(pre+'Destino').value.trim();
   const cep=document.getElementById(pre+'Cep').value.trim();
-  if(!endereco&&!destino&&!cep){alert('Preencha o endereço, cidade/UF ou CEP antes de localizar no mapa.');return;}
+  if(!endereco&&!destino&&!cep){mostrarAlerta('Preencha o endereço, cidade/UF ou CEP antes de localizar no mapa.');return;}
   const query=[endereco,destino,cep].filter(Boolean).join(', ');
   const btn=document.getElementById(modo==='novo'?'btnGeoNovo':'btnGeoEdit');
   const textoOriginal=btn.textContent;
@@ -1131,7 +1267,7 @@ async function localizarEnderecoNoMapa(modo){
     if(!res.ok)throw new Error('resposta inválida');
     const data=await res.json();
     if(!data.length){
-      alert('Endereço não encontrado. Tente incluir mais detalhes (cidade, país) ou marque manualmente clicando no mapa.');
+      mostrarAlerta('Endereço não encontrado. Tente incluir mais detalhes (cidade, país) ou marque manualmente clicando no mapa.');
       return;
     }
     const loc={lat:parseFloat(data[0].lat),lon:parseFloat(data[0].lon)};
@@ -1142,7 +1278,7 @@ async function localizarEnderecoNoMapa(modo){
     if(modo==='novo'){localizacaoNovo=loc;document.getElementById('mapHintNovo').innerHTML=hintHTML;}
     else{localizacaoEdit=loc;document.getElementById('mapHintEdit').innerHTML=hintHTML;}
   }catch(err){
-    alert('Não foi possível buscar o endereço agora (verifique sua conexão com a internet). Marque manualmente clicando no mapa.');
+    mostrarAlerta('Não foi possível buscar o endereço agora (verifique sua conexão com a internet). Marque manualmente clicando no mapa.');
   }finally{
     btn.disabled=false;btn.textContent=textoOriginal;
   }
@@ -1178,7 +1314,7 @@ function bindMapaClick(){
   const c=document.getElementById('mapaGeral');
   if(!c)return;
   if(mapaGeralLeaflet){mapaGeralLeaflet.remove();mapaGeralLeaflet=null;mapaGeralMarkers=null;}
-  mapaGeralLeaflet=L.map(c,{scrollWheelZoom:true}).setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
+  mapaGeralLeaflet=L.map(c,{scrollWheelZoom:true,minZoom:2,maxBounds:MAPA_LIMITES,maxBoundsViscosity:1.0}).setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
   criarTileLayer().addTo(mapaGeralLeaflet);
   mapaGeralMarkers=L.layerGroup().addTo(mapaGeralLeaflet);
   const info=document.getElementById('mapaInfoWrap');
@@ -1401,9 +1537,10 @@ function rCard(p){
           <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">Relatório</button>
           <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">Editar</button>
           <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirCalculoEmbalagem('${p.id}')">Calcular Embalagem</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirModalItemExtra('${p.id}')">+ Item Extra</button>
           ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">Mover p/ Histórico</button>`:''}
           <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">Reset</button>
-          <button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>
+          ${SESSAO.admin?`<button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>`:''}
         </div>
       </div>
     </div>
@@ -1617,8 +1754,8 @@ function toggleItem(pid,iid,mid){
   if(concEl)concEl.innerHTML=vP===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">Todos os itens conferidos! Pedido pronto para envio.</div>`:'';
   // auto-move para histórico quando 100%
   if(vP===100){
-    setTimeout(()=>{
-      if(confirm('Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
+    setTimeout(async()=>{
+      if(await confirmarVolux('Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
         concluirPedido(pid);
       }
     },400);
@@ -1674,8 +1811,8 @@ function atualizarInfoItens(){
 
 function criarPedido(){
   const numero=document.getElementById('iNum').value.trim(),cliente=document.getElementById('iCliente').value.trim();
-  if(!numero||!cliente){alert('Preencha número e cliente.');return;}
-  if(!maquinasSelecionadas.length){alert('Adicione ao menos uma máquina.');return;}
+  if(!numero||!cliente){mostrarAlerta('Preencha número e cliente.');return;}
+  if(!maquinasSelecionadas.length){mostrarAlerta('Adicione ao menos uma máquina.');return;}
   const maquinas=[];
   maquinasSelecionadas.forEach(m=>{
     const tmpl=MODELOS[m.modelo];
@@ -1690,7 +1827,7 @@ function criarPedido(){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===0));render();
 }
 
-function excluirPedido(id){if(!confirm('Excluir este pedido?'))return;S.pedidos=S.pedidos.filter(p=>p.id!==id);save();render();}
+async function excluirPedido(id){if(!SESSAO.admin){mostrarAlerta('Apenas administradores podem excluir pedidos.');return;}if(!await confirmarVolux('Excluir este pedido?'))return;S.pedidos=S.pedidos.filter(p=>p.id!==id);save();render();}
 
 let editandoId=null,editMaquinas=[];
 
@@ -1764,8 +1901,8 @@ function salvarEdicao(){
   setTimeout(()=>{const b=document.getElementById('body-'+editandoId);if(b){b.classList.add('open');document.getElementById('chv-'+editandoId).classList.add('rotated');}},10);
 }
 
-function resetarPedido(id){
-  if(!confirm('Resetar todos os itens?'))return;
+async function resetarPedido(id){
+  if(!await confirmarVolux('Resetar todos os itens?'))return;
   const p=S.pedidos.find(x=>x.id===id);
   if(p.maquinas)p.maquinas.forEach(m=>m.itens.forEach(i=>{i.checked=false;i.serial='';}));
   else if(p.itens)p.itens.forEach(i=>i.checked=false);
@@ -1786,13 +1923,43 @@ function concluirPedido(id){
   save();render();
 }
 
-function addItemExtra(pid){
-  const nome=prompt('Nome do item extra:');if(!nome)return;
-  const qty=prompt('Quantidade:')||'';
-  const serial=confirm('Tem número de série?');
-  S.pedidos.find(x=>x.id===pid).itens.push({id:u(),nome:nome.trim(),categoria:'Extras',qty,temSerial:serial,checked:false,serial:''});
-  save();render();
-  setTimeout(()=>{const b=document.getElementById('body-'+pid);if(b){b.classList.add('open');document.getElementById('chv-'+pid).classList.add('rotated');document.getElementById('card-'+pid).classList.add('open-card');}},10);
+function abrirModalItemExtra(pid){
+  document.getElementById('itex-pid').value=pid;
+  document.getElementById('itex-nome').value='';
+  document.getElementById('itex-qty').value='1 un';
+  document.getElementById('itex-serial').checked=false;
+  document.getElementById('mItemExtra').classList.add('open');
+  setTimeout(()=>document.getElementById('itex-nome').focus(),50);
+}
+
+function salvarItemExtra(){
+  const pid=document.getElementById('itex-pid').value;
+  const nome=document.getElementById('itex-nome').value.trim();
+  const qty=document.getElementById('itex-qty').value.trim()||'1 un';
+  const temSerial=document.getElementById('itex-serial').checked;
+  if(!nome){mostrarAlerta('Preencha o nome do item.');return;}
+  const p=S.pedidos.find(x=>x.id===pid);
+  if(!p)return;
+  const novoItem={id:u(),nome,categoria:'Extras',qty,temSerial,checked:false,serial:''};
+  if(p.maquinas){
+    let extras=p.maquinas.find(m=>m.modelo==='__extras__');
+    if(!extras){
+      extras={id:u(),modelo:'__extras__',nome:'Itens Extras',itens:[]};
+      p.maquinas.push(extras);
+    }
+    extras.itens.push(novoItem);
+  }else{
+    if(!p.itens)p.itens=[];
+    p.itens.push(novoItem);
+  }
+  save();
+  fecharModal('mItemExtra');
+  render();
+  setTimeout(()=>{
+    const b=document.getElementById('body-'+pid);if(b)b.classList.add('open');
+    const chv=document.getElementById('chv-'+pid);if(chv)chv.classList.add('rotated');
+    const card=document.getElementById('card-'+pid);if(card)card.classList.add('open-card');
+  },10);
 }
 
 function renderListaItens(){
@@ -1833,12 +2000,12 @@ function verHist(id){
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
       <button class="btn btn-outline" style="flex:1;" onclick="gerarRelatorio('${p.id}',true)">Gerar Relatório</button>
-      <button class="btn btn-danger" style="flex:1;" onclick="rmHist('${p.id}')">Excluir</button>
+      ${SESSAO.admin?`<button class="btn btn-danger" style="flex:1;" onclick="rmHist('${p.id}')">Excluir</button>`:''}
     </div>`;
   document.getElementById('mHist').classList.add('open');
 }
 
-function rmHist(id){if(!confirm('Remover do histórico?'))return;S.historico=S.historico.filter(x=>x.id!==id);save();fecharModal('mHist');render();}
+async function rmHist(id){if(!SESSAO.admin){mostrarAlerta('Apenas administradores podem excluir pedidos do histórico.');return;}if(!await confirmarVolux('Remover do histórico?'))return;S.historico=S.historico.filter(x=>x.id!==id);save();fecharModal('mHist');render();}
 
 function abrirNovoPedido(){
   ['iNum','iCliente','iEndereco','iDestino','iCep','iResp','iObs'].forEach(id=>document.getElementById(id).value='');
@@ -1861,6 +2028,28 @@ function abrirModalItens(){renderListaItens();document.getElementById('mItens').
 function fecharModal(id){
   if(id==='mScanCamera')pararScanCamera();
   document.getElementById(id).classList.remove('open');
+}
+
+let _alertaResolve=null;
+function mostrarAlerta(msg){
+  document.getElementById('alerta-msg').textContent=msg;
+  document.getElementById('alerta-btn-cancelar').style.display='none';
+  document.getElementById('alerta-btn-ok').textContent='OK';
+  document.getElementById('mAlerta').classList.add('open');
+  _alertaResolve=null;
+}
+function confirmarVolux(msg){
+  return new Promise(resolve=>{
+    document.getElementById('alerta-msg').textContent=msg;
+    document.getElementById('alerta-btn-cancelar').style.display='';
+    document.getElementById('alerta-btn-ok').textContent='Confirmar';
+    document.getElementById('mAlerta').classList.add('open');
+    _alertaResolve=resolve;
+  });
+}
+function _resolverAlerta(valor){
+  document.getElementById('mAlerta').classList.remove('open');
+  if(_alertaResolve){_alertaResolve(valor);_alertaResolve=null;}
 }
 
 function fd(d){if(!d)return'';const[y,m,dia]=d.split('-');return`${dia}/${m}/${y}`;}
@@ -1997,7 +2186,7 @@ function gerarRelatorioMaquinas(ano){
       });
     });
   });
-  if(!maquinas.length){alert('Nenhuma máquina encontrada em pedidos de '+ano+'.');return;}
+  if(!maquinas.length){mostrarAlerta('Nenhuma máquina encontrada em pedidos de '+ano+'.');return;}
 
   // agrupa por modelo
   const porModelo={};
@@ -2105,7 +2294,7 @@ ${modelos.map(([nome,its])=>`
 function gerarRelatorioAnual(ano){
   const pedidosAno=S.historico.filter(p=>p.concluidoEm&&new Date(p.concluidoEm).getFullYear()===ano)
     .slice().sort((a,b)=>new Date(a.concluidoEm)-new Date(b.concluidoEm));
-  if(!pedidosAno.length){alert('Nenhum pedido concluído em '+ano+'.');return;}
+  if(!pedidosAno.length){mostrarAlerta('Nenhum pedido concluído em '+ano+'.');return;}
 
   // ranking de itens
   const contagem={};
@@ -2421,7 +2610,7 @@ ${renderItensDiretos()}
 
 function imprimirPedidosSeparando(){
   const lista=S.pedidos.filter(p=>{const v=pct(p);return v>0&&v<100;});
-  if(!lista.length){alert('Nenhum pedido em separação no momento.');return;}
+  if(!lista.length){mostrarAlerta('Nenhum pedido em separação no momento.');return;}
   const now=new Date();
 
   function tabelaItens(itens){
@@ -2522,31 +2711,46 @@ function toggleSenhaVisivel(){
     ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
     :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.22M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 }
-function verificarSenha(){
+async function verificarSenha(){
   const usuario=document.getElementById('usuario-input').value.trim();
   const senha=document.getElementById('senha-input').value;
   const err=document.getElementById('senha-erro');
   const alertIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-  if(usuario==='admin'&&senha==='1001'){
-    document.getElementById('login-overlay').style.display='none';
-    sessionStorage.setItem('sl_logado','1');
-    return;
-  }
   if(!usuario){
     err.innerHTML=alertIcon+'O campo usuário está vazio.';
     document.getElementById('usuario-input').focus();
-  }else if(usuario!=='admin'){
-    err.innerHTML=alertIcon+`Usuário "${usuario}" não encontrado.`;
-    document.getElementById('usuario-input').select();
-  }else if(!senha){
+    setTimeout(()=>err.innerHTML='',4000);
+    return;
+  }
+  if(!senha){
     err.innerHTML=alertIcon+'O campo senha está vazio.';
     document.getElementById('senha-input').focus();
-  }else{
-    err.innerHTML=alertIcon+'Senha incorreta para o usuário "admin".';
-    document.getElementById('senha-input').value='';
-    document.getElementById('senha-input').focus();
+    setTimeout(()=>err.innerHTML='',4000);
+    return;
   }
-  setTimeout(()=>err.innerHTML='',4000);
+  const btn=document.querySelector('.login-btn');
+  if(btn)btn.disabled=true;
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario,senha})});
+    const d=await r.json();
+    if(r.ok&&d.token){
+      sessionStorage.setItem('sl_logado','1');
+      sessionStorage.setItem('sl_token',d.token);
+      SESSAO={nome:d.nome,usuario:d.usuario,admin:!!d.admin};
+      document.getElementById('login-overlay').style.display='none';
+      await iniciarApp();
+    }else{
+      err.innerHTML=alertIcon+'Usuário ou senha incorretos.';
+      document.getElementById('senha-input').value='';
+      document.getElementById('senha-input').focus();
+      setTimeout(()=>err.innerHTML='',4000);
+    }
+  }catch(e){
+    err.innerHTML=alertIcon+'Não foi possível conectar ao servidor. Verifique se o Volux está rodando.';
+    setTimeout(()=>err.innerHTML='',4000);
+  }finally{
+    if(btn)btn.disabled=false;
+  }
 }
 setTimeout(()=>document.getElementById('usuario-input').focus(),200);
 
@@ -2554,7 +2758,9 @@ function abrirLogout(){document.getElementById('logout-modal').classList.add('op
 function fecharLogout(){document.getElementById('logout-modal').classList.remove('open');}
 function confirmarLogout(){
   fecharLogout();
+  fetch('/api/logout',{method:'POST',headers:authHeaders()}).catch(()=>{});
   sessionStorage.removeItem('sl_logado');
+  sessionStorage.removeItem('sl_token');
   sessionStorage.removeItem('sl_tab');
   document.getElementById('usuario-input').value='';
   document.getElementById('senha-input').value='';
@@ -2650,25 +2856,18 @@ function salvarItemEstoque(){
   const id=document.getElementById('est-id').value;
   const codigo=document.getElementById('est-codigo').value.trim();
   const descricao=document.getElementById('est-descricao').value.trim();
-  if(!codigo||!descricao){alert('Preencha código e descrição.');return;}
+  if(!codigo||!descricao){mostrarAlerta('Preencha código e descrição.');return;}
   const it={id:id||u(),codigo,descricao,quantidade:parseInt(document.getElementById('est-quantidade').value)||0,minimo:parseInt(document.getElementById('est-minimo').value)||0,categoria:document.getElementById('est-categoria').value||'Outro'};
   if(id){const idx=S.estoque.itens.findIndex(i=>i.id===id);if(idx>=0)S.estoque.itens[idx]=it;}
   else S.estoque.itens.push(it);
   save();fecharModal('mEstoque');
-  mostrarStatusEstoque('Salvo');
   rTabEstoque();
 }
 
-function removerItemEstoque(id){
-  if(!confirm('Remover este item do estoque?'))return;
+async function removerItemEstoque(id){
+  if(!await confirmarVolux('Remover este item do estoque?'))return;
   S.estoque.itens=S.estoque.itens.filter(i=>i.id!==id);
   save();rTabEstoque();
-}
-
-function mostrarStatusEstoque(msg){
-  const el=document.getElementById('status-msg');
-  el.textContent=msg;el.style.opacity='1';
-  setTimeout(()=>{el.style.opacity='0';},2000);
 }
 
 /* ── CATÁLOGO: PESO/MEDIDAS E EMBALAGENS ── */
@@ -2680,21 +2879,29 @@ function nomesItensConhecidos(){
   S.itensPadrao.forEach(i=>nomes.add(i.nome));
   S.pedidos.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
   S.historico.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
+  S.produtosImportados.forEach(p=>nomes.add(p.nome));
   return[...nomes].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+
+function qtdVendidaImportada(nome){
+  const p=S.produtosImportados.find(x=>x.nome===nome);
+  return p?p.qtd:null;
 }
 
 function rTabCatalogo(){
   const app=document.getElementById('app');
-  app.innerHTML=`<div class="chips" style="margin-bottom:16px;">
+  app.innerHTML=`<div class="chips" style="margin-bottom:6px;">
     <button class="chip ${catalogoSubview==='medidas'?'active':''}" onclick="catalogoSubview='medidas';rTabCatalogo()">Peso &amp; Medidas</button>
     <button class="chip ${catalogoSubview==='embalagens'?'active':''}" onclick="catalogoSubview='embalagens';rTabCatalogo()">Caixas &amp; Pallets</button>
   </div>
+  <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">${catalogoSubview==='medidas'?'Peso e dimensões de cada item, usados para calcular como embalar um pedido.':'Modelos de caixa e pallet disponíveis, usados no cálculo automático de embalagem.'}</div>
   <div id="catalogoConteudo"></div>`;
   if(catalogoSubview==='medidas')rMedidasItens();else rEmbalagensLista();
 }
 
 function rMedidasItens(){
   const cont=document.getElementById('catalogoConteudo');
+  const buscaFocada=document.activeElement&&document.activeElement.id==='catBuscaInput';
   const nomes=nomesItensConhecidos();
   const cadastrados=nomes.filter(n=>{const c=S.catalogoItens[n];return c&&(c.peso||c.comprimento||c.largura||c.altura);}).length;
   const busca=catBusca.toLowerCase();
@@ -2712,26 +2919,33 @@ function rMedidasItens(){
   <div class="est-toolbar">
     <div class="est-search-wrap">
       <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input placeholder="Buscar item..." value="${catBusca}" oninput="catBusca=this.value;rMedidasItens()">
+      <input id="catBuscaInput" placeholder="Buscar item..." value="${catBusca}" oninput="catBusca=this.value;rMedidasItens()">
     </div>
+    <button class="btn btn-outline btn-sm" onclick="abrirModalImportarProdutos()">Importar Relatório</button>
   </div>
   <div class="est-table-wrap">
     <table>
-      <thead><tr><th>Item</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
+      <thead><tr><th>Item</th><th>Qtd. vendida (2 anos)</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
       <tbody>${lista.length?lista.map((nome,idx)=>{
         const c=S.catalogoItens[nome]||{};
         const pendente=!(c.peso||c.comprimento||c.largura||c.altura);
+        const qtd=qtdVendidaImportada(nome);
         return`<tr style="${pendente?'border-left:3px solid var(--warn)':''}">
           <td style="font-weight:500">${nome}</td>
+          <td style="color:var(--muted)">${qtd!==null?qtd:'—'}</td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.01" value="${c.peso||''}" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.comprimento||''}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.largura||''}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.altura||''}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
-        </tr>`;}).join(''):`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;
   window._medidasLista=lista;
+  if(buscaFocada){
+    const inp=document.getElementById('catBuscaInput');
+    if(inp){inp.focus();const pos=inp.value.length;inp.setSelectionRange(pos,pos);}
+  }
 }
 
 function salvarMedidaItem(idx,campo,valor){
@@ -2740,6 +2954,36 @@ function salvarMedidaItem(idx,campo,valor){
   atual[campo]=parseFloat(valor)||0;
   S.catalogoItens[nome]=atual;
   save();
+}
+
+function abrirModalImportarProdutos(){
+  document.getElementById('importarProdutosTxt').value='';
+  document.getElementById('mImportarProdutos').classList.add('open');
+}
+
+function confirmarImportarProdutos(){
+  const txt=document.getElementById('importarProdutosTxt').value;
+  const linhas=txt.split('\n').map(l=>l.trim()).filter(Boolean);
+  let importados=0;
+  linhas.forEach(linha=>{
+    const m=linha.match(/^(.*?)[\s;\t]+([\d.,]+)\s*$/);
+    let nome,qtd;
+    if(m){
+      nome=m[1].trim().replace(/[\s;\t]+$/,'');
+      qtd=parseInt(m[2].replace(/\./g,'').replace(',','.'),10)||0;
+    }else{
+      nome=linha;qtd=null;
+    }
+    if(!nome)return;
+    const existente=S.produtosImportados.find(p=>p.nome.toLowerCase()===nome.toLowerCase());
+    if(existente){if(qtd!==null)existente.qtd=qtd;}
+    else S.produtosImportados.push({nome,qtd});
+    importados++;
+  });
+  save();
+  fecharModal('mImportarProdutos');
+  rMedidasItens();
+  mostrarAlerta(`${importados} produto(s) processado(s) do relatório.`);
 }
 
 function rEmbalagensLista(){
@@ -2787,7 +3031,7 @@ function salvarEmbalagem(){
   const tipo=document.getElementById('emb-tipo').value||'caixas';
   const id=document.getElementById('emb-id').value;
   const nome=document.getElementById('emb-nome').value.trim();
-  if(!nome){alert('Preencha o nome.');return;}
+  if(!nome){mostrarAlerta('Preencha o nome.');return;}
   const e={
     id:id||u(),nome,
     comprimento:parseFloat(document.getElementById('emb-comprimento').value)||0,
@@ -2801,10 +3045,125 @@ function salvarEmbalagem(){
   save();fecharModal('mEmbalagem');rEmbalagensLista();
 }
 
-function removerEmbalagem(tipo,id){
-  if(!confirm('Remover este item?'))return;
+async function removerEmbalagem(tipo,id){
+  if(!await confirmarVolux('Remover este item?'))return;
   S.embalagens[tipo]=S.embalagens[tipo].filter(x=>x.id!==id);
   save();rEmbalagensLista();
+}
+
+/* ── USUÁRIOS (somente admin) ── */
+let _usuariosCache=[];
+
+async function baixarBackup(){
+  try{
+    const r=await fetch('/api/backup-download',{headers:authHeaders()});
+    if(r.status===401){forcarRelogin();return;}
+    if(!r.ok){mostrarAlerta('Não foi possível gerar o backup.');return;}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const stamp=new Date().toISOString().slice(0,10);
+    a.href=url;a.download=`volux-backup-${stamp}.json`;
+    document.body.appendChild(a);a.click();a.remove();
+    URL.revokeObjectURL(url);
+  }catch{
+    mostrarAlerta('Não foi possível conectar ao servidor.');
+  }
+}
+
+async function rTabUsuarios(){
+  const app=document.getElementById('app');
+  if(!SESSAO.admin){
+    app.innerHTML='<div class="empty-state"><p>Apenas administradores podem acessar esta área.</p></div>';
+    return;
+  }
+  app.innerHTML='<div class="card"><p style="color:var(--muted);font-size:13px">Carregando usuários...</p></div>';
+  try{
+    const r=await fetch('/api/usuarios',{headers:authHeaders()});
+    if(r.status===401){forcarRelogin();return;}
+    _usuariosCache=await r.json();
+  }catch{
+    app.innerHTML='<div class="empty-state"><p>Não foi possível carregar os usuários.</p></div>';
+    return;
+  }
+  app.innerHTML=`
+  <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Backup dos dados</div>
+      <div style="font-size:12.5px;color:var(--muted);">Baixe uma cópia de tudo (pedidos, estoque, catálogo) e guarde no Google Drive, e-mail ou pen drive — o backup automático fica só neste computador.</div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="baixarBackup()">Baixar Backup Agora</button>
+  </div>
+  <div class="est-table-wrap">
+    <table>
+      <thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th><th></th></tr></thead>
+      <tbody>${_usuariosCache.length?_usuariosCache.map(u=>`
+        <tr>
+          <td style="font-weight:500">${u.nome}</td>
+          <td>${u.usuario}</td>
+          <td>${u.admin?'<span class="badge badge-done">Administrador</span>':'<span class="badge badge-pending">Operador</span>'}</td>
+          <td style="text-align:right;white-space:nowrap">
+            <button class="btn btn-ghost btn-xs" onclick="abrirModalUsuario('${u.id}')">Editar</button>
+            <button class="btn btn-danger btn-xs" onclick="removerUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}')">Remover</button>
+          </td>
+        </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">Nenhum usuário cadastrado.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function abrirModalUsuario(id){
+  const u=id?_usuariosCache.find(x=>x.id===id):null;
+  document.getElementById('usr-id').value=id||'';
+  document.getElementById('usr-nome').value=u?u.nome:'';
+  document.getElementById('usr-usuario').value=u?u.usuario:'';
+  document.getElementById('usr-senha').value='';
+  document.getElementById('usr-senha').placeholder=u?'Deixe em branco para manter a senha atual':'Senha';
+  document.getElementById('usr-admin').checked=u?u.admin:false;
+  document.getElementById('mUsuario-titulo').textContent=u?'Editar Usuário':'Novo Usuário';
+  document.getElementById('mUsuario-erro').textContent='';
+  document.getElementById('mUsuario').classList.add('open');
+}
+
+async function salvarUsuario(){
+  const id=document.getElementById('usr-id').value;
+  const nome=document.getElementById('usr-nome').value.trim();
+  const usuario=document.getElementById('usr-usuario').value.trim();
+  const senha=document.getElementById('usr-senha').value;
+  const admin=document.getElementById('usr-admin').checked;
+  const err=document.getElementById('mUsuario-erro');
+  err.textContent='';
+  if(!nome||!usuario||(!id&&!senha)){
+    err.textContent='Preencha nome, usuário e senha.';
+    return;
+  }
+  try{
+    const r=await fetch(id?`/api/usuarios/${id}`:'/api/usuarios',{
+      method:id?'PUT':'POST',
+      headers:{'Content-Type':'application/json',...authHeaders()},
+      body:JSON.stringify(id?{nome,senha:senha||undefined,admin}:{nome,usuario,senha,admin})
+    });
+    const d=await r.json();
+    if(r.status===401){forcarRelogin();return;}
+    if(!r.ok){err.textContent=d.error||'Erro ao salvar usuário.';return;}
+    fecharModal('mUsuario');
+    rTabUsuarios();
+  }catch{
+    err.textContent='Não foi possível conectar ao servidor.';
+  }
+}
+
+async function removerUsuario(id,nome){
+  if(!await confirmarVolux(`Remover o usuário "${nome}"?`))return;
+  try{
+    const r=await fetch(`/api/usuarios/${id}`,{method:'DELETE',headers:authHeaders()});
+    const d=await r.json();
+    if(r.status===401){forcarRelogin();return;}
+    if(!r.ok){mostrarAlerta(d.error||'Erro ao remover usuário.');return;}
+    rTabUsuarios();
+  }catch{
+    mostrarAlerta('Não foi possível conectar ao servidor.');
+  }
 }
 
 /* ── CÁLCULO DE EMBALAGEM (bin-packing por volume/peso, First-Fit-Decreasing) ── */
@@ -2987,24 +3346,42 @@ function pararScanCamera(){
 
 function fecharScanCamera(){fecharModal('mScanCamera');}
 
-loadFromServer().then(d=>{
-  S=d;
-  if(sessionStorage.getItem('sl_logado')==='1'){
-    document.getElementById('login-overlay').style.display='none';
-    const tabSalva=sessionStorage.getItem('sl_tab');
-    if(tabSalva&&tabSalva!=='pedidos'){
-      tab=tabSalva;
-      const tabs={pedidos:0,historico:1,painel:2,itens:3,estoque:4,catalogo:5};
-      const idx=tabs[tabSalva];
-      if(idx!==undefined){
-        const navTabs=document.querySelectorAll('.nav-tab');
-        navTabs.forEach(x=>x.classList.remove('active'));
-        if(navTabs[idx])navTabs[idx].classList.add('active');
-      }
+function aplicarPermissoesUI(){
+  const navUsuarios=document.getElementById('nav-tab-usuarios');
+  if(navUsuarios)navUsuarios.style.display=SESSAO.admin?'':'none';
+}
+
+async function iniciarApp(){
+  aplicarPermissoesUI();
+  S=await loadFromServer();
+  const tabSalva=sessionStorage.getItem('sl_tab');
+  if(tabSalva&&tabSalva!=='pedidos'&&(tabSalva!=='usuarios'||SESSAO.admin)){
+    tab=tabSalva;
+    const tabs={pedidos:0,historico:1,painel:2,itens:3,estoque:4,catalogo:5};
+    const idx=tabs[tabSalva];
+    if(idx!==undefined){
+      const navTabs=document.querySelectorAll('.nav-tab');
+      navTabs.forEach(x=>x.classList.remove('active'));
+      if(navTabs[idx])navTabs[idx].classList.add('active');
     }
   }
   render();
-});
+}
+
+async function tentarRetomarSessao(){
+  try{
+    const r=await fetch('/api/me',{headers:authHeaders()});
+    if(!r.ok){forcarRelogin();return;}
+    const d=await r.json();
+    SESSAO={nome:d.nome,usuario:d.usuario,admin:!!d.admin};
+    document.getElementById('login-overlay').style.display='none';
+    await iniciarApp();
+  }catch{forcarRelogin();}
+}
+
+if(sessionStorage.getItem('sl_logado')==='1'&&sessionStorage.getItem('sl_token')){
+  tentarRetomarSessao();
+}
 </script>
 </body>
 </html>
