@@ -95,7 +95,9 @@ app.use((req, res, next) => {
   next();
 });
 app.use((req, res, next) => {
-  if (req.path === '/data.json' || req.path === '/users.json') return res.status(404).end();
+  if (req.path === '/data.json' || req.path === '/users.json' || req.path.startsWith('/backups/')) {
+    return res.status(404).end();
+  }
   next();
 });
 app.use(express.static(__dirname, { etag: false, lastModified: false }));
