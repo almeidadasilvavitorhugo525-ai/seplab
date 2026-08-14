@@ -95,6 +95,7 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .pedido-card.status-aguardando{border-left-color:#d97706;}
 .pedido-card.status-separando{border-left-color:#185FA5;}
 .pedido-card.status-concluido{border-left-color:#185FA5;}
+.pedido-card.status-atrasado{border-left-color:var(--danger);}
 .pedido-header{cursor:pointer;user-select:none;}
 .ph-row1{display:flex;align-items:center;gap:8px;padding:13px 16px 10px;}
 .ph-order-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:4px;border:1px solid var(--border);}
@@ -102,6 +103,7 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .sp-wait{background:#fef3d0;color:#633806;border:1px solid #f0c060;}
 .sp-sep{background:#dbeeff;color:#185FA5;border:1px solid #7fb6e8;}
 .sp-done{background:#d0f0e4;color:#0d3d2a;border:1px solid #7ecfaa;}
+.sp-atrasado{background:#fde2e2;color:#8a1f1f;border:1px solid #ef9a9a;}
 .ph-spacer{flex:1;}
 .ph-bar-wrap{display:flex;align-items:center;gap:8px;}
 .ph-bar{width:90px;height:5px;background:var(--surface3);border-radius:4px;overflow:hidden;}
@@ -124,7 +126,7 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .ph-info-item strong{color:var(--text);font-weight:500;}
 .ph-items-badge{margin-left:auto;display:flex;align-items:center;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted);gap:5px;white-space:nowrap;}
 .ph-items-badge span{font-size:15px;font-weight:800;color:var(--text);}
-.ped-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.ped-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
 .ped-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 14px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s;}
 .ped-stat:hover{border-color:var(--border2);box-shadow:0 2px 14px rgba(0,0,0,.3);}
 .ped-stat-line{position:absolute;top:0;left:0;right:0;height:2px;}
@@ -992,6 +994,21 @@ const MODELOS = {
   }
 };
 
+/* Peças pequenas que vão dentro do kit de uma máquina (Gerador TLJR/TL10/TLMINI, Fritadeira,
+   Cilíndrica Flex) — não são vendidas avulsas, então não entram no catálogo de peso/medida
+   (viajam junto com a máquina; a conferência é feita pelo checkbox "Kit conferido"). */
+const ITENS_KIT_MAQUINA=new Set([
+  'Adesivos','Arduino','Base e Espessímetro',
+  'Chave T3','Chave T4','Chave Tork T15','Espessímetro Digital',
+  'Ferramenta de Corte TL10 / 1 com Diamante','Ferramenta de Corte TLJR / 1 com Diamante','Ferramenta de Corte TLMINI / 1 com Diamante',
+  'Ferro de Solda','Fonte para Leitor de Código de Barras','Gabarito',
+  'Jogo de Chave Allen','Jogo de Parafuso para Pastilha com 06 unidades','Leitor de Código de Barras',
+  'Morsa para Moldes Gerador TL10','Morsa para Moldes Gerador TLJR','Morsa para Moldes Gerador TLMINI',
+  'Niple, Engate Rápido e Registro da Caixa','Parafuso M8 x 35','Peneira Caixa d\'Água TL10',"Peneira Caixa d'Água TLJR","Peneira Caixa d'Água TLMINI",
+  'Programa de Cálculo','Suporte da Bomba','Suporte da Caixa','Suporte de Leitor para Código de Barras','Suporte do Leitor de Código de Barras','Teclado K120 USB',
+  'Windows e CD de Driver do EBN'
+]);
+
 let S=null, tab='pedidos', filtro='todos', estFiltro='todos', estBusca='';
 let localizacaoNovo=null, localizacaoEdit=null;
 const MAPA_CENTRO_PADRAO=[-14.235,-51.9253], MAPA_ZOOM_PADRAO=4;
@@ -1044,6 +1061,24 @@ function render(){
 function todosItens(p){return p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];}
 function pct(p){const its=todosItens(p);if(!its.length)return 0;return Math.round(its.filter(i=>i.checked).length/its.length*100);}
 function pctMaq(m){if(!m.itens.length)return 0;return Math.round(m.itens.filter(i=>i.checked).length/m.itens.length*100);}
+
+function atrasado(p){
+  if(!p.data||pct(p)>=100)return false;
+  const[y,m,d]=p.data.split('-').map(Number);
+  if(!y||!m||!d)return false;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  return new Date(y,m-1,d)<hoje;
+}
+function statusClassFor(p){
+  if(atrasado(p))return'status-atrasado';
+  const v=pct(p);
+  return v===100?'status-concluido':v>0?'status-separando':'status-aguardando';
+}
+function statusPillHTML(p){
+  if(atrasado(p))return'<span class="status-pill sp-atrasado">Atrasado</span>';
+  const v=pct(p);
+  return v===100?'<span class="status-pill sp-done">Pronto</span>':v>0?'<span class="status-pill sp-sep">Separando</span>':'<span class="status-pill sp-wait">Aguardando</span>';
+}
 
 function bdg(p){const v=pct(p);if(v===100)return'<span class="badge badge-done">Concluído</span>';if(v>0)return'<span class="badge badge-progress">Separando</span>';return'<span class="badge badge-pending">Aguardando</span>';}
 
@@ -1264,9 +1299,11 @@ function rPedidos(){
   if(filtro==='aguardando')list=list.filter(p=>pct(p)===0);
   else if(filtro==='separando')list=list.filter(p=>pct(p)>0&&pct(p)<100);
   else if(filtro==='concluido')list=list.filter(p=>pct(p)===100);
+  else if(filtro==='atrasado')list=list.filter(p=>atrasado(p));
   const nAg=S.pedidos.filter(p=>pct(p)===0).length;
   const nSep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length;
   const nPron=S.pedidos.filter(p=>pct(p)===100).length;
+  const nAtr=S.pedidos.filter(p=>atrasado(p)).length;
   const stats=`<div class="ped-stats">
     <div class="ped-stat" onclick="setFiltro('todos')">
       <div class="ped-stat-line" style="background:var(--border2)"></div>
@@ -1288,12 +1325,18 @@ function rPedidos(){
       <div class="ped-stat-num" style="color:var(--green)">${nPron}</div>
       <div class="ped-stat-lbl">Prontos</div>
     </div>
+    <div class="ped-stat" onclick="setFiltro('atrasado')">
+      <div class="ped-stat-line" style="background:var(--danger)"></div>
+      <div class="ped-stat-num" style="color:var(--danger)">${nAtr}</div>
+      <div class="ped-stat-lbl">Atrasados</div>
+    </div>
   </div>`;
   const chips=`<div class="chips" style="margin-bottom:16px;">
     <button class="chip ${filtro==='todos'?'active':''}" onclick="setFiltro('todos')">Todos · ${S.pedidos.length}</button>
     <button class="chip ${filtro==='aguardando'?'active':''}" onclick="setFiltro('aguardando')">Aguardando · ${nAg}</button>
     <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">Separando · ${nSep}</button>
     <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">Prontos · ${nPron}</button>
+    <button class="chip ${filtro==='atrasado'?'active':''}" onclick="setFiltro('atrasado')">Atrasados · ${nAtr}</button>
   </div>`;
   const scanBar=`<div class="est-toolbar">
     <div class="est-search-wrap">
@@ -1343,6 +1386,10 @@ function rMaquina(pid,m){
           onchange="salvarSerialMaquina('${pid}','${m.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
+      <div class="kit-conferido-row" onclick="event.stopPropagation();toggleKitConferido('${pid}','${m.id}')" style="display:flex;align-items:center;gap:10px;padding:0 0 12px;border-bottom:1px solid var(--border);margin-bottom:8px;cursor:pointer;">
+        <div id="kitcb-${m.id}" class="check-box ${m.kitConferido?'checked':''}"></div>
+        <span style="font-size:13px;font-weight:600;">Kit de peças conferido e enviado junto com a máquina</span>
+      </div>
       ${itensHTML}
     </div>
   </div>`;
@@ -1355,12 +1402,8 @@ function rCard(p){
   const faltando=its.filter(i=>!i.checked);
   const maquinasHTML=p.maquinas?p.maquinas.map(m=>rMaquina(p.id,m)).join(''):'';
   const st=v===100?'s-ok':v>0?'s-sep':'s-wait';
-  const statusClass=v===100?'status-concluido':v>0?'status-separando':'status-aguardando';
-  const statusPill=v===100
-    ?'<span class="status-pill sp-done">Pronto</span>'
-    :v>0
-    ?'<span class="status-pill sp-sep">Separando</span>'
-    :'<span class="status-pill sp-wait">Aguardando</span>';
+  const statusClass=statusClassFor(p);
+  const statusPill=statusPillHTML(p);
   const maqTags=p.maquinas&&p.maquinas.length
     ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${m.nome}</span>`).join('')}</div>`
     :'';
@@ -1605,10 +1648,10 @@ function toggleItem(pid,iid,mid){
   if(pctP){pctP.textContent=vP+'%';pctP.className='ph-pct '+st;}
   // status pill
   const pillEl=document.getElementById('ppill-'+pid);
-  if(pillEl)pillEl.innerHTML=vP===100?'<span class="status-pill sp-done">Pronto</span>':vP>0?'<span class="status-pill sp-sep">Separando</span>':'<span class="status-pill sp-wait">Aguardando</span>';
+  if(pillEl)pillEl.innerHTML=statusPillHTML(p);
   // classe do card
   const cardEl=document.getElementById('card-'+pid);
-  if(cardEl){cardEl.classList.remove('status-concluido','status-separando','status-aguardando');cardEl.classList.add(vP===100?'status-concluido':vP>0?'status-separando':'status-aguardando');}
+  if(cardEl){cardEl.classList.remove('status-concluido','status-separando','status-aguardando','status-atrasado');cardEl.classList.add(statusClassFor(p));}
   // alerta faltando
   const faltEl=document.getElementById('pfaltando-'+pid);
   if(faltEl)faltEl.innerHTML=faltando.length>0&&vP>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:'';
@@ -1635,6 +1678,16 @@ function salvarSerial(pid,iid,val,mid){
 function salvarSerialMaquina(pid,mid,val){
   const p=S.pedidos.find(x=>x.id===pid);
   if(p&&p.maquinas){const m=p.maquinas.find(m=>m.id===mid);if(m)m.serial=val;}
+  save();
+}
+
+function toggleKitConferido(pid,mid){
+  const p=S.pedidos.find(x=>x.id===pid);
+  const m=p&&p.maquinas&&p.maquinas.find(x=>x.id===mid);
+  if(!m)return;
+  m.kitConferido=!m.kitConferido;
+  const cb=document.getElementById('kitcb-'+mid);
+  if(cb)cb.classList.toggle('checked',m.kitConferido);
   save();
 }
 
@@ -1681,7 +1734,7 @@ function criarPedido(){
     const tmpl=MODELOS[m.modelo];
     for(let q=1;q<=m.qty;q++){
       const label=m.qty>1?`${tmpl.nome} (${q})`:tmpl.nome;
-      maquinas.push({id:u(),modelo:m.modelo,nome:label,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
+      maquinas.push({id:u(),modelo:m.modelo,nome:label,kitConferido:false,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
     }
   });
   const modeloNome=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome}${m.qty>1?' x'+m.qty:''}`).join(' + ');
@@ -1737,7 +1790,7 @@ function adicionarMaquinaEdicao(){
   const tmpl=MODELOS[modelo];
   for(let q=1;q<=qty;q++){
     const label=qty>1?`${tmpl.nome} (${q})`:tmpl.nome;
-    editMaquinas.push({id:u(),modelo,nome:label,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
+    editMaquinas.push({id:u(),modelo,nome:label,kitConferido:false,itens:tmpl.itens.map(i=>({id:u(),nome:i.nome,categoria:i.cat,qty:i.qty,temSerial:i.serial,checked:false,serial:''}))});
   }
   document.getElementById('eQtdMaq').value=1;
   renderEditMaquinas();
@@ -2680,6 +2733,7 @@ function nomesItensConhecidos(){
   S.itensPadrao.forEach(i=>nomes.add(i.nome));
   S.pedidos.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
   S.historico.forEach(p=>todosItens(p).forEach(i=>nomes.add(i.nome)));
+  ITENS_KIT_MAQUINA.forEach(n=>nomes.delete(n));
   return[...nomes].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 }
 
