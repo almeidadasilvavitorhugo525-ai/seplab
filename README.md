@@ -80,7 +80,7 @@ O sistema abre em:
 
 ### Aplicativo na área de trabalho (Windows)
 
-Dê duplo clique em **`Volux.vbs`** (ou no atalho **Volux** da área de trabalho). Para o painel TV use o atalho **Volux TV** (`Volux.vbs tv.html`, ícone `publicolux-tv.ico`), que abre maximizado. Ele:
+Dê duplo clique em **`Volux.vbs`** (ou no atalho **Volux** da área de trabalho). Para o painel TV use o atalho **Volux TV** (`Volux.vbs tv.html`, ícone `public\volux-tv.ico`), que abre maximizado. Ele:
 - liga o servidor em segundo plano, sem janela preta, caso ainda não esteja rodando;
 - abre o Volux em uma janela própria (Edge ou Chrome em modo app), sem barra de endereço.
 
