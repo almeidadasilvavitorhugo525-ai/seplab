@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SepLab — Painel TV</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Barlow',sans-serif;background:#060d1f;color:#e8eeff;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#2a3a5c;border-radius:4px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ── LOGIN ── */
+#login-overlay{position:fixed;inset:0;background:#060d1f;z-index:999;display:flex;align-items:center;justify-content:center;}
+.login-box{width:380px;animation:fadeIn .4s ease;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;justify-content:center;}
+.login-logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;letter-spacing:4px;color:#e8eeff;text-transform:uppercase;}
+.login-logo-text span{color:#29e0ff;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.5px;color:#e8eeff;margin-bottom:4px;text-align:center;}
+.login-sub{font-size:13px;color:#6b80a8;text-align:center;margin-bottom:28px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#6b80a8;margin-bottom:7px;}
+.login-field input{width:100%;background:#0d1a36;border:1.5px solid #1e3060;border-radius:10px;color:#e8eeff;padding:13px 16px;font-size:15px;outline:none;transition:border .18s,box-shadow .18s;font-family:'Barlow',sans-serif;}
+.login-field input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.18);}
+.login-field input::placeholder{color:#3a4f7a;}
+.login-btn{width:100%;background:linear-gradient(135deg,#1a52d8,#2563eb);border:none;border-radius:10px;color:#fff;padding:14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;margin-top:6px;transition:all .18s;box-shadow:0 4px 20px rgba(26,82,216,.35);}
+.login-btn:hover{background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 6px 28px rgba(26,82,216,.45);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+.login-err{color:#f87171;font-size:13px;text-align:center;margin-top:12px;min-height:18px;}
+
+/* ── HEADER ── */
+header{background:#080f22;border-bottom:1px solid #12204a;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hdr-logo{display:flex;align-items:center;gap:12px;}
+.hdr-logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:4px;color:#e8eeff;text-transform:uppercase;}
+.hdr-logo-text span{color:#29e0ff;}
+.hdr-divider{width:1px;height:20px;background:#1e3060;}
+.hdr-sub{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:3px;color:#4a5f8a;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:20px;}
+.hdr-clock{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:2px;color:#e8eeff;}
+.hdr-date{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:1.5px;color:#6b80a8;text-align:right;margin-top:2px;}
+.hdr-refresh{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;color:#4a5f8a;text-transform:uppercase;}
+.refresh-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5);}
+.refresh-dot.blink{animation:blink 1s ease infinite;}
+.hdr-logout{background:transparent;border:1px solid #1e3060;border-radius:8px;color:#6b80a8;padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s;}
+.hdr-logout:hover{border-color:#e53e3e;color:#f87171;}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;gap:1px;background:#0a1228;border-bottom:1px solid #12204a;}
+.stat-item{flex:1;padding:14px 24px;border-right:1px solid #12204a;transition:background .15s;}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;line-height:1;margin-bottom:3px;}
+.stat-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#4a5f8a;}
+.s-total .stat-num{color:#e8eeff;}
+.s-wait .stat-num{color:#fbbf24;}
+.s-sep .stat-num{color:#60a5fa;}
+.s-done .stat-num{color:#34d399;}
+
+/* ── TABLE ── */
+.table-wrap{padding:20px 24px 40px;}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;}
+thead th{padding:0 18px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#4a5f8a;text-align:left;border-bottom:1px solid #12204a;}
+thead th.right{text-align:right;}
+thead th.center{text-align:center;}
+tbody tr{background:#0d1a36;border-radius:10px;transition:background .15s;}
+tbody tr:hover{background:#101f40;}
+tbody td{padding:16px 18px;font-size:15px;vertical-align:middle;}
+tbody td:first-child{border-radius:10px 0 0 10px;border-left:3px solid transparent;}
+tbody td:last-child{border-radius:0 10px 10px 0;}
+tr.st-aguardando td:first-child{border-left-color:#fbbf24;}
+tr.st-separando td:first-child{border-left-color:#60a5fa;}
+tr.st-concluido td:first-child{border-left-color:#34d399;}
+
+.td-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;color:#4a5f8a;background:#0a1228;padding:3px 9px;border-radius:5px;display:inline-block;border:1px solid #12204a;}
+.td-cliente{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:.3px;color:#e8eeff;line-height:1.1;}
+.td-dest{font-size:12px;color:#4a5f8a;margin-top:3px;}
+.td-modelo{font-size:13px;color:#8ea3c8;line-height:1.4;}
+.td-maq-list{display:flex;flex-direction:column;gap:5px;}
+.maq-row{display:flex;align-items:center;gap:8px;}
+.maq-bar-wrap{flex:1;height:6px;background:#12204a;border-radius:3px;overflow:hidden;min-width:80px;}
+.maq-bar-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.maq-bar-fill.done{background:linear-gradient(90deg,#059669,#34d399);}
+.maq-bar-fill.sep{background:linear-gradient(90deg,#1a52d8,#60a5fa);}
+.maq-bar-fill.wait{background:#1e3060;}
+.maq-nome{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#8ea3c8;min-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.maq-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;min-width:36px;text-align:right;}
+.maq-pct.done{color:#34d399;}
+.maq-pct.sep{color:#60a5fa;}
+.maq-pct.wait{color:#2a3a5c;}
+
+.prog-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.prog-bar{width:120px;height:8px;background:#12204a;border-radius:4px;overflow:hidden;}
+.prog-bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.prog-bar-fill.done{background:linear-gradient(90deg,#059669,#34d399);box-shadow:0 0 8px rgba(52,211,153,.3);}
+.prog-bar-fill.sep{background:linear-gradient(90deg,#1a52d8,#60a5fa);}
+.prog-bar-fill.wait{background:#1e3060;}
+.prog-pct{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;line-height:1;}
+.prog-pct.done{color:#34d399;}
+.prog-pct.sep{color:#60a5fa;}
+.prog-pct.wait{color:#2a3a5c;}
+
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.sp-wait{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);}
+.sp-sep{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);}
+.sp-done{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.sd-wait{background:#fbbf24;}
+.sd-sep{background:#60a5fa;animation:pulse 1.8s ease infinite;}
+.sd-done{background:#34d399;}
+
+/* ── EMPTY / LOADING ── */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:#4a5f8a;font-size:14px;}
+.spinner{width:32px;height:32px;border:3px solid #12204a;border-top-color:#2563eb;border-radius:50%;animation:spin .8s linear infinite;}
+.empty-wrap{text-align:center;padding:80px 20px;color:#4a5f8a;font-size:15px;}
+
+/* ── FILTROS (cards clicáveis) ── */
+.filtro-btn{cursor:pointer;position:relative;transition:background .2s,box-shadow .2s;}
+.filtro-btn:hover{background:#0f1e3a;}
+.filtro-indicator{position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:2px 2px 0 0;background:transparent;transition:background .2s;}
+.filtro-btn.active{background:#0f1e3a;}
+.s-total.filtro-btn.active .filtro-indicator{background:#e8eeff;}
+.s-wait.filtro-btn.active .filtro-indicator{background:#fbbf24;}
+.s-sep.filtro-btn.active .filtro-indicator{background:#60a5fa;}
+.s-done.filtro-btn.active .filtro-indicator{background:#34d399;}
+.filtro-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px;}
+.ftag-todos{background:rgba(232,238,255,.06);color:#8ea3c8;border:1px solid #1e3060;}
+.ftag-aguardando{background:rgba(251,191,36,.08);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
+.ftag-separando{background:rgba(96,165,250,.08);color:#60a5fa;border:1px solid rgba(96,165,250,.2);}
+.ftag-concluido{background:rgba(52,211,153,.08);color:#34d399;border:1px solid rgba(52,211,153,.2);}
+
+/* ── FULLSCREEN BTN ── */
+.fs-btn{background:transparent;border:1px solid #1e3060;border-radius:8px;color:#4a5f8a;padding:7px 12px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px;}
+.fs-btn:hover{border-color:#2563eb;color:#60a5fa;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#1a52d8"/><path d="M10 28L20 12L30 28H10Z" fill="white" opacity=".9"/><circle cx="20" cy="22" r="4" fill="#29e0ff"/></svg>
+      <div class="login-logo-text">SEP<span>LAB</span></div>
+    </div>
+    <div class="login-title">Painel de Produção</div>
+    <div class="login-sub">Faça login para exibir na TV</div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input id="l-user" type="text" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input id="l-pass" type="password" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="login-btn" id="l-btn" onclick="login()">Entrar</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-wrap" style="display:none;min-height:100vh;">
+  <header>
+    <div class="hdr-logo">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="9" fill="#1a52d8"/><path d="M10 28L20 12L30 28H10Z" fill="white" opacity=".9"/><circle cx="20" cy="22" r="4" fill="#29e0ff"/></svg>
+      <div class="hdr-logo-text">SEP<span>LAB</span></div>
+      <div class="hdr-divider"></div>
+      <div class="hdr-sub">Painel de Produção</div>
+    </div>
+    <div class="hdr-right">
+      <div>
+        <div class="hdr-clock" id="hdr-clock">--:--:--</div>
+        <div class="hdr-date" id="hdr-date">--/--/----</div>
+      </div>
+      <div class="hdr-refresh">
+        <div class="refresh-dot" id="refresh-dot"></div>
+        <span id="refresh-label">AO VIVO</span>
+      </div>
+      <button class="fs-btn" onclick="toggleFullscreen()" title="Tela cheia">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+      <button class="hdr-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item s-total filtro-btn active" id="f-todos" onclick="setFiltro('todos')">
+      <div class="stat-num" id="st-total">—</div>
+      <div class="stat-lbl">Todos os Pedidos</div>
+      <div class="filtro-indicator"></div>
+    </div>
+    <div class="stat-item s-wait filtro-btn" id="f-aguardando" onclick="setFiltro('aguardando')">
+      <div class="stat-num" id="st-wait">—</div>
+      <div class="stat-lbl">Aguardando</div>
+      <div class="filtro-indicator"></div>
+    </div>
+    <div class="stat-item s-sep filtro-btn" id="f-separando" onclick="setFiltro('separando')">
+      <div class="stat-num" id="st-sep">—</div>
+      <div class="stat-lbl">Em Separação</div>
+      <div class="filtro-indicator"></div>
+    </div>
+    <div class="stat-item s-done filtro-btn" id="f-concluido" onclick="setFiltro('concluido')">
+      <div class="stat-num" id="st-done">—</div>
+      <div class="stat-lbl">Concluídos</div>
+      <div class="filtro-indicator"></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div id="table-content">
+      <div class="loading-wrap"><div class="spinner"></div><span>Carregando pedidos...</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = '';
+let TOKEN = localStorage.getItem('tv_token') || '';
+let refreshTimer = null;
+let refreshCountdown = 30;
+let filtroAtivo = 'todos';
+let dadosCache = null;
+
+// ── CLOCK ──
+function updateClock(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('hdr-clock');
+  if(el) el.textContent = `${h}:${m}:${s}`;
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const dt = document.getElementById('hdr-date');
+  if(dt) dt.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── AUTH ──
+async function login(){
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  const btn = document.getElementById('l-btn');
+  const err = document.getElementById('l-err');
+  if(!user || !pass){ err.textContent = 'Preencha usuário e senha.'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  err.textContent = '';
+  try{
+    const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:user, senha:pass}) });
+    const data = await res.json();
+    if(!data.ok){ err.textContent = data.error || 'Usuário ou senha incorretos.'; btn.disabled=false; btn.textContent='Entrar'; return; }
+    TOKEN = data.token;
+    localStorage.setItem('tv_token', TOKEN);
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-wrap').style.display = '';
+    startAutoRefresh();
+    loadData();
+  }catch(e){
+    err.textContent = 'Erro de conexão. Tente novamente.';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+function logout(){
+  fetch('/api/logout', { method:'POST', headers:{'x-volux-token':TOKEN} }).catch(()=>{});
+  TOKEN = '';
+  localStorage.removeItem('tv_token');
+  clearInterval(refreshTimer);
+  document.getElementById('app-wrap').style.display = 'none';
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('l-err').textContent = '';
+  document.getElementById('l-btn').disabled = false;
+  document.getElementById('l-btn').textContent = 'Entrar';
+}
+
+// ── DATA ──
+function pct(p){
+  const its = (p.maquinas||[]).flatMap(m=>m.itens||[]);
+  if(!its.length) return 0;
+  return Math.round(its.filter(i=>i.checked).length / its.length * 100);
+}
+function pctMaq(m){
+  if(!m.itens||!m.itens.length) return 0;
+  return Math.round(m.itens.filter(i=>i.checked).length / m.itens.length * 100);
+}
+function statusInfo(v){
+  if(v===100) return {cls:'st-concluido', pill:'sp-done', dot:'sd-done', label:'Concluído'};
+  if(v>0) return {cls:'st-separando', pill:'sp-sep', dot:'sd-sep', label:'Separando'};
+  return {cls:'st-aguardando', pill:'sp-wait', dot:'sd-wait', label:'Aguardando'};
+}
+function barCls(v){ return v===100?'done':v>0?'sep':'wait'; }
+
+async function loadData(){
+  const dot = document.getElementById('refresh-dot');
+  const lbl = document.getElementById('refresh-label');
+  if(dot) dot.classList.add('blink');
+  if(lbl) lbl.textContent = 'ATUALIZANDO';
+  try{
+    const res = await fetch('/api/data', { headers:{'x-volux-token':TOKEN} });
+    if(res.status===401){ logout(); return; }
+    const data = await res.json();
+    renderTable(data);
+    refreshCountdown = 30;
+  }catch(e){
+    const tc = document.getElementById('table-content');
+    if(tc) tc.innerHTML = '<div class="empty-wrap">Erro ao carregar dados. Verificando conexão...</div>';
+  }finally{
+    if(dot) dot.classList.remove('blink');
+    if(lbl) lbl.textContent = 'AO VIVO';
+  }
+}
+
+function setFiltro(f){
+  filtroAtivo = f;
+  ['todos','aguardando','separando','concluido'].forEach(k=>{
+    const el = document.getElementById('f-'+k);
+    if(el) el.classList.toggle('active', k===f);
+  });
+  if(dadosCache) renderTable(dadosCache);
+}
+
+function renderTable(data){
+  dadosCache = data;
+  const todos = (data.pedidos||[]);
+  const tc = document.getElementById('table-content');
+
+  // Stats sempre com todos
+  const total = todos.length;
+  const wait  = todos.filter(p=>pct(p)===0).length;
+  const sep   = todos.filter(p=>pct(p)>0&&pct(p)<100).length;
+  const done  = todos.filter(p=>pct(p)===100).length;
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-wait').textContent  = wait;
+  document.getElementById('st-sep').textContent   = sep;
+  document.getElementById('st-done').textContent  = done;
+
+  // Aplicar filtro
+  let pedidos;
+  if(filtroAtivo==='aguardando')     pedidos = todos.filter(p=>pct(p)===0);
+  else if(filtroAtivo==='separando') pedidos = todos.filter(p=>pct(p)>0&&pct(p)<100);
+  else if(filtroAtivo==='concluido') pedidos = todos.filter(p=>pct(p)===100);
+  else pedidos = todos;
+
+  // Tag do filtro ativo
+  const tagMap = {
+    todos:      {cls:'ftag-todos',      icon:'', label:'Todos os pedidos'},
+    aguardando: {cls:'ftag-aguardando', icon:'⏳', label:'Aguardando separação'},
+    separando:  {cls:'ftag-separando',  icon:'⚡', label:'Em separação agora'},
+    concluido:  {cls:'ftag-concluido',  icon:'✓', label:'Concluídos'},
+  };
+  const tag = tagMap[filtroAtivo];
+  const tagHTML = `<div class="filtro-tag ${tag.cls}">${tag.icon?tag.icon+' ':''}${tag.label}</div>`;
+
+  if(!pedidos.length){
+    tc.innerHTML = tagHTML + '<div class="empty-wrap">Nenhum pedido nesta categoria no momento.</div>';
+    return;
+  }
+
+  // Ordenar: separando primeiro, depois aguardando, depois concluído
+  const sorted = [...pedidos].sort((a,b)=>{
+    const va=pct(a), vb=pct(b);
+    const pa = va>0&&va<100?0:va===0?1:2;
+    const pb = vb>0&&vb<100?0:vb===0?1:2;
+    return pa-pb;
+  });
+
+  const rows = sorted.map(p=>{
+    const v = pct(p);
+    const si = statusInfo(v);
+    const bc = barCls(v);
+    const maquinas = p.maquinas||[];
+
+    const maqRows = maquinas.map(m=>{
+      const vm = pctMaq(m);
+      const mc = barCls(vm);
+      return `<div class="maq-row">
+        <div class="maq-nome">${m.nome}</div>
+        <div class="maq-bar-wrap"><div class="maq-bar-fill ${mc}" style="width:${vm}%"></div></div>
+        <div class="maq-pct ${mc}">${vm}%</div>
+      </div>`;
+    }).join('');
+
+    return `<tr class="${si.cls}">
+      <td>
+        <div class="td-num">#${p.numero}</div>
+      </td>
+      <td>
+        <div class="td-cliente">${p.cliente||'—'}</div>
+        ${p.destino?`<div class="td-dest">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${p.destino}
+        </div>`:''}
+      </td>
+      <td>
+        <div class="td-maq-list">${maqRows||'<div style="color:#2a3a5c;font-size:13px;">—</div>'}</div>
+      </td>
+      <td>
+        <span class="status-pill ${si.pill}">
+          <span class="status-dot ${si.dot}"></span>${si.label}
+        </span>
+      </td>
+      <td class="right">
+        <div class="prog-wrap">
+          <div class="prog-pct ${bc}">${v}%</div>
+          <div class="prog-bar"><div class="prog-bar-fill ${bc}" style="width:${v}%"></div></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tc.innerHTML = tagHTML + `<table>
+    <thead>
+      <tr>
+        <th style="width:80px">Pedido</th>
+        <th>Cliente / Destino</th>
+        <th>Máquinas</th>
+        <th style="width:130px">Status</th>
+        <th class="right" style="width:140px">Progresso</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ── AUTO REFRESH ──
+function startAutoRefresh(){
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(()=>{
+    refreshCountdown--;
+    if(refreshCountdown<=0){ loadData(); refreshCountdown=30; }
+  }, 1000);
+}
+
+// ── FULLSCREEN ──
+function toggleFullscreen(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+
+// ── INIT ──
+if(TOKEN){
+  fetch('/api/me', { headers:{'x-volux-token':TOKEN} })
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.usuario){
+        document.getElementById('login-overlay').style.display='none';
+        document.getElementById('app-wrap').style.display='';
+        startAutoRefresh();
+        loadData();
+      } else { TOKEN=''; localStorage.removeItem('tv_token'); }
+    })
+    .catch(()=>{ TOKEN=''; localStorage.removeItem('tv_token'); });
+}
+</script>
+</body>
+</html>
