@@ -1,11 +1,18 @@
 ' Volux - abre o sistema como aplicativo (janela propria, sem barra do navegador).
 ' Liga o servidor em segundo plano se ele ainda nao estiver rodando.
+' Uso: Volux.vbs            -> sistema principal
+'      Volux.vbs tv.html    -> painel TV (abre maximizado)
 Option Explicit
 
-Const URL_APP = "http://localhost:3000/separacao-pedidos_1.html"
+Const URL_BASE = "http://localhost:3000/"
 Const URL_CHECK = "http://localhost:3000/api/network-info"
 
-Dim WShell, FSO, pasta, navegador, i
+Dim WShell, FSO, pasta, navegador, i, pagina, URL_APP, janela
+pagina = "separacao-pedidos_1.html"
+If WScript.Arguments.Count > 0 Then pagina = WScript.Arguments(0)
+URL_APP = URL_BASE & pagina
+janela = " --window-size=1400,900"
+If pagina = "tv.html" Then janela = " --start-maximized"
 Set WShell = CreateObject("WScript.Shell")
 Set FSO = CreateObject("Scripting.FileSystemObject")
 pasta = FSO.GetParentFolderName(WScript.ScriptFullName)
@@ -50,7 +57,7 @@ ElseIf FSO.FileExists(WShell.ExpandEnvironmentStrings("%ProgramFiles%") & "\Goog
 End If
 
 If navegador <> "" Then
-  WShell.Run """" & navegador & """ --app=" & URL_APP & " --window-size=1400,900", 1, False
+  WShell.Run """" & navegador & """ --app=" & URL_APP & janela, 1, False
 Else
   WShell.Run URL_APP
 End If
