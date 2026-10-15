@@ -167,6 +167,8 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .check-box.checked::after{content:'';width:5px;height:9px;border:2px solid #ffffff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);}
 .cl-item-right{flex:1;min-width:0;}
 .cl-item-name{font-size:14px;font-weight:400;line-height:1.4;transition:color .15s;color:var(--text);}
+.cl-item-quem{font-size:11px;color:var(--muted);line-height:1.2;}
+.cl-item-quem:empty{display:none;}
 .cl-item-name.done{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(96,120,112,.4);}
 .cl-item-serial{margin-top:7px;display:flex;align-items:center;gap:7px;}
 .serial-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
@@ -915,6 +917,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="sync.js"></script>
 <script>
 const API='/api/data';
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -931,11 +934,17 @@ function forcarRelogin(){
     setTimeout(()=>err.innerHTML='',6000);
   }
 }
+// Sincronização: BASE é a última versão recebida do servidor e REV o número dela.
+// O que o aparelho mudou = diferença entre BASE e S; só isso é enviado (/api/patch).
+let BASE=null, REV=null, salvando=false, puxando=false, salvarDeNovo=false, telaPendente=false, renderRemoto=false;
 async function loadFromServer(){
   try{
     const r=await fetch(API,{headers:authHeaders()});
     if(r.status===401){forcarRelogin();return inicial();}
-    const d=await r.json();return d||inicial();
+    const d=await r.json();
+    REV=r.headers.get('x-volux-rev');
+    BASE=d||{};
+    return d?VoluxSync.clone(d):inicial();
   }catch{try{return JSON.parse(localStorage.getItem('tooling_seplab_v4'))||inicial();}catch{return inicial();}}
 }
 function mostrarStatus(msg,cor){
@@ -951,16 +960,101 @@ function mostrarStatus(msg,cor){
 }
 function save(silencioso){
   if(!silencioso)mostrarStatus('Salvando...','var(--muted)');
-  fetch(API,{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(S)})
-    .then(r=>{
-      if(r.status===401){forcarRelogin();return;}
-      if(!r.ok){mostrarStatus('Erro ao salvar','var(--danger)');return;}
-      if(!silencioso)mostrarStatus('Salvo','var(--success)');
-    })
-    .catch(()=>{
-      try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}
-      mostrarStatus('Sem conexão — salvo localmente','var(--warn)');
-    });
+  enviarAlteracoes(silencioso);
+}
+
+async function enviarAlteracoes(silencioso){
+  if(salvando||puxando){salvarDeNovo=true;return;}
+  if(!BASE){
+    try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}
+    mostrarStatus('Sem conexão — salvo localmente','var(--warn)');
+    return;
+  }
+  const patch=VoluxSync.diff(BASE,S);
+  if(!patch){if(!silencioso)mostrarStatus('Salvo','var(--success)');return;}
+  const enviado=VoluxSync.clone(S);
+  salvando=true;
+  try{
+    const r=await fetch('/api/patch',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({baseRev:REV,patch})});
+    if(r.status===401){forcarRelogin();return;}
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){
+      mostrarStatus(d.error||'Erro ao salvar','var(--danger)');
+      // alteração recusada (ex.: operador excluindo): descarta e volta ao que está no servidor
+      if(r.status===403||r.status===400){S=VoluxSync.clone(BASE);telaPendente=true;setTimeout(()=>puxar(true),0);}
+      return;
+    }
+    BASE=enviado;
+    const outroAlterou=d.outroAlterou;
+    REV=String(d.rev);
+    if(outroAlterou)setTimeout(()=>puxar(true),0);
+    if(!silencioso)mostrarStatus('Salvo','var(--success)');
+  }catch{
+    try{localStorage.setItem('tooling_seplab_v4',JSON.stringify(S));}catch{}
+    mostrarStatus('Sem conexão — vou enviar quando voltar','var(--warn)');
+  }finally{
+    salvando=false;
+    if(salvarDeNovo){salvarDeNovo=false;enviarAlteracoes(true);}
+  }
+}
+
+// Busca o que outros aparelhos salvaram e junta com o que ainda não foi enviado daqui.
+async function puxar(forcar){
+  if(!S||puxando||salvando||!sessionStorage.getItem('sl_token'))return;
+  if(BASE&&VoluxSync.diff(BASE,S)){await enviarAlteracoes(true);if(!forcar)return;}
+  if(salvando)return;
+  puxando=true;
+  try{
+    if(!forcar&&BASE){
+      const rr=await fetch('/api/rev',{headers:authHeaders()});
+      if(!rr.ok)return;
+      const {rev}=await rr.json();
+      if(String(rev)===String(REV))return;
+    }
+    const r=await fetch(API,{headers:authHeaders()});
+    if(r.status===401){forcarRelogin();return;}
+    if(!r.ok)return;
+    const novoRev=r.headers.get('x-volux-rev');
+    const dados=(await r.json())||{};
+    const local=BASE?VoluxSync.diff(BASE,S):null;
+    const novoS=VoluxSync.apply(VoluxSync.clone(dados),local);
+    const mudou=!VoluxSync.igual(novoS,S);
+    BASE=dados;REV=novoRev;S=novoS;
+    if(mudou)telaPendente=true;
+  }catch{}
+  finally{
+    puxando=false;
+    if(salvarDeNovo){salvarDeNovo=false;enviarAlteracoes(true);}
+  }
+  if(telaPendente)atualizarTelaRemota();
+}
+
+// Redesenha a tela com os dados novos sem fechar cards abertos nem perder o que está sendo digitado.
+function atualizarTelaRemota(){
+  if(document.querySelector('.modal-overlay.open'))return; // espera fechar o modal
+  if(tab==='mapa'||tab==='roteiro')return;                 // não reinicia o mapa; atualiza ao trocar de aba
+  telaPendente=false;
+  const cards=[...document.querySelectorAll('.pedido-body.open')].map(e=>e.id.replace('body-',''));
+  const maqs=[...document.querySelectorAll('[id^="maqbody-"].open')].map(e=>e.id.replace('maqbody-',''));
+  const y=window.scrollY;
+  const ativo=document.activeElement;
+  const foco=ativo&&ativo.id&&/^(INPUT|TEXTAREA|SELECT)$/.test(ativo.tagName)?{id:ativo.id,valor:ativo.value,ini:ativo.selectionStart,fim:ativo.selectionEnd}:null;
+  renderRemoto=true;
+  try{render();}finally{renderRemoto=false;}
+  cards.forEach(id=>{const b=document.getElementById('body-'+id);if(b&&!b.classList.contains('open'))toggleCard(id);});
+  maqs.forEach(id=>{const b=document.getElementById('maqbody-'+id);if(b&&!b.classList.contains('open'))toggleMaquina(id);});
+  window.scrollTo(0,y);
+  if(foco){
+    const el=document.getElementById(foco.id);
+    if(el){el.value=foco.valor;el.focus({preventScroll:true});try{el.setSelectionRange(foco.ini,foco.fim);}catch{}}
+  }
+}
+
+function iniciarSincronizacao(){
+  if(window._voluxSync)return;
+  window._voluxSync=setInterval(()=>{if(!document.hidden)puxar();},4000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)puxar();});
+  window.addEventListener('focus',()=>puxar());
 }
 
 function inicial(){return{
@@ -1754,8 +1848,9 @@ function rItemMaq(pid,mid,item){
     <div id="cb-${item.id}" class="check-box ${item.checked?'checked':''}" onclick="toggleItem('${pid}','${item.id}','${mid}')"></div>
     <div class="cl-item-right">
       <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${esc(item.nome)}</div>
-      ${item.qty?`<span class="cl-item-qty">${item.qty}</span>`:''}
-      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
+      ${item.qty?`<span class="cl-item-qty">${esc(item.qty)}</span>`:''}
+      <div id="quem-${item.id}" class="cl-item-quem">${quemMarcouHTML(item)}</div>
+      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input id="serial-${item.id}" class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
     </div>
   </div>`;
 }
@@ -1781,7 +1876,7 @@ function rMaquina(pid,m){
     <div class="maquina-body" id="maqbody-${m.id}">
       ${m.modelo==='__extras__'?'':`<div style="display:flex;align-items:center;gap:8px;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:8px;">
         <span class="serial-label" style="white-space:nowrap;">Nº Série da Máquina</span>
-        <input class="serial-input" style="max-width:100%;flex:1;" value="${esc(m.serial)}" placeholder="Digite o número de série da máquina..."
+        <input id="serialmaq-${m.id}" class="serial-input" style="max-width:100%;flex:1;" value="${esc(m.serial)}" placeholder="Digite o número de série da máquina..."
           onchange="salvarSerialMaquina('${pid}','${m.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
@@ -1965,6 +2060,7 @@ function toggleCard(id){
 }
 
 function focarScanInput(){
+  if(renderRemoto)return;
   const input=document.getElementById('scanInput');
   if(input)setTimeout(()=>input.focus(),50);
 }
@@ -2008,6 +2104,24 @@ function toggleMaquina(mid){
   const o=b.classList.toggle('open');c.classList.toggle('rotated',o);k.classList.toggle('open',o);
 }
 
+// Registra quem marcou o item e quando (desmarcar limpa o registro).
+function carimbarItem(p,item){
+  if(item.checked){
+    item.por=SESSAO.nome||SESSAO.usuario||'';
+    item.em=new Date().toISOString();
+    if(!p.iniciadoEm){p.iniciadoEm=item.em;p.iniciadoPor=item.por;}
+  }else{delete item.por;delete item.em;}
+  const q=document.getElementById('quem-'+item.id);
+  if(q)q.innerHTML=quemMarcouHTML(item);
+}
+function quemMarcouHTML(item){
+  if(!item.checked||!item.por)return'';
+  const d=item.em?new Date(item.em):null;
+  const hoje=d&&d.toDateString()===new Date().toDateString();
+  const quando=d?(hoje?d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})):'';
+  return`${esc(item.por)}${quando?' · '+quando:''}`;
+}
+
 function toggleItem(pid,iid,mid){
   const p=S.pedidos.find(x=>x.id===pid);
   let item;
@@ -2017,6 +2131,7 @@ function toggleItem(pid,iid,mid){
     item=m.itens.find(x=>x.id===iid);
     if(!item)return;
     item.checked=!item.checked;
+    carimbarItem(p,item);
     // atualiza checkbox e nome do item
     const cb=document.getElementById('cb-'+iid);
     if(cb)cb.classList.toggle('checked',item.checked);
@@ -2039,6 +2154,7 @@ function toggleItem(pid,iid,mid){
     item=p.itens.find(x=>x.id===iid);
     if(!item)return;
     item.checked=!item.checked;
+    carimbarItem(p,item);
     const cb=document.getElementById('cb-'+iid);
     if(cb)cb.classList.toggle('checked',item.checked);
     const nm=document.getElementById('nm-'+iid);
@@ -2152,7 +2268,7 @@ function criarPedido(){
     }
   });
   const modeloNome=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome}${m.qty>1?' x'+m.qty:''}`).join(' + ');
-  S.pedidos.unshift({id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,localizacao:localizacaoNovo,criadoEm:new Date().toISOString()});
+  S.pedidos.unshift({id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,localizacao:localizacaoNovo,criadoEm:new Date().toISOString(),criadoPor:SESSAO.nome||SESSAO.usuario||''});
   save();fecharModal('mNovoPedido');tab='pedidos';filtro='todos';
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===0));render();
 }
@@ -2234,8 +2350,9 @@ function salvarEdicao(){
 async function resetarPedido(id){
   if(!await confirmarVolux('Resetar todos os itens?'))return;
   const p=S.pedidos.find(x=>x.id===id);
-  if(p.maquinas)p.maquinas.forEach(m=>m.itens.forEach(i=>{i.checked=false;i.serial='';}));
-  else if(p.itens)p.itens.forEach(i=>i.checked=false);
+  if(p.maquinas)p.maquinas.forEach(m=>m.itens.forEach(i=>{i.checked=false;i.serial='';delete i.por;delete i.em;}));
+  else if(p.itens)p.itens.forEach(i=>{i.checked=false;delete i.por;delete i.em;});
+  delete p.iniciadoEm;delete p.iniciadoPor;
   save();render();
   setTimeout(()=>{const b=document.getElementById('body-'+id);if(b){b.classList.add('open');document.getElementById('chv-'+id).classList.add('rotated');}},10);
 }
@@ -2244,6 +2361,7 @@ function concluirPedido(id){
   const p=S.pedidos.find(x=>x.id===id);
   if(!p)return;
   p.concluidoEm=new Date().toISOString();
+  p.concluidoPor=SESSAO.nome||SESSAO.usuario||'';
   const copia={...p,
     maquinas:p.maquinas?p.maquinas.map(m=>({...m,itens:m.itens.map(i=>({...i}))})):undefined,
     itens:p.itens?p.itens.map(i=>({...i})):undefined
@@ -2317,7 +2435,8 @@ function verHist(id){
     <div style="margin-bottom:12px">
       <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Destino: <strong style="color:var(--text)">${esc(p.destino)||'—'}</strong></div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Responsável: <strong style="color:var(--text)">${esc(p.responsavel)||'—'}</strong></div>
-      <div style="font-size:12px;color:var(--muted)">Concluído em: <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong></div>
+      <div style="font-size:12px;color:var(--muted)">Concluído em: <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong>${p.concluidoPor?` por <strong style="color:var(--text)">${esc(p.concluidoPor)}</strong>`:''}</div>
+      ${p.iniciadoEm?`<div style="font-size:12px;color:var(--muted);margin-top:4px">Separação iniciada: <strong style="color:var(--text)">${fdh(p.iniciadoEm)}</strong>${p.iniciadoPor?` por <strong style="color:var(--text)">${esc(p.iniciadoPor)}</strong>`:''}</div>`:''}
     </div>
     ${p.obs?`<div class="alerta-obs">${esc(p.obs)}</div>`:''}
     ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag"><strong>${esc(i.nome)}:</strong> ${esc(i.serial)}</div>`).join('')}</div>`:''}
@@ -2325,7 +2444,7 @@ function verHist(id){
     <div style="max-height:260px;overflow-y:auto;">
       ${its.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
         <span style="color:${i.checked?'var(--green)':'var(--danger)'};display:flex;">${i.checked?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}</span>
-        <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${esc(i.nome)}</span>
+        <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${esc(i.nome)}${quemMarcouHTML(i)?`<span class="cl-item-quem" style="display:block">${quemMarcouHTML(i)}</span>`:''}</span>
         ${i.serial?`<span class="serial-tag" style="font-size:10px">${esc(i.serial)}</span>`:''}
       </div>`).join('')}
     </div>
@@ -3716,6 +3835,7 @@ async function iniciarApp(){
     }
   }
   render();
+  iniciarSincronizacao();
 }
 
 async function tentarRetomarSessao(){

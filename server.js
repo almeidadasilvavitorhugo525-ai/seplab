@@ -3,12 +3,19 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const VoluxSync = require('./public/sync.js');
 
 const app = express();
 const DATA_FILE = path.join(__dirname, 'data.json');
 const USERS_FILE = path.join(__dirname, 'users.json');
 const BACKUP_DIR = path.join(__dirname, 'backups');
 const MAX_BACKUPS = 30;
+const BACKUP_INTERVALO_MS = 5 * 60 * 1000; // no máximo 1 backup a cada 5 min
+let ultimoBackup = 0;
+
+// Versão dos dados: muda a cada gravação. Os aparelhos consultam /api/rev
+// para saber se precisam buscar as novidades.
+let REV = Date.now();
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12h
 const sessions = new Map(); // token -> {expiraEm, usuarioId, usuario, nome, admin}
@@ -129,6 +136,8 @@ function readData() {
 function backupData() {
   try {
     if (!fs.existsSync(DATA_FILE)) return;
+    if (Date.now() - ultimoBackup < BACKUP_INTERVALO_MS) return;
+    ultimoBackup = Date.now();
     if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     fs.copyFileSync(DATA_FILE, path.join(BACKUP_DIR, `data-${stamp}.json`));
@@ -142,6 +151,7 @@ function backupData() {
 function writeData(data) {
   backupData();
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+  REV = Math.max(Date.now(), REV + 1);
 }
 
 function getLocalIP() {
@@ -244,29 +254,51 @@ app.delete('/api/usuarios/:id', requireAuth, requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// Operador não pode excluir pedido nem histórico (concluir = mover para o histórico é permitido).
+function removeuPedidoOuHistorico(atual, novo) {
+  const idsAtuaisPedidos = new Set((atual.pedidos || []).map(p => p.id));
+  const idsNovosPedidos = new Set((novo.pedidos || []).map(p => p.id));
+  const idsNovosHist = new Set((novo.historico || []).map(p => p.id));
+  const idsAtuaisHist = new Set((atual.historico || []).map(p => p.id));
+  const removeuPedido = [...idsAtuaisPedidos].some(id => !idsNovosPedidos.has(id) && !idsNovosHist.has(id));
+  const removeuHistorico = [...idsAtuaisHist].some(id => !idsNovosHist.has(id));
+  return removeuPedido || removeuHistorico;
+}
+
 app.get('/api/data', requireAuth, (req, res) => {
+  res.setHeader('x-volux-rev', String(REV));
   res.json(readData());
 });
 
-app.post('/api/data', requireAuth, (req, res) => {
+app.get('/api/rev', requireAuth, (req, res) => {
+  res.json({ rev: REV });
+});
+
+// Recebe só as mudanças feitas no aparelho e aplica sobre a versão atual dos dados.
+app.post('/api/patch', requireAuth, (req, res) => {
   try {
-    if (!req.sessao.admin) {
-      const atual = readData() || {};
-      const idsAtuaisPedidos = new Set((atual.pedidos || []).map(p => p.id));
-      const idsNovosPedidos = new Set((req.body.pedidos || []).map(p => p.id));
-      const idsNovosHist = new Set((req.body.historico || []).map(p => p.id));
-      const idsAtuaisHist = new Set((atual.historico || []).map(p => p.id));
-      const removeuPedido = [...idsAtuaisPedidos].some(id => !idsNovosPedidos.has(id) && !idsNovosHist.has(id));
-      const removeuHistorico = [...idsAtuaisHist].some(id => !idsNovosHist.has(id));
-      if (removeuPedido || removeuHistorico) {
-        return res.status(403).json({ ok: false, error: 'Apenas administradores podem excluir pedidos.' });
-      }
+    const { patch, baseRev } = req.body || {};
+    if (!patch || typeof patch !== 'object') return res.status(400).json({ ok: false, error: 'Alteração inválida.' });
+    const atual = readData() || {};
+    const novo = VoluxSync.apply(VoluxSync.clone(atual), patch);
+    if (!novo || typeof novo !== 'object' || Array.isArray(novo)) {
+      return res.status(400).json({ ok: false, error: 'Alteração inválida.' });
     }
-    writeData(req.body);
-    res.json({ ok: true });
+    if (!req.sessao.admin && removeuPedidoOuHistorico(atual, novo)) {
+      return res.status(403).json({ ok: false, error: 'Apenas administradores podem excluir pedidos.' });
+    }
+    const prevRev = REV;
+    writeData(novo);
+    res.json({ ok: true, rev: REV, prevRev, outroAlterou: String(baseRev) !== String(prevRev) });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
+});
+
+// Rota antiga: gravava o arquivo inteiro e apagava o que outros aparelhos tinham salvo.
+// Uma aba aberta com a versão antiga do sistema cai aqui — pede para recarregar.
+app.post('/api/data', requireAuth, (req, res) => {
+  res.status(409).json({ ok: false, error: 'O Volux foi atualizado. Recarregue a página (F5).' });
 });
 
 app.get('/api/backup-download', requireAuth, requireAdmin, (req, res) => {
@@ -281,7 +313,7 @@ app.get('/api/network-info', (req, res) => {
   res.json({ ip, port: PORT, url: `http://${ip}:${PORT}` });
 });
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const localIP = getLocalIP();
 
 const usuarioSeedCriado = seedUsuarioAdmin();
