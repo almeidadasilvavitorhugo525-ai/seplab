@@ -127,7 +127,13 @@ Tela principal. Lista todos os pedidos ativos com:
 - **Checklist por máquina** — cada item pode ser marcado individualmente
 - **Campo de número de série** para itens rastreáveis
 - **Filtros rápidos:** Todos / Aguardando / Separando / Concluído / Atrasados
-- **Scan por código de barras** — campo de busca rápida no topo
+- **Scan por código de barras** — bipe o número do pedido para abri-lo; com o pedido aberto, bipe cada **peça** para conferir:
+  - peça certa: o item é marcado (bip curto) e, se tiver nº de série, o cursor vai para o campo de série;
+  - peça já conferida: aviso;
+  - **peça errada: alerta "PEÇA ERRADA", som de erro e nada é marcado**;
+  - os códigos das peças são cadastrados em **Catálogo › Código de barras** (ou vêm do Estoque, quando a descrição é igual ao nome do item).
+- **Quem marcou e quando** — aparece embaixo de cada item ("Fulano · 14:32"); o histórico mostra quem iniciou e quem concluiu
+- **Vários aparelhos ao mesmo tempo** — cada tela se atualiza sozinha a cada 4 s, sem fechar os cards abertos
 
 **Criar pedido:**
 1. Clique em `+ Novo Pedido`
@@ -196,6 +202,10 @@ Controle de quantidade de peças e componentes disponíveis em estoque.
 
 - Adicionar / editar / remover itens
 - Visualizar alertas de estoque baixo ou zerado
+- **+ Entrada / − Saída** com observação (nota fiscal, fornecedor, motivo)
+- **Baixa automática** ao concluir um pedido: as peças conferidas saem do estoque (sem duplicar)
+- **Reservado / Disponível** — quanto os pedidos em aberto vão consumir
+- **Movimentações** — histórico de entradas, saídas e ajustes com quem, quando e saldo
 
 ---
 
@@ -289,8 +299,11 @@ Todas as rotas protegidas exigem o header `x-volux-token` com o token de sessão
 | POST | `/api/login` | Público | Autenticar usuário (bloqueia 15 min após 5 tentativas erradas) |
 | POST | `/api/logout` | Autenticado | Encerrar sessão |
 | GET | `/api/me` | Autenticado | Dados do usuário logado |
-| GET | `/api/data` | Autenticado | Buscar todos os dados |
-| POST | `/api/data` | Autenticado | Salvar dados (operadores não podem excluir) |
+| GET | `/api/data` | Autenticado | Buscar todos os dados (header `x-volux-rev` = versão) |
+| GET | `/api/rev` | Autenticado | Versão atual dos dados (os aparelhos consultam a cada 4 s) |
+| POST | `/api/patch` | Autenticado | Envia só o que mudou; o servidor mescla com o que outros aparelhos salvaram (operadores não podem excluir) |
+| POST | `/api/estoque/movimento` | Autenticado | Entrada/saída de estoque calculada no servidor (baixa de pedido não duplica) |
+| POST | `/api/data` | — | **Desativada** (sobrescrevia tudo); responde 409 pedindo para recarregar |
 | GET | `/api/usuarios` | Admin | Listar usuários |
 | POST | `/api/usuarios` | Admin | Criar usuário |
 | PUT | `/api/usuarios/:id` | Admin | Editar usuário |

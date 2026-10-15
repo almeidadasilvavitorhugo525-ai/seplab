@@ -901,6 +901,33 @@ textarea.form-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<!-- MODAL ENTRADA/SAÍDA DE ESTOQUE -->
+<div class="modal-overlay" id="mMovimento" onclick="if(event.target===this)fecharModal('mMovimento')">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="mov-titulo">Movimentação</div>
+      <button class="modal-close" onclick="fecharModal('mMovimento')">×</button>
+    </div>
+    <p id="mov-item" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></p>
+    <div class="form-group"><label class="form-label">Quantidade</label><input class="form-input" id="mov-qtd" type="number" min="1" placeholder="0" onkeydown="if(event.key==='Enter')confirmarMovimento()"></div>
+    <div class="form-group"><label class="form-label">Observação (nota fiscal, fornecedor, motivo...)</label><input class="form-input" id="mov-obs" placeholder="opcional" onkeydown="if(event.key==='Enter')confirmarMovimento()"></div>
+    <button class="btn btn-primary" id="mov-btn" style="width:100%" onclick="confirmarMovimento()">Registrar</button>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO DE MOVIMENTAÇÕES -->
+<div class="modal-overlay" id="mMovimentacoes" onclick="if(event.target===this)fecharModal('mMovimentacoes')">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="movs-titulo">Movimentações</div>
+      <button class="modal-close" onclick="fecharModal('mMovimentacoes')">×</button>
+    </div>
+    <div id="movs-lista" style="max-height:65vh;overflow:auto;"></div>
+  </div>
+</div>
+
 <!-- MODAL ALERTA / CONFIRMAÇÃO (substitui alert()/confirm() nativos do navegador) -->
 <div class="modal-overlay" id="mAlerta" onclick="if(event.target===this)_resolverAlerta(false)">
   <div class="modal" style="max-width:380px;text-align:center;">
@@ -2444,6 +2471,16 @@ function concluirPedido(id){
   S.historico.push(copia);
   S.pedidos=S.pedidos.filter(x=>x.id!==id);
   save();render();
+  const movs=baixaDoPedido(copia);
+  if(movs.length){
+    registrarMovimentos(movs,'Pedido #'+p.numero,p.id).then(d=>{
+      if(!d)return;
+      if(d.jaRegistrado){mostrarStatus('Baixa deste pedido já tinha sido feita','var(--warn)');return;}
+      const negativos=d.movimentos.filter(m=>m.saldo<0);
+      mostrarStatus(`Baixa no estoque: ${d.movimentos.length} ${d.movimentos.length===1?'item':'itens'}`,'var(--success)');
+      if(negativos.length)mostrarAlerta('Atenção: estoque ficou negativo em:\n\n'+negativos.map(m=>`• ${m.descricao}: ${m.saldo}`).join('\n')+'\n\nConfira a contagem física.');
+    });
+  }
 }
 
 function abrirModalItemExtra(pid){
@@ -3296,7 +3333,100 @@ function confirmarLogout(){
 document.getElementById('logout-modal').addEventListener('click',function(e){if(e.target===this)fecharLogout();});
 
 /* ── ESTOQUE ── */
-function estStatus(it){if(it.quantidade===0)return'sem';if(it.quantidade<=it.minimo)return'baixo';return'ok';}
+function estStatus(it){if((Number(it.quantidade)||0)<=0)return'sem';if(it.quantidade<=it.minimo)return'baixo';return'ok';}
+
+// ── Estoque integrado à separação ─────────────────────────────────────
+// Liga um item de pedido ao item de estoque pelo código de barras (Catálogo) ou pela descrição.
+function estoqueDoItem(nome){
+  const its=(S.estoque&&S.estoque.itens)||[];
+  const cod=codigoDoItem(nome);
+  if(cod){const e=its.find(x=>normCodigo(x.codigo)===cod);if(e)return e;}
+  const n=String(nome||'').trim().toLowerCase();
+  return its.find(x=>String(x.descricao||'').trim().toLowerCase()===n)||null;
+}
+// Quanto os pedidos em aberto vão consumir de cada item de estoque.
+function reservasEstoque(){
+  const r={};
+  S.pedidos.forEach(p=>todosItens(p).forEach(i=>{
+    const e=estoqueDoItem(i.nome);
+    if(e)r[e.id]=(r[e.id]||0)+parseQty(i.qty);
+  }));
+  return r;
+}
+// Peças conferidas do pedido, agrupadas por item de estoque.
+function baixaDoPedido(p){
+  const q={};
+  todosItens(p).forEach(i=>{
+    if(!i.checked)return;
+    const e=estoqueDoItem(i.nome);
+    if(e)q[e.id]=(q[e.id]||0)+parseQty(i.qty);
+  });
+  return Object.entries(q).map(([itemId,qtd])=>({itemId,qtd,tipo:'saida'}));
+}
+async function registrarMovimentos(movs,origem,pedidoId){
+  try{
+    const r=await fetch('/api/estoque/movimento',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({movs,origem,pedidoId})});
+    if(r.status===401){forcarRelogin();return null;}
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){mostrarAlerta(d.error||'Não foi possível registrar a movimentação de estoque.');return null;}
+    puxarQuandoLivre();
+    return d;
+  }catch{
+    mostrarAlerta('Sem conexão com o servidor: a movimentação de estoque NÃO foi registrada.');
+    return null;
+  }
+}
+async function puxarQuandoLivre(){
+  for(let i=0;i<40&&(salvando||puxando);i++)await new Promise(r=>setTimeout(r,150));
+  await puxar(true);
+}
+
+let movEstoque=null;
+function abrirMovimento(itemId,tipo){
+  const it=S.estoque.itens.find(i=>i.id===itemId);if(!it)return;
+  movEstoque={itemId,tipo};
+  document.getElementById('mov-titulo').textContent=(tipo==='entrada'?'Entrada':'Saída')+' de estoque';
+  document.getElementById('mov-item').textContent=`${it.codigo} — ${it.descricao} (atual: ${it.quantidade})`;
+  document.getElementById('mov-qtd').value='';
+  document.getElementById('mov-obs').value='';
+  const btn=document.getElementById('mov-btn');
+  btn.textContent=tipo==='entrada'?'Registrar entrada':'Registrar saída';
+  document.getElementById('mMovimento').classList.add('open');
+  setTimeout(()=>document.getElementById('mov-qtd').focus(),150);
+}
+async function confirmarMovimento(){
+  if(!movEstoque)return;
+  const qtd=parseInt(document.getElementById('mov-qtd').value)||0;
+  if(qtd<=0){mostrarAlerta('Informe uma quantidade maior que zero.');return;}
+  const obs=document.getElementById('mov-obs').value.trim()||(movEstoque.tipo==='entrada'?'Entrada manual':'Saída manual');
+  const btn=document.getElementById('mov-btn');btn.disabled=true;
+  const d=await registrarMovimentos([{itemId:movEstoque.itemId,qtd,tipo:movEstoque.tipo,obs}],obs);
+  btn.disabled=false;
+  if(!d)return;
+  fecharModal('mMovimento');
+  const m=d.movimentos[0];
+  mostrarStatus(`${movEstoque.tipo==='entrada'?'Entrada':'Saída'} registrada — saldo ${m?m.saldo:''}`,'var(--success)');
+  movEstoque=null;
+}
+function abrirMovimentacoes(itemId){
+  const movs=((S.estoque&&S.estoque.movimentos)||[]).filter(m=>!itemId||m.itemId===itemId).slice(-200).reverse();
+  const it=itemId&&S.estoque.itens.find(i=>i.id===itemId);
+  document.getElementById('movs-titulo').textContent=it?`Movimentações — ${it.descricao}`:'Movimentações de estoque';
+  const cor={entrada:'var(--green)',saida:'var(--danger)',ajuste:'var(--warn)'};
+  const nomeTipo={entrada:'Entrada',saida:'Saída',ajuste:'Ajuste'};
+  document.getElementById('movs-lista').innerHTML=movs.length?`<div class="est-table-wrap"><table>
+    <thead><tr><th>Quando</th><th>Tipo</th><th>Item</th><th>Qtd</th><th>Saldo</th><th>Quem</th><th>Origem</th></tr></thead>
+    <tbody>${movs.map(m=>`<tr>
+      <td style="white-space:nowrap;font-size:12px">${fdh(m.em)}</td>
+      <td><strong style="color:${cor[m.tipo]||'var(--text)'}">${nomeTipo[m.tipo]||esc(m.tipo)}</strong></td>
+      <td style="font-size:13px"><span class="td-code">${esc(m.codigo)}</span> ${esc(m.descricao)}</td>
+      <td style="font-weight:600;color:${cor[m.tipo]||'var(--text)'}">${m.tipo==='entrada'?'+':m.tipo==='saida'?'−':(m.qtd>0?'+':'')}${esc(m.tipo==='ajuste'?m.qtd:Math.abs(m.qtd))}</td>
+      <td>${esc(m.saldo)}</td>
+      <td style="font-size:12px">${esc(m.por)}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(m.origem)}</td>
+    </tr>`).join('')}</tbody></table></div>`:'<p style="text-align:center;padding:30px;color:var(--muted)">Nenhuma movimentação registrada ainda.</p>';
+  document.getElementById('mMovimentacoes').classList.add('open');
+}
 
 function rTabEstoque(){
   const app=document.getElementById('app');
@@ -3305,6 +3435,7 @@ function rTabEstoque(){
   const total=its.length, ok=its.filter(i=>estStatus(i)==='ok').length,
         baixo=its.filter(i=>estStatus(i)==='baixo').length, sem=its.filter(i=>estStatus(i)==='sem').length;
   const busca=estBusca.toLowerCase();
+  const reservas=reservasEstoque();
   let lista=its.filter(i=>{
     const m=i.codigo.toLowerCase().includes(busca)||i.descricao.toLowerCase().includes(busca);
     if(!m)return false;
@@ -3330,11 +3461,12 @@ function rTabEstoque(){
       <button class="chip ${estFiltro==='ok'?'active':''}" onclick="estFiltro='ok';rTabEstoque()">OK</button>
       <button class="chip ${estFiltro==='baixo'?'active':''}" onclick="estFiltro='baixo';rTabEstoque()">Baixo</button>
       <button class="chip ${estFiltro==='sem'?'active':''}" onclick="estFiltro='sem';rTabEstoque()">Zerado</button>
+      <button class="btn btn-outline btn-sm" onclick="abrirMovimentacoes()">Movimentações</button>
     </div>
   </div>
   <div class="est-table-wrap">
     <table>
-      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th>Mínimo</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th title="Peças dos pedidos em aberto">Reservado</th><th title="Qtd − Reservado">Disponível</th><th>Mínimo</th><th>Status</th><th></th></tr></thead>
       <tbody>${lista.length?lista.map(i=>{
         const st=estStatus(i);
         const cor=st==='ok'?'var(--green)':st==='baixo'?'var(--warn)':'var(--danger)';
@@ -3344,13 +3476,18 @@ function rTabEstoque(){
           <td style="font-weight:500">${esc(i.descricao)}</td>
           <td style="font-size:12px;color:var(--muted)">${esc(i.categoria)}</td>
           <td><span class="td-qty" style="color:${cor}">${esc(i.quantidade)}</span></td>
+          <td style="color:var(--muted);font-size:13px">${reservas[i.id]||'—'}</td>
+          <td style="font-size:13px;font-weight:600;color:${(Number(i.quantidade)||0)-(reservas[i.id]||0)<0?'var(--danger)':'var(--text)'}">${reservas[i.id]?(Number(i.quantidade)||0)-reservas[i.id]:'—'}</td>
           <td style="color:var(--muted);font-size:13px">${esc(i.minimo)}</td>
           <td>${badge}</td>
-          <td style="display:flex;gap:6px;">
+          <td style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-xs" title="Entrada" onclick="abrirMovimento('${i.id}','entrada')">+ Entrada</button>
+            <button class="btn btn-outline btn-xs" title="Saída" onclick="abrirMovimento('${i.id}','saida')">− Saída</button>
+            <button class="btn btn-ghost btn-xs" title="Histórico deste item" onclick="abrirMovimentacoes('${i.id}')">Histórico</button>
             <button class="btn-edit btn btn-ghost btn-xs" onclick="editarItemEstoque('${i.id}')">Editar</button>
             <button class="btn-del btn btn-danger btn-xs" onclick="removerItemEstoque('${i.id}')">Remover</button>
           </td>
-        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;
@@ -3383,7 +3520,17 @@ function salvarItemEstoque(){
   const descricao=document.getElementById('est-descricao').value.trim();
   if(!codigo||!descricao){mostrarAlerta('Preencha código e descrição.');return;}
   const it={id:id||u(),codigo,descricao,quantidade:parseInt(document.getElementById('est-quantidade').value)||0,minimo:parseInt(document.getElementById('est-minimo').value)||0,categoria:document.getElementById('est-categoria').value||'Outro'};
-  if(id){const idx=S.estoque.itens.findIndex(i=>i.id===id);if(idx>=0)S.estoque.itens[idx]=it;}
+  if(id){
+    const idx=S.estoque.itens.findIndex(i=>i.id===id);
+    if(idx>=0){
+      const antes=Number(S.estoque.itens[idx].quantidade)||0;
+      S.estoque.itens[idx]=it;
+      if(it.quantidade!==antes){
+        if(!Array.isArray(S.estoque.movimentos))S.estoque.movimentos=[];
+        S.estoque.movimentos.push({id:u(),em:new Date().toISOString(),por:SESSAO.nome||SESSAO.usuario||'',tipo:'ajuste',itemId:it.id,codigo:it.codigo,descricao:it.descricao,qtd:it.quantidade-antes,saldo:it.quantidade,origem:'Edição manual'});
+      }
+    }
+  }
   else S.estoque.itens.push(it);
   save();fecharModal('mEstoque');
   rTabEstoque();

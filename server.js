@@ -295,6 +295,46 @@ app.post('/api/patch', requireAuth, (req, res) => {
   }
 });
 
+// Entrada/saída de estoque. A conta é feita aqui no servidor (e não no aparelho)
+// para que duas baixas ao mesmo tempo não se sobrescrevam.
+app.post('/api/estoque/movimento', requireAuth, (req, res) => {
+  try {
+    const { movs, origem, pedidoId } = req.body || {};
+    if (!Array.isArray(movs) || !movs.length) return res.status(400).json({ ok: false, error: 'Nenhuma movimentação.' });
+    const data = readData() || {};
+    if (!data.estoque || typeof data.estoque !== 'object') data.estoque = { itens: [] };
+    const est = data.estoque;
+    if (!Array.isArray(est.itens)) est.itens = [];
+    if (!Array.isArray(est.movimentos)) est.movimentos = [];
+    if (pedidoId && est.movimentos.some(m => m.pedidoId === pedidoId && m.tipo === 'saida')) {
+      return res.json({ ok: true, jaRegistrado: true, rev: REV, movimentos: [] });
+    }
+    const agora = new Date().toISOString();
+    const por = req.sessao.nome || req.sessao.usuario || '';
+    const feitos = [];
+    for (const mv of movs) {
+      const it = est.itens.find(i => i.id === (mv && mv.itemId));
+      const qtd = Math.abs(Number(mv && mv.qtd));
+      if (!it || !qtd || !['entrada', 'saida'].includes(mv.tipo)) continue;
+      it.quantidade = (Number(it.quantidade) || 0) + (mv.tipo === 'entrada' ? qtd : -qtd);
+      const reg = {
+        id: crypto.randomBytes(6).toString('hex'), em: agora, por, tipo: mv.tipo,
+        itemId: it.id, codigo: it.codigo, descricao: it.descricao, qtd, saldo: it.quantidade,
+        origem: String(mv.obs || origem || '').slice(0, 200),
+      };
+      if (pedidoId) reg.pedidoId = String(pedidoId);
+      est.movimentos.push(reg);
+      feitos.push(reg);
+    }
+    if (!feitos.length) return res.status(400).json({ ok: false, error: 'Itens de estoque não encontrados.' });
+    if (est.movimentos.length > 3000) est.movimentos = est.movimentos.slice(-3000);
+    writeData(data);
+    res.json({ ok: true, rev: REV, movimentos: feitos });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // Rota antiga: gravava o arquivo inteiro e apagava o que outros aparelhos tinham salvo.
 // Uma aba aberta com a versão antiga do sistema cai aqui — pede para recarregar.
 app.post('/api/data', requireAuth, (req, res) => {
