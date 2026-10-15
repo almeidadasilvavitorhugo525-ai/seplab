@@ -78,6 +78,16 @@ O sistema abre em:
 - **Local:** http://localhost:3000/separacao-pedidos_1.html
 - **Rede:** http://`<IP da máquina>`:3000/separacao-pedidos_1.html
 
+### Aplicativo na área de trabalho (Windows)
+
+Dê duplo clique em **`Volux.vbs`** (ou no atalho **Volux** da área de trabalho). Ele:
+- liga o servidor em segundo plano, sem janela preta, caso ainda não esteja rodando;
+- abre o Volux em uma janela própria (Edge ou Chrome em modo app), sem barra de endereço.
+
+Para criar o atalho em outro computador: botão direito em `Volux.vbs` → *Enviar para* → *Área de trabalho*, depois em *Propriedades* → *Alterar ícone* → `publicolux.ico`.
+
+O Volux também pode ser instalado como app pelo navegador (ícone de instalar na barra de endereço do Chrome/Edge) ou, no celular, por *Adicionar à tela inicial*.
+
 ### Primeiro acesso
 
 Na primeira vez que rodar, o sistema cria automaticamente um usuário administrador e exibe as credenciais no terminal:
@@ -253,11 +263,13 @@ seplab/
 │   ├── separacao-pedidos_1.html   # Sistema principal (SPA)
 │   ├── tv.html                    # Painel de TV
 │   ├── rede.html                  # Página de informações de rede (QR Code)
-│   └── favicon.svg / logo.png / logo.ico
+│   ├── manifest.webmanifest       # Dados do app instalável (nome, ícones, cores)
+│   └── volux.ico / icon-*.png / favicon.svg   # Ícones do app
 ├── data.json                  # Dados dos pedidos (gerado automaticamente, não versionado)
 ├── users.json                 # Usuários cadastrados (gerado automaticamente, não versionado)
 ├── package.json               # Dependências Node.js
-├── iniciar.bat                # Atalho para iniciar no Windows
+├── Volux.vbs                  # Abre o Volux como aplicativo (liga o servidor se preciso)
+├── iniciar.bat                # Inicia com janela de terminal
 ├── atualizar_codigo.bat       # Pull + push do GitHub
 ├── sincronizar_pendrive.bat   # Sincroniza dados com pen drive
 ├── backups/                   # Backups automáticos dos dados

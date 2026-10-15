@@ -1,0 +1,20 @@
+{
+  "id": "/separacao-pedidos_1.html",
+  "name": "Volux",
+  "short_name": "Volux",
+  "description": "Separação de pedidos, estoque e roteiro de entrega.",
+  "lang": "pt-BR",
+  "start_url": "/separacao-pedidos_1.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eef2fd",
+  "theme_color": "#0b1640",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Painel TV", "url": "/tv.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
