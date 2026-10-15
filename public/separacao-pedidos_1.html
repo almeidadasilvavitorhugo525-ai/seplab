@@ -854,6 +854,8 @@ textarea.form-input{resize:vertical;min-height:80px;}
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
 const API='/api/data';
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function attrJs(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function authHeaders(){const t=sessionStorage.getItem('sl_token');return t?{'x-volux-token':t}:{};}
 function forcarRelogin(){
   sessionStorage.removeItem('sl_logado');
@@ -1377,7 +1379,7 @@ function desenharPinsMapa(modeloFiltro,serialFiltro){
     const loc=g.pedido.localizacao;
     if(!loc)return;
     const marker=L.marker([loc.lat,loc.lon],{icon:iconVolux({clicavel:true})});
-    marker.bindTooltip(`#${g.pedido.numero} — ${g.pedido.cliente}`);
+    marker.bindTooltip(`#${esc(g.pedido.numero)} — ${esc(g.pedido.cliente)}`);
     marker.on('click',()=>mostrarInfoPedidoMapa(g.pedido.id,g.maquinas));
     marker.addTo(mapaGeralMarkers);
   });
@@ -1416,10 +1418,10 @@ function mostrarInfoPedidoMapa(pedidoId,maquinasFiltradas){
   const statusLabel=v===100?'Concluído':v>0?'Separando':'Aguardando';
   const statusClasse=v===100?'badge-done':v>0?'badge-progress':'badge-pending';
   const lista=(maquinasFiltradas&&maquinasFiltradas.length?maquinasFiltradas:(p.maquinas||[]));
-  const maqsHTML=lista.map(m=>`<div class="map-info-row"><strong>${m.nome}</strong><span>${m.serial?'Série: '+m.serial:'sem série cadastrada'}</span></div>`).join('');
+  const maqsHTML=lista.map(m=>`<div class="map-info-row"><strong>${esc(m.nome)}</strong><span>${m.serial?'Série: '+esc(m.serial):'sem série cadastrada'}</span></div>`).join('');
   document.getElementById('mapaInfoWrap').innerHTML=`<div class="map-info-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">#${p.numero} — ${p.cliente}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">#${esc(p.numero)} — ${esc(p.cliente)}</div>
       <span class="badge ${statusClasse}">${statusLabel}</span>
     </div>
     <div class="map-info-row"><strong>Destino</strong><span>${p.destino||'—'}</span></div>
@@ -1490,9 +1492,9 @@ function rItemMaq(pid,mid,item){
   return`<div class="cl-item">
     <div id="cb-${item.id}" class="check-box ${item.checked?'checked':''}" onclick="toggleItem('${pid}','${item.id}','${mid}')"></div>
     <div class="cl-item-right">
-      <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${item.nome}</div>
+      <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${esc(item.nome)}</div>
       ${item.qty?`<span class="cl-item-qty">${item.qty}</span>`:''}
-      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input class="serial-input" value="${item.serial||''}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
+      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
     </div>
   </div>`;
 }
@@ -1508,7 +1510,7 @@ function rMaquina(pid,m){
   const statusCor=v===100?'var(--green)':v>0?'var(--warn)':'var(--border2)';
   return`<div class="maquina-card" id="maq-${m.id}">
     <div class="maquina-header" onclick="toggleMaquina('${m.id}')">
-      <div class="maquina-nome"><span id="maqicon-${m.id}" class="maq-status-dot" style="background:${statusCor}"></span> ${m.nome}</div>
+      <div class="maquina-nome"><span id="maqicon-${m.id}" class="maq-status-dot" style="background:${statusCor}"></span> ${esc(m.nome)}</div>
       <div class="maquina-prog">
         <div style="width:60px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div id="maqbarfill-${m.id}" style="height:100%;background:${v===100?'var(--green)':'var(--warn)'};border-radius:2px;width:${v}%;transition:width .4s;"></div></div>
         <span id="maqpct-${m.id}" class="maquina-pct">${done}/${m.itens.length}</span>
@@ -1518,7 +1520,7 @@ function rMaquina(pid,m){
     <div class="maquina-body" id="maqbody-${m.id}">
       ${m.modelo==='__extras__'?'':`<div style="display:flex;align-items:center;gap:8px;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:8px;">
         <span class="serial-label" style="white-space:nowrap;">Nº Série da Máquina</span>
-        <input class="serial-input" style="max-width:100%;flex:1;" value="${m.serial||''}" placeholder="Digite o número de série da máquina..."
+        <input class="serial-input" style="max-width:100%;flex:1;" value="${esc(m.serial)}" placeholder="Digite o número de série da máquina..."
           onchange="salvarSerialMaquina('${pid}','${m.id}',this.value)"
           onclick="event.stopPropagation()">
       </div>
@@ -1541,17 +1543,17 @@ function rCard(p){
   const statusClass=statusClassFor(p);
   const statusPill=statusPillHTML(p);
   const maqTags=p.maquinas&&p.maquinas.length
-    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${m.nome}</span>`).join('')}</div>`
+    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${esc(m.nome)}</span>`).join('')}</div>`
     :'';
   const infoItems=[];
-  if(p.destino) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${p.destino}</strong></div>`);
-  if(p.endereco) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg> <strong>${p.endereco}${p.cep?' — '+p.cep:''}</strong></div>`);
-  if(p.responsavel) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <strong>${p.responsavel}</strong></div>`);
+  if(p.destino) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${esc(p.destino)}</strong></div>`);
+  if(p.endereco) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg> <strong>${esc(p.endereco)}${p.cep?' — '+esc(p.cep):''}</strong></div>`);
+  if(p.responsavel) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <strong>${esc(p.responsavel)}</strong></div>`);
   if(p.data) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <strong>${fd(p.data)}</strong></div>`);
   return`<div class="pedido-card ${statusClass}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
       <div class="ph-row1">
-        <span class="ph-order-num"># ${p.numero}</span>
+        <span class="ph-order-num"># ${esc(p.numero)}</span>
         <button class="btn btn-ghost btn-xs" title="Código de barras" onclick="event.stopPropagation();verCodigoBarras('${p.id}')" style="padding:4px 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/></svg></button>
         <span id="ppill-${p.id}">${statusPill}</span>
         <div class="ph-spacer"></div>
@@ -1562,7 +1564,7 @@ function rCard(p){
         <span class="ph-chevron" id="chv-${p.id}">▼</span>
       </div>
       <div class="ph-row2">
-        <div class="ph-client">${p.cliente}</div>
+        <div class="ph-client">${esc(p.cliente)}</div>
         ${maqTags}
       </div>
       <div class="ph-info-strip">
@@ -1572,8 +1574,8 @@ function rCard(p){
     </div>
     <div class="pedido-body" id="body-${p.id}">
       <div class="pedido-body-inner">
-        ${p.obs?`<div class="alerta-obs">${p.obs}</div>`:''}
-        <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>i.nome).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
+        ${p.obs?`<div class="alerta-obs">${esc(p.obs)}</div>`:''}
+        <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>esc(i.nome)).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
         <div id="pconcluido-${p.id}">${v===100?`<div style="background:rgba(24,95,165,.06);border:1px solid rgba(24,95,165,.20);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px;">Todos os itens conferidos! Pedido pronto para envio.</div>`:''}</div>
         ${maquinasHTML}
         <div id="pbotoes-${p.id}" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
@@ -1611,7 +1613,7 @@ function rHistorico(){
     return`<div class="hist-row" onclick="verHist('${p.id}')">
       <div class="hist-dot"></div>
       <div class="hist-info" style="flex:1;min-width:0;">
-        <div class="hist-num">#${p.numero} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${p.cliente}</span></div>
+        <div class="hist-num">#${esc(p.numero)} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${esc(p.cliente)}</span></div>
         <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?p.destino+' · ':''}${mods?mods:''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:10px;">
@@ -1658,16 +1660,16 @@ function rPainel(){
   ${vencendo.length?`<div class="sec-title" style="color:var(--warn)">Envio nos Próximos 3 Dias</div><div class="card" style="margin-bottom:16px;border-color:rgba(240,165,0,.3);">${vencendo.map(p=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
-        <div style="font-size:11px;color:var(--warn);margin-top:2px;">${fd(p.data)}${p.destino?' · '+p.destino:''}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${esc(p.numero)} — ${esc(p.cliente)}</div>
+        <div style="font-size:11px;color:var(--warn);margin-top:2px;">${fd(p.data)}${p.destino?' · '+esc(p.destino):''}</div>
       </div>
       <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span>
     </div>`).join('')}</div>`:''}
   ${emSep.length?`<div class="sec-title">Em Separação Agora</div><div class="card" style="margin-bottom:16px;">${emSep.map(p=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${p.numero} — ${p.cliente}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.responsavel?p.responsavel+' · ':''}<span style="color:var(--text)">${todosItens(p).filter(i=>i.checked).length}/${todosItens(p).length} itens</span></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${esc(p.numero)} — ${esc(p.cliente)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.responsavel?esc(p.responsavel)+' · ':''}<span style="color:var(--text)">${todosItens(p).filter(i=>i.checked).length}/${todosItens(p).length} itens</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;"><div style="width:80px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;"><div style="height:100%;background:var(--warn);border-radius:2px;box-shadow:0 0 6px rgba(240,165,0,.4);width:${pct(p)}%;transition:width .4s;"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--warn)">${pct(p)}%</span></div>
     </div>`).join('')}</div>`:''}
@@ -1688,7 +1690,7 @@ function rTabItens(){
   ${cats.map(cat=>`<div class="card" style="margin-bottom:10px;"><div class="sec-title">${cat}</div>
     ${S.itensPadrao.filter(i=>i.categoria===cat).map(item=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(36,48,40,.5);">
-        <div><span style="font-size:14px">${item.nome}</span>${item.temSerial?'<span style="font-size:10px;color:var(--green);margin-left:6px;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:.5px">SERIAL</span>':''}</div>
+        <div><span style="font-size:14px">${esc(item.nome)}</span>${item.temSerial?'<span style="font-size:10px;color:var(--green);margin-left:6px;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:.5px">SERIAL</span>':''}</div>
         <span class="cl-item-qty">${item.qty}</span>
       </div>`).join('')}
   </div>`).join('')}`;
@@ -2018,7 +2020,7 @@ function salvarItemExtra(){
 function renderListaItens(){
   document.getElementById('listaItens').innerHTML=S.itensPadrao.map(item=>`
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
-      <span style="flex:1;font-size:13px">${item.nome} <span style="color:var(--muted);font-size:11px">(${item.categoria})</span>${item.temSerial?'<span style="color:var(--green);font-size:10px;margin-left:4px">SERIAL</span>':''}</span>
+      <span style="flex:1;font-size:13px">${esc(item.nome)} <span style="color:var(--muted);font-size:11px">(${esc(item.categoria)})</span>${item.temSerial?'<span style="color:var(--green);font-size:10px;margin-left:4px">SERIAL</span>':''}</span>
       <button class="btn btn-danger btn-xs" onclick="rmItemPadrao('${item.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`).join('');
 }
@@ -2037,18 +2039,18 @@ function verHist(id){
   const seriais=p.itens.filter(i=>i.temSerial&&i.serial);
   document.getElementById('histConteudo').innerHTML=`
     <div style="margin-bottom:12px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Destino: <strong style="color:var(--text)">${p.destino||'—'}</strong></div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Responsável: <strong style="color:var(--text)">${p.responsavel||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Destino: <strong style="color:var(--text)">${esc(p.destino)||'—'}</strong></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Responsável: <strong style="color:var(--text)">${esc(p.responsavel)||'—'}</strong></div>
       <div style="font-size:12px;color:var(--muted)">Concluído em: <strong style="color:var(--text)">${fdh(p.concluidoEm)}</strong></div>
     </div>
-    ${p.obs?`<div class="alerta-obs">${p.obs}</div>`:''}
-    ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag"><strong>${i.nome}:</strong> ${i.serial}</div>`).join('')}</div>`:''}
+    ${p.obs?`<div class="alerta-obs">${esc(p.obs)}</div>`:''}
+    ${seriais.length?`<div class="sec-title" style="margin-top:8px">Números de Série</div><div style="margin-bottom:14px;display:flex;flex-wrap:wrap;">${seriais.map(i=>`<div class="serial-tag"><strong>${esc(i.nome)}:</strong> ${esc(i.serial)}</div>`).join('')}</div>`:''}
     <div class="sec-title">Itens (${p.itens.filter(i=>i.checked).length}/${p.itens.length})</div>
     <div style="max-height:260px;overflow-y:auto;">
       ${p.itens.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
         <span style="color:${i.checked?'var(--green)':'var(--danger)'};display:flex;">${i.checked?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}</span>
-        <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${i.nome}</span>
-        ${i.serial?`<span class="serial-tag" style="font-size:10px">${i.serial}</span>`:''}
+        <span style="flex:1;font-size:13px;${i.checked?'':'color:var(--danger)'}">${esc(i.nome)}</span>
+        ${i.serial?`<span class="serial-tag" style="font-size:10px">${esc(i.serial)}</span>`:''}
       </div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
@@ -2318,10 +2320,10 @@ ${modelos.map(([nome,its])=>`
     <tr><th>#</th><th>Nº Série</th><th>Pedido</th><th>Cliente</th><th>Destino</th><th>Data de Envio</th></tr>
     ${its.map((m,i)=>`<tr>
       <td style="color:#999;width:30px">${i+1}</td>
-      <td>${m.serial!=='—'?`<span class="serial">${m.serial}</span>`:`<span class="serial vazio">não informado</span>`}</td>
-      <td><strong>#${m.pedido}</strong></td>
-      <td>${m.cliente}</td>
-      <td>${m.destino}</td>
+      <td>${m.serial!=='—'?`<span class="serial">${esc(m.serial)}</span>`:`<span class="serial vazio">não informado</span>`}</td>
+      <td><strong>#${esc(m.pedido)}</strong></td>
+      <td>${esc(m.cliente)}</td>
+      <td>${esc(m.destino)}</td>
       <td>${m.concluidoEm?fdh(m.concluidoEm):'—'}</td>
     </tr>`).join('')}
   </table>
@@ -2448,8 +2450,8 @@ function gerarRelatorioAnual(ano){
   <tr><th style="width:40px">#</th><th>Item</th><th>Categoria</th><th style="width:80px;text-align:center">Qtd enviada</th></tr>
   ${ranking.map((it,i)=>`<tr>
     <td><span class="rank-num">${(i+1)+'º'}</span></td>
-    <td><strong>${it.nome}</strong></td>
-    <td style="color:#555">${it.categoria}</td>
+    <td><strong>${esc(it.nome)}</strong></td>
+    <td style="color:#555">${esc(it.categoria)}</td>
     <td style="text-align:center;font-weight:bold;color:#185FA5">${it.total}</td>
   </tr>`).join('')}
 </table>
@@ -2460,7 +2462,7 @@ function gerarRelatorioAnual(ano){
   <tr><th style="width:40px">#</th><th>Cliente</th><th style="width:120px;text-align:center">Pedidos</th></tr>
   ${rankClientes.map(([cli,n],i)=>`<tr>
     <td><span class="rank-num">${(i+1)+'º'}</span></td>
-    <td><strong>${cli}</strong></td>
+    <td><strong>${esc(cli)}</strong></td>
     <td style="text-align:center;font-weight:bold;color:#185FA5">${n}</td>
   </tr>`).join('')}
 </table>
@@ -2473,10 +2475,10 @@ function gerarRelatorioAnual(ano){
     const its=p.maquinas?p.maquinas.flatMap(m=>m.itens):p.itens||[];
     const mods=p.maquinas?[...new Set(p.maquinas.map(m=>m.nome))].join(', '):p.modelo||'—';
     return`<tr>
-      <td><strong>#${p.numero}</strong></td>
-      <td>${p.cliente||'—'}</td>
-      <td>${p.destino||'—'}</td>
-      <td style="font-size:11px;color:#555">${mods}</td>
+      <td><strong>#${esc(p.numero)}</strong></td>
+      <td>${esc(p.cliente)||'—'}</td>
+      <td>${esc(p.destino)||'—'}</td>
+      <td style="font-size:11px;color:#555">${esc(mods)}</td>
       <td style="text-align:center">${its.length}</td>
       <td style="font-size:11px">${p.concluidoEm?fdh(p.concluidoEm):'—'}</td>
     </tr>`;
@@ -2515,10 +2517,10 @@ function gerarRelatorio(id, doHistorico=false){
     if(!itens.length)return'<tr><td colspan="6" style="color:#999;text-align:center;padding:14px;">Nenhum item</td></tr>';
     return itens.map((item,i)=>`<tr>
       <td style="width:32px;color:#999">${i+1}</td>
-      <td><strong>${item.nome}</strong></td>
-      <td style="color:#555">${item.categoria||'—'}</td>
-      <td style="text-align:center">${item.qty||'—'}</td>
-      <td style="font-family:monospace;font-size:12px">${item.serial||'—'}</td>
+      <td><strong>${esc(item.nome)}</strong></td>
+      <td style="color:#555">${esc(item.categoria)||'—'}</td>
+      <td style="text-align:center">${esc(item.qty)||'—'}</td>
+      <td style="font-family:monospace;font-size:12px">${esc(item.serial)||'—'}</td>
       <td style="font-weight:bold;color:${item.checked?'#185FA5':'#c0392b'}">${item.checked?'Separado':'Pendente'}</td>
     </tr>`).join('');
   }
@@ -2536,8 +2538,8 @@ function gerarRelatorio(id, doHistorico=false){
       return`<div style="margin-bottom:22px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
         <div style="background:#185FA5;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <span style="font-weight:bold;font-size:14px">${m.nome}</span>
-            ${m.serial?`<span style="font-size:11px;opacity:.8;margin-left:10px;">Nº Série: ${m.serial}</span>`:''}
+            <span style="font-weight:bold;font-size:14px">${esc(m.nome)}</span>
+            ${m.serial?`<span style="font-size:11px;opacity:.8;margin-left:10px;">Nº Série: ${esc(m.serial)}</span>`:''}
           </div>
           <span style="font-size:12px">${sepM}/${m.itens.length} itens · ${vm}%</span>
         </div>
@@ -2564,7 +2566,7 @@ function gerarRelatorio(id, doHistorico=false){
     if(!pendentes.length)return'';
     return`<div style="background:#fff3f3;border-left:4px solid #c0392b;padding:12px 16px;margin-bottom:18px;border-radius:0 6px 6px 0;">
       <div style="font-weight:bold;color:#c0392b;margin-bottom:8px;">ITENS PENDENTES (${pendentes.length})</div>
-      ${pendentes.map(i=>`<div style="padding:3px 0;font-size:12px;color:#333">• <strong>${i.nome}</strong>${i.qty?' — Qtd: '+i.qty:''}</div>`).join('')}
+      ${pendentes.map(i=>`<div style="padding:3px 0;font-size:12px;color:#333">• <strong>${esc(i.nome)}</strong>${i.qty?' — Qtd: '+esc(i.qty):''}</div>`).join('')}
     </div>`;
   }
 
@@ -2572,7 +2574,7 @@ function gerarRelatorio(id, doHistorico=false){
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Relatório — ${p.numero}</title>
+<title>Relatório — ${esc(p.numero)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:Arial,sans-serif;color:#111;padding:32px;max-width:860px;margin:0 auto;font-size:13px;}
@@ -2596,19 +2598,19 @@ function gerarRelatorio(id, doHistorico=false){
 
 <!-- NÚMERO E STATUS -->
 <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-  <div style="font-size:22px;font-weight:900;letter-spacing:1px;">#${p.numero}</div>
+  <div style="font-size:22px;font-weight:900;letter-spacing:1px;">#${esc(p.numero)}</div>
   <div style="background:${statusColor};color:white;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:bold;letter-spacing:1.5px;">${statusLabel}</div>
   ${v===100&&p.concluidoEm?`<div style="font-size:11px;color:#888;">Concluído em ${fdh(p.concluidoEm)}</div>`:''}
 </div>
 
 <!-- INFORMAÇÕES DO PEDIDO -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;background:#f7f7f7;padding:14px 16px;border-radius:8px;border:1px solid #e0e0e0;">
-  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Cliente:</span><span>${p.cliente||'—'}</span></div>
-  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Responsável:</span><span>${p.responsavel||'—'}</span></div>
-  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Destino:</span><span>${p.destino||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Cliente:</span><span>${esc(p.cliente)||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Responsável:</span><span>${esc(p.responsavel)||'—'}</span></div>
+  <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Destino:</span><span>${esc(p.destino)||'—'}</span></div>
   <div style="display:flex;gap:6px;"><span style="color:#555;font-weight:bold;min-width:90px;">Data prevista:</span><span>${p.data?fd(p.data):'—'}</span></div>
-  ${p.endereco?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Endereço:</span><span>${p.endereco}${p.cep?' — CEP '+p.cep:''}</span></div>`:''}
-  ${p.modelo?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Modelo(s):</span><span>${p.modelo}</span></div>`:''}
+  ${p.endereco?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Endereço:</span><span>${esc(p.endereco)}${p.cep?' — CEP '+esc(p.cep):''}</span></div>`:''}
+  ${p.modelo?`<div style="display:flex;gap:6px;grid-column:1/-1;"><span style="color:#555;font-weight:bold;min-width:90px;">Modelo(s):</span><span>${esc(p.modelo)}</span></div>`:''}
 </div>
 
 <!-- PROGRESSO GERAL -->
@@ -2627,7 +2629,7 @@ function gerarRelatorio(id, doHistorico=false){
   </div>
 </div>
 
-${p.obs?`<div style="padding:10px 16px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:18px;border-radius:0 6px 6px 0;font-size:12px;"><strong>Observação:</strong> ${p.obs}</div>`:''}
+${p.obs?`<div style="padding:10px 16px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:18px;border-radius:0 6px 6px 0;font-size:12px;"><strong>Observação:</strong> ${esc(p.obs)}</div>`:''}
 
 ${renderPendentesResumo()}
 
@@ -2642,7 +2644,7 @@ ${renderItensDiretos()}
 <div style="border-top:1px solid #ddd;padding-top:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#888;">
   <div>Volux · Relatório gerado em ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
   <div style="text-align:center;">
-    <div style="border-top:1px solid #aaa;width:180px;padding-top:4px;margin-top:30px;">${p.responsavel||'Responsável'}</div>
+    <div style="border-top:1px solid #aaa;width:180px;padding-top:4px;margin-top:30px;">${esc(p.responsavel)||'Responsável'}</div>
   </div>
 </div>
 
@@ -2670,9 +2672,9 @@ function imprimirPedidosSeparando(){
     if(!itens.length)return'<tr><td colspan="4" style="color:#999;text-align:center;padding:10px;">Nenhum item</td></tr>';
     return itens.map(item=>`<tr>
       <td style="width:26px;"><div style="width:14px;height:14px;border:1.5px solid #333;border-radius:3px;${item.checked?'background:#185FA5;border-color:#185FA5;':''}"></div></td>
-      <td><strong>${item.nome}</strong>${item.checked?' <span style="color:#185FA5;font-size:11px;">(separado)</span>':''}</td>
-      <td style="text-align:center">${item.qty||'—'}</td>
-      <td style="font-family:monospace;font-size:12px">${item.serial||''}</td>
+      <td><strong>${esc(item.nome)}</strong>${item.checked?' <span style="color:#185FA5;font-size:11px;">(separado)</span>':''}</td>
+      <td style="text-align:center">${esc(item.qty)||'—'}</td>
+      <td style="font-family:monospace;font-size:12px">${esc(item.serial)||''}</td>
     </tr>`).join('');
   }
 
@@ -2683,7 +2685,7 @@ function imprimirPedidosSeparando(){
       const done=m.itens.filter(i=>i.checked).length;
       return`<div style="margin-bottom:14px;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
         <div style="background:#eef3fa;padding:7px 12px;font-weight:bold;font-size:12.5px;display:flex;justify-content:space-between;">
-          <span>${m.nome}${m.serial?` — Série: ${m.serial}`:''}</span><span>${done}/${m.itens.length}</span>
+          <span>${esc(m.nome)}${m.serial?` — Série: ${esc(m.serial)}`:''}</span><span>${done}/${m.itens.length}</span>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12.5px;">${tabelaItens(m.itens)}</table>
       </div>`;
@@ -2708,16 +2710,16 @@ function imprimirPedidosSeparando(){
         <div style="background:#185FA5;color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:bold;">${done}/${its.length} — ${v}%</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-        <div style="font-size:19px;font-weight:900;">#${p.numero}</div>
-        <div style="font-size:15px;font-weight:600;">${p.cliente||'—'}</div>
+        <div style="font-size:19px;font-weight:900;">#${esc(p.numero)}</div>
+        <div style="font-size:15px;font-weight:600;">${esc(p.cliente)||'—'}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;background:#f7f7f7;padding:12px 14px;border-radius:8px;border:1px solid #e0e0e0;font-size:12.5px;">
-        <div><strong>Responsável:</strong> ${p.responsavel||'—'}</div>
-        <div><strong>Destino:</strong> ${p.destino||'—'}</div>
+        <div><strong>Responsável:</strong> ${esc(p.responsavel)||'—'}</div>
+        <div><strong>Destino:</strong> ${esc(p.destino)||'—'}</div>
         <div><strong>Data prevista:</strong> ${p.data?fd(p.data):'—'}</div>
-        <div><strong>Endereço:</strong> ${p.endereco||'—'}</div>
+        <div><strong>Endereço:</strong> ${esc(p.endereco)||'—'}</div>
       </div>
-      ${p.obs?`<div style="padding:8px 14px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:14px;font-size:12.5px;border-radius:0 6px 6px 0;">${p.obs}</div>`:''}
+      ${p.obs?`<div style="padding:8px 14px;background:#fff8e1;border-left:4px solid #f0a500;margin-bottom:14px;font-size:12.5px;border-radius:0 6px 6px 0;">${esc(p.obs)}</div>`:''}
       ${blocoMaquinas(p)}
       ${blocoItensDiretos(p)}
     </div>`;
@@ -2851,7 +2853,7 @@ function rTabEstoque(){
   <div class="est-toolbar">
     <div class="est-search-wrap">
       <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input id="est-busca-input" placeholder="Buscar por código ou descrição..." value="${estBusca}" oninput="estBusca=this.value;rTabEstoque()">
+      <input id="est-busca-input" placeholder="Buscar por código ou descrição..." value="${esc(estBusca)}" oninput="estBusca=this.value;rTabEstoque()">
     </div>
     <div style="display:flex;gap:6px;">
       <button class="chip ${estFiltro==='todos'?'active':''}" onclick="estFiltro='todos';rTabEstoque()">Todos</button>
@@ -2868,11 +2870,11 @@ function rTabEstoque(){
         const cor=st==='ok'?'var(--green)':st==='baixo'?'var(--warn)':'var(--danger)';
         const badge=st==='ok'?'<span class="badge badge-ok">OK</span>':st==='baixo'?'<span class="badge badge-low">Baixo</span>':'<span class="badge badge-out">Zerado</span>';
         return`<tr>
-          <td><span class="td-code">${i.codigo}</span></td>
-          <td style="font-weight:500">${i.descricao}</td>
-          <td style="font-size:12px;color:var(--muted)">${i.categoria}</td>
-          <td><span class="td-qty" style="color:${cor}">${i.quantidade}</span></td>
-          <td style="color:var(--muted);font-size:13px">${i.minimo}</td>
+          <td><span class="td-code">${esc(i.codigo)}</span></td>
+          <td style="font-weight:500">${esc(i.descricao)}</td>
+          <td style="font-size:12px;color:var(--muted)">${esc(i.categoria)}</td>
+          <td><span class="td-qty" style="color:${cor}">${esc(i.quantidade)}</span></td>
+          <td style="color:var(--muted);font-size:13px">${esc(i.minimo)}</td>
           <td>${badge}</td>
           <td style="display:flex;gap:6px;">
             <button class="btn-edit btn btn-ghost btn-xs" onclick="editarItemEstoque('${i.id}')">Editar</button>
@@ -2973,7 +2975,7 @@ function rMedidasItens(){
   <div class="est-toolbar">
     <div class="est-search-wrap">
       <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input id="catBuscaInput" placeholder="Buscar item..." value="${catBusca}" oninput="catBusca=this.value;rMedidasItens()">
+      <input id="catBuscaInput" placeholder="Buscar item..." value="${esc(catBusca)}" oninput="catBusca=this.value;rMedidasItens()">
     </div>
     <button class="btn btn-outline btn-sm" onclick="abrirModalImportarProdutos()">Importar Relatório</button>
   </div>
@@ -2985,12 +2987,12 @@ function rMedidasItens(){
         const pendente=!(c.peso||c.comprimento||c.largura||c.altura);
         const qtd=qtdVendidaImportada(nome);
         return`<tr style="${pendente?'border-left:3px solid var(--warn)':''}">
-          <td style="font-weight:500">${nome}</td>
+          <td style="font-weight:500">${esc(nome)}</td>
           <td style="color:var(--muted)">${qtd!==null?qtd:'—'}</td>
-          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.01" value="${c.peso||''}" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
-          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.comprimento||''}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
-          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.largura||''}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
-          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${c.altura||''}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px;text-align:right" type="text" inputmode="decimal" placeholder="0,00" value="${esc(formatPesoValor(c.peso))}" oninput="maskPeso(this)" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.comprimento)}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.largura)}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.altura)}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
         </tr>`;}).join(''):`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
@@ -3005,9 +3007,22 @@ function rMedidasItens(){
 function salvarMedidaItem(idx,campo,valor){
   const nome=window._medidasLista&&window._medidasLista[idx];if(!nome)return;
   const atual=S.catalogoItens[nome]||{};
-  atual[campo]=parseFloat(valor)||0;
+  atual[campo]=parseFloat(String(valor).replace(',','.'))||0;
   S.catalogoItens[nome]=atual;
   save();
+}
+function formatPesoValor(v){
+  if(!v)return'';
+  const cents=Math.round(parseFloat(v)*100);
+  if(!cents||cents<0)return'';
+  const s=String(cents).padStart(3,'0');
+  return(s.slice(0,-2).replace(/^0+(?=\d)/,'')||'0')+','+s.slice(-2);
+}
+function maskPeso(el){
+  let digits=el.value.replace(/\D/g,'').replace(/^0+/,'');
+  if(!digits){el.value='';return;}
+  digits=digits.padStart(3,'0');
+  el.value=(digits.slice(0,-2).replace(/^0+(?=\d)/,'')||'0')+','+digits.slice(-2);
 }
 
 function abrirModalImportarProdutos(){
@@ -3044,7 +3059,7 @@ function rEmbalagensLista(){
   const cont=document.getElementById('catalogoConteudo');
   const rLinha=(e,tipo)=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);">
     <div style="flex:1;">
-      <div style="font-weight:600;font-size:14px">${e.nome}</div>
+      <div style="font-weight:600;font-size:14px">${esc(e.nome)}</div>
       <div style="font-size:12px;color:var(--muted)">${e.comprimento}×${e.largura}×${e.altura} cm · até ${e.pesoMax} kg</div>
     </div>
     <button class="btn btn-ghost btn-xs" onclick="editarEmbalagem('${tipo}','${e.id}')">Editar</button>
@@ -3153,12 +3168,12 @@ async function rTabUsuarios(){
       <thead><tr><th>Nome</th><th>Usuário</th><th>Papel</th><th></th></tr></thead>
       <tbody>${_usuariosCache.length?_usuariosCache.map(u=>`
         <tr>
-          <td style="font-weight:500">${u.nome}</td>
-          <td>${u.usuario}</td>
+          <td style="font-weight:500">${esc(u.nome)}</td>
+          <td>${esc(u.usuario)}</td>
           <td>${u.admin?'<span class="badge badge-done">Administrador</span>':'<span class="badge badge-pending">Operador</span>'}</td>
           <td style="text-align:right;white-space:nowrap">
             <button class="btn btn-ghost btn-xs" onclick="abrirModalUsuario('${u.id}')">Editar</button>
-            <button class="btn btn-danger btn-xs" onclick="removerUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}')">Remover</button>
+            <button class="btn btn-danger btn-xs" onclick="removerUsuario('${u.id}','${attrJs(u.nome)}')">Remover</button>
           </td>
         </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">Nenhum usuário cadastrado.</td></tr>'}
       </tbody>
@@ -3289,10 +3304,10 @@ function abrirCalculoEmbalagem(id){
   const r=calcularEmbalagemPedido(p);
   const rBin=(b,icone)=>`<div class="card" style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <strong style="font-size:14px">${icone} ${b.caixaNome}</strong>
+      <strong style="font-size:14px">${icone} ${esc(b.caixaNome)}</strong>
       <span style="font-size:12px;color:var(--muted)">${b.pesoTotal} kg</span>
     </div>
-    <div style="font-size:13px;color:var(--text2)">${b.itens.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+    <div style="font-size:13px;color:var(--text2)">${b.itens.map(i=>`${i.qtd}× ${esc(i.nome)}`).join(', ')}</div>
   </div>`;
   document.getElementById('embalagemConteudo').innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
@@ -3303,11 +3318,11 @@ function abrirCalculoEmbalagem(id){
     ${r.palletBins.length?`<div class="sec-title" style="margin-bottom:8px;margin-top:12px">Pallets Sugeridos (${r.palletBins.length})</div>${r.palletBins.map(b=>rBin(b,'🟫')).join('')}`:''}
     ${r.semEmbalagem.length?`<div style="background:rgba(240,78,78,.08);border-left:4px solid var(--danger);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:12px;">
       <div style="font-weight:700;color:var(--danger);font-size:12px;margin-bottom:4px;">SEM EMBALAGEM COMPATÍVEL</div>
-      <div style="font-size:13px">${r.semEmbalagem.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+      <div style="font-size:13px">${r.semEmbalagem.map(i=>`${i.qtd}× ${esc(i.nome)}`).join(', ')}</div>
     </div>`:''}
     ${r.pendentes.length?`<div style="background:rgba(217,119,6,.08);border-left:4px solid var(--warn);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:12px;">
       <div style="font-weight:700;color:var(--warn);font-size:12px;margin-bottom:4px;">ITENS SEM MEDIDA CADASTRADA (${r.pendentes.length})</div>
-      <div style="font-size:13px">${r.pendentes.map(i=>`${i.qtd}× ${i.nome}`).join(', ')}</div>
+      <div style="font-size:13px">${r.pendentes.map(i=>`${i.qtd}× ${esc(i.nome)}`).join(', ')}</div>
     </div>`:''}
     <p style="font-size:11px;color:var(--muted);margin-top:14px;">Cálculo aproximado por peso e volume — não considera o encaixe físico exato dos itens.</p>`;
   document.getElementById('mEmbalagemCalc').classList.add('open');
@@ -3331,7 +3346,7 @@ function imprimirBarcode(){
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Etiqueta — ${barcodeAtualPedido.numero}</title>
+<title>Etiqueta — ${esc(barcodeAtualPedido.numero)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
@@ -3341,7 +3356,7 @@ function imprimirBarcode(){
 </head>
 <body>
 ${svg}
-<div class="info"><strong>${barcodeAtualPedido.cliente||''}</strong><br>${barcodeAtualPedido.destino||''}</div>
+<div class="info"><strong>${esc(barcodeAtualPedido.cliente)}</strong><br>${esc(barcodeAtualPedido.destino)}</div>
 <script>window.onload=()=>window.print();<\/script>
 </body>
 </html>`;

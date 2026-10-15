@@ -62,6 +62,27 @@ function seedUsuarioAdmin() {
   return { usuario: usuarioPadrao, senha: senhaPadrao };
 }
 
+const LOGIN_MAX_TENTATIVAS = 5;
+const LOGIN_JANELA_MS = 15 * 60 * 1000; // 15min
+const loginTentativas = new Map(); // ip -> {count, primeiraTentativa, bloqueadoAte}
+
+function checarBloqueioLogin(ip) {
+  const rec = loginTentativas.get(ip);
+  if (!rec) return null;
+  if (rec.bloqueadoAte && rec.bloqueadoAte > Date.now()) return rec.bloqueadoAte;
+  if (rec.bloqueadoAte && rec.bloqueadoAte <= Date.now()) loginTentativas.delete(ip);
+  return null;
+}
+
+function registrarLoginFalhou(ip) {
+  const agora = Date.now();
+  let rec = loginTentativas.get(ip);
+  if (!rec || agora - rec.primeiraTentativa > LOGIN_JANELA_MS) rec = { count: 0, primeiraTentativa: agora };
+  rec.count++;
+  if (rec.count >= LOGIN_MAX_TENTATIVAS) rec.bloqueadoAte = agora + LOGIN_JANELA_MS;
+  loginTentativas.set(ip, rec);
+}
+
 function limparSessoesExpiradas() {
   const agora = Date.now();
   for (const [token, sessao] of sessions) {
@@ -94,13 +115,8 @@ app.use((req, res, next) => {
   res.setHeader('Pragma', 'no-cache');
   next();
 });
-app.use((req, res, next) => {
-  if (req.path === '/data.json' || req.path === '/users.json' || req.path.startsWith('/backups/')) {
-    return res.status(404).end();
-  }
-  next();
-});
-app.use(express.static(__dirname, { etag: false, lastModified: false }));
+app.get('/', (req, res) => res.redirect('/separacao-pedidos_1.html'));
+app.use(express.static(path.join(__dirname, 'public'), { etag: false, lastModified: false }));
 
 function readData() {
   try {
@@ -141,12 +157,20 @@ function getLocalIP() {
 }
 
 app.post('/api/login', (req, res) => {
+  const ip = req.ip;
+  const bloqueadoAte = checarBloqueioLogin(ip);
+  if (bloqueadoAte) {
+    const min = Math.ceil((bloqueadoAte - Date.now()) / 60000);
+    return res.status(429).json({ ok: false, error: `Muitas tentativas de login. Tente novamente em ${min} min.` });
+  }
   const { usuario, senha } = req.body || {};
   const usuarios = lerUsuarios();
   const u = usuarios.find(x => x.usuario === usuario);
   if (!u || !senhaConfere(senha || '', u.salt, u.hash)) {
+    registrarLoginFalhou(ip);
     return res.status(401).json({ ok: false, error: 'Usuário ou senha incorretos.' });
   }
+  loginTentativas.delete(ip);
   limparSessoesExpiradas();
   const token = crypto.randomBytes(24).toString('hex');
   sessions.set(token, { expiraEm: Date.now() + SESSION_TTL_MS, usuarioId: u.id, usuario: u.usuario, nome: u.nome, admin: !!u.admin });
