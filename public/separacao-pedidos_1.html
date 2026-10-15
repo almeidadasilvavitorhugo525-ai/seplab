@@ -167,6 +167,8 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .check-box.checked::after{content:'';width:5px;height:9px;border:2px solid #ffffff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);}
 .cl-item-right{flex:1;min-width:0;}
 .cl-item-name{font-size:14px;font-weight:400;line-height:1.4;transition:color .15s;color:var(--text);}
+.cl-item-flash{animation:clFlash 1.2s ease-out;}
+@keyframes clFlash{0%{background:rgba(16,185,129,.28);}100%{background:transparent;}}
 .cl-item-quem{font-size:11px;color:var(--muted);line-height:1.2;}
 .cl-item-quem:empty{display:none;}
 .cl-item-name.done{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(96,120,112,.4);}
@@ -1850,7 +1852,7 @@ function rItemMaq(pid,mid,item){
       <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${esc(item.nome)}</div>
       ${item.qty?`<span class="cl-item-qty">${esc(item.qty)}</span>`:''}
       <div id="quem-${item.id}" class="cl-item-quem">${quemMarcouHTML(item)}</div>
-      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input id="serial-${item.id}" class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onclick="event.stopPropagation()"></div>`:''}
+      ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input id="serial-${item.id}" class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onkeydown="if(event.key==='Enter'){this.blur();setTimeout(focarScanInput,30);}" onclick="event.stopPropagation()"></div>`:''}
     </div>
   </div>`;
 }
@@ -2071,10 +2073,8 @@ function buscarPorNumero(valor){
   if(!v)return;
   const p=S.pedidos.find(x=>x.numero===v);
   if(!p){
-    if(input){
-      input.style.borderColor='var(--danger)';
-      setTimeout(()=>{if(input)input.style.borderColor='';},900);
-    }
+    if(input){input.value='';filtrarPedidosAoVivo('');}
+    conferirPorCodigo(v);
     return;
   }
   if(input)input.value='';
@@ -2087,6 +2087,81 @@ function buscarPorNumero(valor){
     if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
     focarScanInput();
   },30);
+}
+
+// ── Conferência por bip ──────────────────────────────────────────────
+// Com um pedido aberto, bipar a peça marca o item. Peça que não é do pedido é recusada.
+function normCodigo(c){return String(c||'').trim().toUpperCase();}
+function codigoDoItem(nome){
+  const c=S.catalogoItens&&S.catalogoItens[nome];
+  if(c&&c.codigo)return normCodigo(c.codigo);
+  const n=String(nome||'').trim().toLowerCase();
+  const e=S.estoque&&S.estoque.itens&&S.estoque.itens.find(x=>String(x.descricao||'').trim().toLowerCase()===n&&x.codigo);
+  return e?normCodigo(e.codigo):'';
+}
+function nomePorCodigo(cod){
+  const n=normCodigo(cod);
+  const doCat=Object.keys(S.catalogoItens||{}).find(k=>normCodigo(S.catalogoItens[k].codigo)===n);
+  if(doCat)return doCat;
+  const e=S.estoque&&S.estoque.itens&&S.estoque.itens.find(x=>normCodigo(x.codigo)===n);
+  return e?e.descricao:'';
+}
+let _audioCtx=null;
+function bip(tipo){
+  try{
+    _audioCtx=_audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const notas=tipo==='ok'?[[880,.09]]:tipo==='aviso'?[[660,.12],[660,.12]]:[[220,.18],[180,.25]];
+    let t=_audioCtx.currentTime;
+    notas.forEach(([f,d])=>{
+      const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+      o.type=tipo==='erro'?'square':'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+      o.connect(g);g.connect(_audioCtx.destination);o.start(t);o.stop(t+d);t+=d+.05;
+    });
+  }catch{}
+}
+function piscarScan(cor){
+  const input=document.getElementById('scanInput');
+  if(!input)return;
+  input.style.borderColor=cor;input.style.boxShadow='0 0 0 3px '+cor;
+  setTimeout(()=>{input.style.borderColor='';input.style.boxShadow='';},900);
+}
+function conferirPorCodigo(cod){
+  const n=normCodigo(cod);
+  const abertos=[...document.querySelectorAll('.pedido-body.open')].map(e=>e.id.replace('body-','')).map(id=>S.pedidos.find(p=>p.id===id)).filter(Boolean);
+  if(!abertos.length){
+    bip('erro');piscarScan('var(--danger)');
+    mostrarStatus(`Código ${esc(cod)}: abra (ou bipe) o pedido antes de conferir as peças`,'var(--danger)');
+    return;
+  }
+  const achados=[];
+  abertos.forEach(p=>{
+    if(p.maquinas)p.maquinas.forEach(m=>m.itens.forEach(i=>{if(codigoDoItem(i.nome)===n)achados.push({p,m,i});}));
+    else(p.itens||[]).forEach(i=>{if(codigoDoItem(i.nome)===n)achados.push({p,m:null,i});});
+  });
+  const alvo=achados.find(a=>!a.i.checked);
+  if(alvo){
+    const mid=alvo.m?alvo.m.id:'';
+    if(mid){const b=document.getElementById('maqbody-'+mid);if(b&&!b.classList.contains('open'))toggleMaquina(mid);}
+    toggleItem(alvo.p.id,alvo.i.id,mid);
+    bip('ok');piscarScan('#10b981');
+    mostrarStatus(`✓ ${esc(alvo.i.nome)} conferido`,'var(--success)');
+    const cb=document.getElementById('cb-'+alvo.i.id);
+    const row=cb&&cb.closest('.cl-item');
+    if(row){row.scrollIntoView({behavior:'smooth',block:'center'});row.classList.add('cl-item-flash');setTimeout(()=>row.classList.remove('cl-item-flash'),1200);}
+    // item com número de série: o próximo bip vai para o campo de série
+    if(alvo.i.temSerial&&!alvo.i.serial){const si=document.getElementById('serial-'+alvo.i.id);if(si)setTimeout(()=>si.focus(),60);}
+    return;
+  }
+  if(achados.length){
+    bip('aviso');piscarScan('var(--warn)');
+    mostrarStatus(`${esc(achados[0].i.nome)} já foi conferido`,'var(--warn)');
+    return;
+  }
+  bip('erro');piscarScan('var(--danger)');
+  const nome=nomePorCodigo(cod);
+  if(nome)mostrarAlerta(`PEÇA ERRADA\n\n"${nome}" (código ${cod}) não faz parte ${abertos.length>1?'dos pedidos abertos':'do pedido #'+abertos[0].numero}.\nNada foi marcado.`);
+  else mostrarStatus(`Código ${esc(cod)} não cadastrado — cadastre em Catálogo › Código de barras`,'var(--danger)');
 }
 
 function filtrarPedidosAoVivo(val){
@@ -3376,19 +3451,20 @@ function rMedidasItens(){
   </div>
   <div class="est-table-wrap">
     <table>
-      <thead><tr><th>Item</th><th>Qtd. vendida (2 anos)</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
+      <thead><tr><th>Item</th><th>Código de barras</th><th>Qtd. vendida (2 anos)</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
       <tbody>${lista.length?lista.map((nome,idx)=>{
         const c=S.catalogoItens[nome]||{};
         const pendente=!(c.peso||c.comprimento||c.largura||c.altura);
         const qtd=qtdVendidaImportada(nome);
         return`<tr style="${pendente?'border-left:3px solid var(--warn)':''}">
           <td style="font-weight:500">${esc(nome)}</td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px;min-width:120px;font-family:monospace" type="text" placeholder="Bipe aqui..." value="${esc(c.codigo||'')}" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onchange="salvarCodigoItem(${idx},this)"></td>
           <td style="color:var(--muted)">${qtd!==null?qtd:'—'}</td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px;text-align:right" type="text" inputmode="decimal" placeholder="0,00" value="${esc(formatPesoValor(c.peso))}" oninput="maskPeso(this)" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.comprimento)}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.largura)}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.altura)}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
-        </tr>`;}).join(''):`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;
@@ -3404,6 +3480,19 @@ function salvarMedidaItem(idx,campo,valor){
   const atual=S.catalogoItens[nome]||{};
   atual[campo]=parseFloat(String(valor).replace(',','.'))||0;
   S.catalogoItens[nome]=atual;
+  save();
+}
+function salvarCodigoItem(idx,el){
+  const nome=window._medidasLista&&window._medidasLista[idx];if(!nome)return;
+  const cod=normCodigo(el.value);
+  if(cod){
+    const dono=Object.keys(S.catalogoItens).find(k=>k!==nome&&normCodigo(S.catalogoItens[k].codigo)===cod);
+    if(dono){mostrarAlerta(`O código ${cod} já está cadastrado em "${dono}".`);el.value=(S.catalogoItens[nome]||{}).codigo||'';return;}
+  }
+  const atual=S.catalogoItens[nome]||{};
+  if(cod)atual.codigo=cod;else delete atual.codigo;
+  S.catalogoItens[nome]=atual;
+  el.value=cod;
   save();
 }
 function formatPesoValor(v){
@@ -3784,7 +3873,8 @@ async function abrirScanCamera(){
   }
   const video=document.getElementById('scanVideo');
   video.srcObject=scanCameraStream;
-  const detector=new BarcodeDetector({formats:['code_128']});
+  const suportados=BarcodeDetector.getSupportedFormats?await BarcodeDetector.getSupportedFormats():['code_128'];
+  const detector=new BarcodeDetector({formats:['code_128','ean_13','ean_8','code_39','upc_a','qr_code'].filter(x=>suportados.includes(x))});
   const loop=async()=>{
     if(!scanCameraStream)return;
     try{
