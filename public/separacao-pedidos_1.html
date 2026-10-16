@@ -1723,13 +1723,27 @@ function toggleRoteiroItem(id){
 
 async function geocodificarPedido(p){
   if(p.localizacao&&p.localizacao.lat&&p.localizacao.lon)return{lat:p.localizacao.lat,lon:p.localizacao.lon};
-  const query=[p.endereco,p.destino,p.cep,'Brasil'].filter(Boolean).join(', ');
-  try{
-    const url='https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(query);
-    const res=await fetch(url,{headers:{'Accept':'application/json'}});
-    const data=await res.json();
-    if(data&&data.length)return{lat:parseFloat(data[0].lat),lon:parseFloat(data[0].lon)};
-  }catch{}
+  // Destinos digitados de vários jeitos ("MOSSORO RN CEP: 59610-210", "FORTALEZA/CE"):
+  // tenta o texto completo, depois só cidade/UF e por fim só o CEP.
+  const destino=String(p.destino||'');
+  const cepTxt=String(p.cep||'')+' '+destino;
+  const cep=(cepTxt.match(/\b\d{5}-?\d{3}\b/)||[''])[0];
+  const cidade=destino.replace(/CEP[:\s]*/ig,'').replace(/\b\d{5}-?\d{3}\b/g,'').replace(/[\/\-–]/g,' ').replace(/\s+/g,' ').trim();
+  const tentativas=[
+    [p.endereco,p.destino,p.cep,'Brasil'].filter(Boolean).join(', '),
+    cidade?cidade+', Brasil':'',
+    cep?'postalcode='+cep.replace(/(\d{5})-?(\d{3})/,'$1-$2'):''
+  ].filter((q,i,a)=>q&&a.indexOf(q)===i);
+  for(let i=0;i<tentativas.length;i++){
+    const q=tentativas[i];
+    try{
+      const url='https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&'+(q.startsWith('postalcode=')?q:'q='+encodeURIComponent(q));
+      const res=await fetch(url,{headers:{'Accept':'application/json'}});
+      const data=await res.json();
+      if(data&&data.length)return{lat:parseFloat(data[0].lat),lon:parseFloat(data[0].lon)};
+    }catch{}
+    if(i<tentativas.length-1)await new Promise(r=>setTimeout(r,1100)); // limite do Nominatim: 1 consulta/s
+  }
   return null;
 }
 
@@ -1755,6 +1769,58 @@ function otimizarRota(origem,paradas){
     atual=paradas[melhorIdx];
   }
   return rota;
+}
+
+// Rota pelas estradas (OSRM, dados do OpenStreetMap). A ordem das entregas é otimizada
+// pela distância de estrada; se o serviço estiver fora do ar, cai para a linha reta.
+async function rotaPorEstrada(origem,paradas){
+  const base='https://router.project-osrm.org';
+  const coords=lista=>lista.map(p=>`${p.lon.toFixed(5)},${p.lat.toFixed(5)}`).join(';');
+  const buscar=async(url,ms)=>{
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),ms);
+    try{const r=await fetch(url,{signal:ctrl.signal});return r.ok?await r.json():null;}
+    catch{return null;}finally{clearTimeout(t);}
+  };
+  // 1) melhor ordem das entregas pela distância de estrada
+  let ordem=paradas;
+  if(paradas.length>1){
+    const d=await buscar(`${base}/trip/v1/driving/${coords([origem,...paradas])}?source=first&roundtrip=false&destination=any&overview=false`,20000);
+    if(d&&d.code==='Ok'){
+      ordem=[];
+      d.waypoints.forEach((w,k)=>{if(k>0)ordem[w.waypoint_index-1]=paradas[k-1];});
+    }else ordem=otimizarRota(origem,paradas);
+  }
+  // 2) caminho pelas rodovias nessa ordem
+  const d=await buscar(`${base}/route/v1/driving/${coords([origem,...ordem])}?overview=full&geometries=polyline`,40000);
+  if(!d||d.code!=='Ok'||!d.routes||!d.routes[0])return null;
+  const rt=d.routes[0];
+  return{rota:ordem.map((p,i)=>({...p,distancia:rt.legs[i].distance/1000,duracao:rt.legs[i].duration})),
+         linha:decodificarPolyline(rt.geometry)};
+}
+// Formato "encoded polyline" do Google/OSRM (precisão 5) → [[lat,lon],...]
+function decodificarPolyline(str){
+  const pts=[];let i=0,lat=0,lon=0;
+  while(i<str.length){
+    for(const k of [0,1]){
+      let res=0,sh=0,b;
+      do{b=str.charCodeAt(i++)-63;res|=(b&31)<<sh;sh+=5;}while(b>=32);
+      const v=(res&1)?~(res>>1):(res>>1);
+      if(k===0)lat+=v;else lon+=v;
+    }
+    pts.push([lat/1e5,lon/1e5]);
+  }
+  return pts;
+}
+function fmtDuracao(seg){
+  if(!seg&&seg!==0)return'';
+  const h=Math.floor(seg/3600),m=Math.round((seg%3600)/60);
+  return h?`${h}h${String(m).padStart(2,'0')}`:`${m} min`;
+}
+function linkGoogleMaps(origem,rota){
+  const ll=p=>`${p.lat},${p.lon}`;
+  const dest=rota[rota.length-1];
+  const meio=rota.slice(0,-1).map(ll).join('|');
+  return`https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${ll(origem)}&destination=${ll(dest)}${meio?'&waypoints='+encodeURIComponent(meio):''}`;
 }
 
 async function tracarRota(){
@@ -1785,7 +1851,9 @@ async function tracarRota(){
   }
 
   const origem={lat:-23.0766,lon:-52.4636};
-  const rotaOtimizada=otimizarRota(origem,comGeo);
+  wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Calculando a rota pelas rodovias...</div>';
+  const porEstrada=await rotaPorEstrada(origem,comGeo);
+  const rotaOtimizada=porEstrada?porEstrada.rota:otimizarRota(origem,comGeo);
 
   if(mapaRoteiroLayerGroup){
     mapaRoteiroLayerGroup.clearLayers();
@@ -1797,11 +1865,13 @@ async function tracarRota(){
         .bindTooltip(`${i+1}ª entrega — ${esc(stop.pedido.cliente||'#'+stop.pedido.numero)}`)
         .addTo(mapaRoteiroLayerGroup);
     });
-    L.polyline(latlngs,{color:'#1a52d8',weight:3,dashArray:'8,6',opacity:.75}).addTo(mapaRoteiroLayerGroup);
-    if(mapaRoteiroLeaflet)mapaRoteiroLeaflet.fitBounds(L.latLngBounds(latlngs),{padding:[30,30]});
+    if(porEstrada)L.polyline(porEstrada.linha,{color:'#1a52d8',weight:4,opacity:.85}).addTo(mapaRoteiroLayerGroup);
+    else L.polyline(latlngs,{color:'#1a52d8',weight:3,dashArray:'8,6',opacity:.75}).addTo(mapaRoteiroLayerGroup);
+    if(mapaRoteiroLeaflet)mapaRoteiroLeaflet.fitBounds(L.latLngBounds(porEstrada?porEstrada.linha:latlngs),{padding:[30,30]});
   }
 
   const distTotal=rotaOtimizada.reduce((s,p)=>s+p.distancia,0);
+  const durTotal=porEstrada?rotaOtimizada.reduce((s,p)=>s+(p.duracao||0),0):null;
   const stopsHTML=rotaOtimizada.map((stop,i)=>`
     <div class="roteiro-stop">
       <div class="roteiro-stop-num">${i+1}</div>
@@ -1809,7 +1879,7 @@ async function tracarRota(){
         <div class="roteiro-stop-nome">${esc(stop.pedido.cliente||'#'+stop.pedido.numero)}</div>
         <div class="roteiro-stop-dest">#${esc(stop.pedido.numero)}${stop.pedido.destino?' · '+esc(stop.pedido.destino):''}</div>
       </div>
-      <div class="roteiro-stop-dist">~${Math.round(stop.distancia)} km</div>
+      <div class="roteiro-stop-dist">${porEstrada?'':'~'}${Math.round(stop.distancia)} km${porEstrada?`<div style="font-size:11px;color:var(--muted);font-weight:400">${fmtDuracao(stop.duracao)}</div>`:''}</div>
     </div>`).join('');
   const semGeoHTML=semGeo.length?`<div style="padding:12px 16px;background:#fff5f5;border-top:1px solid rgba(229,62,62,.2);font-size:12px;color:#c53030;">
     <strong>Não localizados no mapa:</strong> ${semGeo.map(s=>`#${esc(s.pedido.numero)} ${esc(s.pedido.cliente||'')}`).join(', ')}
@@ -1819,8 +1889,12 @@ async function tracarRota(){
   <div class="roteiro-resultado">
     <div class="roteiro-resultado-header">
       <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;">Rota otimizada — ${rotaOtimizada.length} entrega${rotaOtimizada.length>1?'s':''}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--green);">~${Math.round(distTotal)} km total</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--green);">${porEstrada?'':'~'}${Math.round(distTotal)} km total${porEstrada?' · '+fmtDuracao(durTotal)+' dirigindo':''}</div>
+        <a class="btn btn-outline btn-xs" href="${linkGoogleMaps(origem,rotaOtimizada)}" target="_blank" rel="noopener">Abrir no Google Maps</a>
+      </div>
     </div>
+    ${porEstrada?'':'<div style="padding:10px 16px;background:#fffbeb;border-bottom:1px solid rgba(217,119,6,.25);font-size:12px;color:#b45309;">Não foi possível calcular pelas rodovias agora (sem internet ou serviço fora do ar). Mostrando a linha reta e distâncias aproximadas.</div>'}
     <div class="roteiro-stop">
       <div class="roteiro-stop-num origem">0</div>
       <div class="roteiro-stop-info">
