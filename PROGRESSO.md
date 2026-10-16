@@ -42,5 +42,21 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 ## Sessão de 16/10/2026
 - **Estoque:** clicar nos cards (Total de Itens, Em Estoque, Estoque Baixo, Sem Estoque) filtra a lista. O card ativo fica destacado e clicar nele de novo volta para "Todos".
 - **Atualização automática:** quando o Volux é atualizado, as telas abertas recarregam sozinhas (assim que ninguém estiver digitando ou com janela aberta). `/api/rev` devolve `app` = data do arquivo da tela.
-- **Painel:** clicar nos cards (Em Aberto, Concluídos, Aguardando, Separando, Prontos) mostra a lista desses pedidos logo abaixo; clicar num pedido abre ele (concluído abre o detalhe do histórico). Próximo: fazer o mesmo nas outras abas.
+- **Painel:** clicar nos cards (Em Aberto, Concluídos, Aguardando, Separando, Prontos) mostra a lista desses pedidos logo abaixo; clicar num pedido abre ele (concluído abre o detalhe do histórico). Só o Painel e o Estoque têm cards de números; nas outras abas, perguntar ao usuário o que ele quer clicável.
 - **Roteiro pelas rodovias:** a rota agora segue as estradas (serviço gratuito OSRM, dados do OpenStreetMap), com km e tempo de viagem reais por trecho, ordem das entregas otimizada pela estrada e botão "Abrir no Google Maps". Sem internet, volta para a linha reta com aviso. Destinos escritos de forma bagunçada (ex.: "MOSSORO RN CEP: 59610-210") agora são localizados.
+
+### O que foi pedido nesta sessão (em ordem)
+1. "na função estoque, quero que dê para eu clicar nos itens" (ex.: clicar em Estoque Baixo e ver só o estoque baixo) — feito.
+2. "ainda não arrumou a parte do estoque" — o código já estava no ar, mas a janela aberta mostrava a versão antiga. Solução: recarregamento automático das telas.
+3. "fazer essa mesma função em todas as opções do sistema, agora na parte do painel" — feito.
+4. Print do roteiro com a linha reta passando por dentro do rio: "quero a rota certa passando pelas rodovias" — feito.
+5. "salva tudo no GitHub, vou abrir em outro computador" — tudo enviado.
+
+### Detalhes técnicos
+- Rota: 2 consultas ao OSRM público (`router.project-osrm.org`): `/trip` com `overview=false` para a ordem das entregas e `/route` com `geometries=polyline` para o desenho (geojson completo pesava ~500 KB e demorava 60 s). Decodificador `decodificarPolyline()` no HTML. Tempo de viagem é de carro (caminhão demora mais).
+- Teste do roteiro com os 3 pedidos reais: Paranavaí → Teresina 2805 km → Fortaleza 593 km → Mossoró 237 km (≈ 8 s para calcular).
+- Correções de segurança aproveitadas: `esc()` em "Itens mais pendentes" do Painel e no destino/modelos do Histórico.
+
+### Abrir em outro computador
+- `git clone https://github.com/almeidadasilvavitorhugo525-ai/seplab` → `npm install` → `node server.js` → http://localhost:3000.
+- `data.json` (pedidos/estoque/histórico) e `users.json` (usuários/senhas) **não vão pelo GitHub** (dados de clientes e senhas). Copiar por pen drive para a pasta do projeto, ou acessar este computador pela rede (IP:3000) para usar os mesmos dados.
