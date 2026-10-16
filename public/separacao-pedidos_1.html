@@ -205,6 +205,9 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .15s;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.2;}
 .stat-card.hl{border-color:var(--green-dim);}
+.stat-card.stat-click{cursor:pointer;user-select:none;}
+.stat-card.stat-ativo{border-color:var(--stat-cor,var(--green));box-shadow:0 0 0 2px var(--stat-cor,var(--green));}
+.stat-card.stat-ativo::before{opacity:1;}
 .stat-card.hl::before{opacity:1;}
 .stat-card:hover{box-shadow:0 4px 20px rgba(12,45,107,.10);transform:translateY(-1px);}
 .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--text);}
@@ -3428,6 +3431,14 @@ function abrirMovimentacoes(itemId){
   document.getElementById('mMovimentacoes').classList.add('open');
 }
 
+// Clicar num card filtra a lista; clicar de novo no card ativo volta para "Todos".
+function filtrarEstoquePorCard(f){
+  estFiltro=(estFiltro===f&&f!=='todos')?'todos':f;
+  rTabEstoque();
+  const t=document.querySelector('.est-table-wrap');
+  if(t)t.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
 function rTabEstoque(){
   const app=document.getElementById('app');
   if(!S.estoque)S.estoque={itens:[]};
@@ -3446,10 +3457,10 @@ function rTabEstoque(){
   });
   app.innerHTML=`
   <div class="est-stats">
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total de Itens</div></div>
-    <div class="stat-card hl"><div class="stat-num">${ok}</div><div class="stat-label">Em Estoque</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${baixo}</div><div class="stat-label">Estoque Baixo</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--danger)">${sem}</div><div class="stat-label">Sem Estoque</div></div>
+    <div class="stat-card stat-click ${estFiltro==='todos'?'stat-ativo':''}" onclick="filtrarEstoquePorCard('todos')" title="Mostrar todos os itens"><div class="stat-num">${total}</div><div class="stat-label">Total de Itens</div></div>
+    <div class="stat-card hl stat-click ${estFiltro==='ok'?'stat-ativo':''}" onclick="filtrarEstoquePorCard('ok')" title="Mostrar só os itens em estoque"><div class="stat-num">${ok}</div><div class="stat-label">Em Estoque</div></div>
+    <div class="stat-card stat-click ${estFiltro==='baixo'?'stat-ativo':''}" style="--stat-cor:var(--warn)" onclick="filtrarEstoquePorCard('baixo')" title="Mostrar só o estoque baixo"><div class="stat-num" style="color:var(--warn)">${baixo}</div><div class="stat-label">Estoque Baixo</div></div>
+    <div class="stat-card stat-click ${estFiltro==='sem'?'stat-ativo':''}" style="--stat-cor:var(--danger)" onclick="filtrarEstoquePorCard('sem')" title="Mostrar só os itens sem estoque"><div class="stat-num" style="color:var(--danger)">${sem}</div><div class="stat-label">Sem Estoque</div></div>
   </div>
   <div class="est-toolbar">
     <div class="est-search-wrap">
