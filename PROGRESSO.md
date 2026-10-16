@@ -42,3 +42,4 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 ## Sessão de 16/10/2026
 - **Estoque:** clicar nos cards (Total de Itens, Em Estoque, Estoque Baixo, Sem Estoque) filtra a lista. O card ativo fica destacado e clicar nele de novo volta para "Todos".
 - **Atualização automática:** quando o Volux é atualizado, as telas abertas recarregam sozinhas (assim que ninguém estiver digitando ou com janela aberta). `/api/rev` devolve `app` = data do arquivo da tela.
+- **Painel:** clicar nos cards (Em Aberto, Concluídos, Aguardando, Separando, Prontos) mostra a lista desses pedidos logo abaixo; clicar num pedido abre ele (concluído abre o detalhe do histórico). Próximo: fazer o mesmo nas outras abas.

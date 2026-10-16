@@ -206,6 +206,9 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.2;}
 .stat-card.hl{border-color:var(--green-dim);}
 .stat-card.stat-click{cursor:pointer;user-select:none;}
+.painel-linha{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;}
+.painel-linha:last-child{border-bottom:none;}
+.painel-linha:hover{background:var(--surface2,rgba(0,0,0,.04));}
 .stat-card.stat-ativo{border-color:var(--stat-cor,var(--green));box-shadow:0 0 0 2px var(--stat-cor,var(--green));}
 .stat-card.stat-ativo::before{opacity:1;}
 .stat-card.hl::before{opacity:1;}
@@ -1341,7 +1344,7 @@ const ITENS_KIT_MAQUINA=new Set([
   'Windows e CD de Driver do EBN'
 ]);
 
-let S=null, tab='pedidos', filtro='todos', estFiltro='todos', estBusca='';
+let S=null, tab='pedidos', filtro='todos', estFiltro='todos', estBusca='', painelFiltro='';
 let SESSAO={nome:'',usuario:'',admin:false};
 let localizacaoNovo=null, localizacaoEdit=null;
 const MAPA_CENTRO_PADRAO=[-14.235,-51.9253], MAPA_ZOOM_PADRAO=4;
@@ -2016,7 +2019,7 @@ function rHistorico(){
       <div class="hist-dot"></div>
       <div class="hist-info" style="flex:1;min-width:0;">
         <div class="hist-num">#${esc(p.numero)} <span style="font-size:12px;font-weight:400;color:var(--muted)">— ${esc(p.cliente)}</span></div>
-        <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?p.destino+' · ':''}${mods?mods:''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
+        <div class="hist-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.destino?esc(p.destino)+' · ':''}${mods?esc(mods):''}${p.concluidoEm?' · '+fdh(p.concluidoEm):''}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:10px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--green)">${its.length} itens</div>
@@ -2024,6 +2027,60 @@ function rHistorico(){
       </div>
     </div>`;
   }).join('')}</div>`;
+}
+
+// Painel: clicar num card mostra a lista desses pedidos logo abaixo; clicar de novo esconde.
+const PAINEL_FILTROS={
+  aberto:{titulo:'Pedidos em aberto',cor:'var(--text)',lista:()=>S.pedidos},
+  concluidos:{titulo:'Pedidos concluídos',cor:'var(--green)',lista:()=>S.historico.slice().reverse(),hist:true},
+  aguardando:{titulo:'Aguardando separação',cor:'var(--muted)',lista:()=>S.pedidos.filter(p=>pct(p)===0)},
+  separando:{titulo:'Em separação',cor:'var(--warn)',lista:()=>S.pedidos.filter(p=>pct(p)>0&&pct(p)<100)},
+  prontos:{titulo:'Prontos',cor:'var(--green)',lista:()=>S.pedidos.filter(p=>pct(p)===100)}
+};
+function filtrarPainel(f){
+  painelFiltro=painelFiltro===f?'':f;
+  render();
+  const l=document.getElementById('painel-lista');
+  if(l)l.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function rPainelLista(){
+  const f=PAINEL_FILTROS[painelFiltro];
+  if(!f)return'';
+  const lista=f.lista();
+  return`<div id="painel-lista" class="card" style="margin-bottom:16px;border-color:${f.cor};">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div class="sec-title" style="margin:0;color:${f.cor}">${f.titulo} · ${lista.length}</div>
+      <button class="btn btn-ghost btn-xs" onclick="filtrarPainel('${painelFiltro}')">Fechar ✕</button>
+    </div>
+    ${lista.length?lista.map(p=>{
+      const its=todosItens(p);
+      const feitos=its.filter(i=>i.checked).length;
+      const pc=f.hist?100:pct(p);
+      const cor=pc===100?'var(--green)':pc>0?'var(--warn)':'var(--muted)';
+      const info=f.hist
+        ?(p.concluidoEm?'Concluído '+fdh(p.concluidoEm):'Concluído')+(p.concluidoPor?' · '+esc(p.concluidoPor):'')
+        :(p.data?'Envio '+fd(p.data)+' · ':'')+(p.responsavel?esc(p.responsavel)+' · ':'')+feitos+'/'+its.length+' itens';
+      return`<div class="painel-linha" onclick="${f.hist?`verHist('${p.id}')`:`abrirPedidoDoPainel('${p.id}')`}" title="Abrir pedido">
+        <div style="min-width:0;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">#${esc(p.numero)} — ${esc(p.cliente)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.destino?esc(p.destino)+' · ':''}${info}</div>
+        </div>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:${cor};flex-shrink:0;">${f.hist?'✓':pc+'%'}</span>
+      </div>`;}).join(''):`<p style="text-align:center;padding:16px;color:var(--muted);margin:0">Nenhum pedido aqui.</p>`}
+  </div>`;
+}
+function abrirPedidoDoPainel(id){
+  const p=S.pedidos.find(x=>x.id===id);if(!p)return;
+  const btn=[...document.querySelectorAll('.nav-tab')].find(b=>(b.getAttribute('onclick')||'').includes("'pedidos'"));
+  if(btn)mudarTab('pedidos',btn);
+  filtro='todos';
+  render();
+  setTimeout(()=>{
+    const body=document.getElementById('body-'+p.id);
+    if(body&&!body.classList.contains('open'))toggleCard(p.id);
+    const card=document.getElementById('card-'+p.id);
+    if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+  },30);
 }
 
 function rPainel(){
@@ -2041,14 +2098,15 @@ function rPainel(){
   const vencendo=S.pedidos.filter(p=>{if(!p.data)return false;const d=new Date(p.data);const hoje=new Date();const diff=(d-hoje)/(1000*60*60*24);return diff>=0&&diff<=3&&pct(p)<100;});
   return`
   <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px;">
-    <div class="stat-card"><div class="stat-num">${tot}</div><div class="stat-label">Em Aberto</div></div>
-    <div class="stat-card hl"><div class="stat-num">${hi}</div><div class="stat-label">Concluídos</div></div>
+    <div class="stat-card stat-click ${painelFiltro==='aberto'?'stat-ativo':''}" onclick="filtrarPainel('aberto')" title="Ver os pedidos em aberto"><div class="stat-num">${tot}</div><div class="stat-label">Em Aberto</div></div>
+    <div class="stat-card hl stat-click ${painelFiltro==='concluidos'?'stat-ativo':''}" onclick="filtrarPainel('concluidos')" title="Ver os pedidos concluídos"><div class="stat-num">${hi}</div><div class="stat-label">Concluídos</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-    <div class="stat-card"><div class="stat-num" style="color:var(--muted);font-size:24px">${ag}</div><div class="stat-label">Aguardando</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--warn);font-size:24px">${sep}</div><div class="stat-label">Separando</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green);font-size:24px">${prontos}</div><div class="stat-label">Prontos</div></div>
+    <div class="stat-card stat-click ${painelFiltro==='aguardando'?'stat-ativo':''}" style="--stat-cor:var(--muted)" onclick="filtrarPainel('aguardando')" title="Ver os pedidos aguardando"><div class="stat-num" style="color:var(--muted);font-size:24px">${ag}</div><div class="stat-label">Aguardando</div></div>
+    <div class="stat-card stat-click ${painelFiltro==='separando'?'stat-ativo':''}" style="--stat-cor:var(--warn)" onclick="filtrarPainel('separando')" title="Ver os pedidos em separação"><div class="stat-num" style="color:var(--warn);font-size:24px">${sep}</div><div class="stat-label">Separando</div></div>
+    <div class="stat-card stat-click ${painelFiltro==='prontos'?'stat-ativo':''}" onclick="filtrarPainel('prontos')" title="Ver os pedidos prontos"><div class="stat-num" style="color:var(--green);font-size:24px">${prontos}</div><div class="stat-label">Prontos</div></div>
   </div>
+  ${rPainelLista()}
   ${totalItens>0?`<div class="card" style="margin-bottom:16px;">
     <div class="sec-title" style="margin-bottom:10px">Progresso Geral dos Itens</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -2079,7 +2137,7 @@ function rPainel(){
   ${top.length?`<div class="card">${top.map(([nome,qtd],i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--border2);width:18px;text-align:right">${i+1}</span>
-      <span style="flex:1;font-size:14px">${nome}</span>
+      <span style="flex:1;font-size:14px">${esc(nome)}</span>
       <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 10px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
     </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>Nenhum item pendente.</p></div>`}`;
 }
