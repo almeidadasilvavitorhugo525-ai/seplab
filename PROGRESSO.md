@@ -38,3 +38,6 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 7. Produtividade (tempo por pedido, itens por pessoa, gráficos), já que os dados de quem/quando estão sendo gravados
 8. Exportar para Excel
 9. Inventário rotativo
+
+## Sessão de 16/10/2026
+- **Estoque:** clicar nos cards (Total de Itens, Em Estoque, Estoque Baixo, Sem Estoque) filtra a lista. O card ativo fica destacado e clicar nele de novo volta para "Todos".
