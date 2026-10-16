@@ -1040,7 +1040,11 @@ async function puxar(forcar){
     if(!forcar&&BASE){
       const rr=await fetch('/api/rev',{headers:authHeaders()});
       if(!rr.ok)return;
-      const {rev}=await rr.json();
+      const {rev,app}=await rr.json();
+      if(app){
+        if(!VERSAO_APP)VERSAO_APP=app;
+        else if(app!==VERSAO_APP)recarregarSeLivre();
+      }
       if(String(rev)===String(REV))return;
     }
     const r=await fetch(API,{headers:authHeaders()});
@@ -1059,6 +1063,16 @@ async function puxar(forcar){
     if(salvarDeNovo){salvarDeNovo=false;enviarAlteracoes(true);}
   }
   if(telaPendente)atualizarTelaRemota();
+}
+
+// Saiu versão nova do Volux: recarrega assim que ninguém estiver digitando ou com janela aberta.
+let VERSAO_APP='';
+function recarregarSeLivre(){
+  const ativo=document.activeElement;
+  if(document.querySelector('.modal-overlay.open'))return;
+  if(ativo&&/^(INPUT|TEXTAREA|SELECT)$/.test(ativo.tagName)&&ativo.value)return;
+  if(BASE&&S&&VoluxSync.diff(BASE,S))return;
+  location.reload();
 }
 
 // Redesenha a tela com os dados novos sem fechar cards abertos nem perder o que está sendo digitado.

@@ -270,8 +270,13 @@ app.get('/api/data', requireAuth, (req, res) => {
   res.json(readData());
 });
 
+// Versão da tela: muda quando o arquivo do app é atualizado, para os aparelhos recarregarem sozinhos.
+function versaoApp() {
+  try { return String(fs.statSync(path.join(__dirname, 'public', 'separacao-pedidos_1.html')).mtimeMs); } catch { return ''; }
+}
+
 app.get('/api/rev', requireAuth, (req, res) => {
-  res.json({ rev: REV });
+  res.json({ rev: REV, app: versaoApp() });
 });
 
 // Recebe só as mudanças feitas no aparelho e aplica sobre a versão atual dos dados.
