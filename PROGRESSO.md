@@ -60,3 +60,11 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 ### Abrir em outro computador
 - `git clone https://github.com/almeidadasilvavitorhugo525-ai/seplab` → `npm install` → `node server.js` → http://localhost:3000.
 - `data.json` (pedidos/estoque/histórico) e `users.json` (usuários/senhas) **não vão pelo GitHub** (dados de clientes e senhas). Copiar por pen drive para a pasta do projeto, ou acessar este computador pela rede (IP:3000) para usar os mesmos dados.
+
+## Sessão de 19/10/2026
+- **Observação da separação:** pedido do usuário: "um campo de observação para escrever o status do pedido, ex.: tenho que separar 3 máquinas mas só tenho 2 — já separei 2 e falta uma". Cada pedido tem o campo "Observação da separação" dentro do card (salva sozinho ao parar de digitar, grava quem e quando). Aparece:
+  - no cabeçalho do card mesmo fechado;
+  - na lista do Painel;
+  - no painel da TV;
+  - no detalhe do Histórico depois de concluído.
+  Campos: `obsSeparacao`, `obsSeparacaoEm`, `obsSeparacaoPor`. É diferente do `obs` (observação que vem do pedido).
