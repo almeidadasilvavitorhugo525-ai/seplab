@@ -68,3 +68,9 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
   - no painel da TV;
   - no detalhe do Histórico depois de concluído.
   Campos: `obsSeparacao`, `obsSeparacaoEm`, `obsSeparacaoPor`. É diferente do `obs` (observação que vem do pedido).
+- **Pegar os pedidos (papel sem código):** protótipo aprovado em https://claude.ai/artifact/4XNCZMQSM8thC1jzdzsotx e colocado no Volux:
+  - **Etiqueta do pedido (100 × 50 mm):** sai ao salvar um pedido novo (opção "Imprimir etiqueta do pedido ao salvar", lembrada por aparelho) e pelo botão "Etiqueta do Pedido" no card. Tem número grande, cliente, cidade, **data de criação** (pedido do usuário: no lugar da data de envio), código de barras do número e QR. Cola no papel do pedido.
+  - **QR:** abre `http://IP-DA-REDE:3000/separacao-pedidos_1.html#pedido=NUMERO`; o Volux abre o pedido sozinho (`abrirPedidoDaUrl`). IP vem de `/api/network-info`.
+  - **Etiqueta de carregamento (A4):** cópia do modelo do Canva do usuário (imagem "ANA CAROLINA (3).png"; desenho dos óculos recortado em `public/etiqueta-oculos.png`, fonte League Spartan). Abre sozinha quando o pedido chega a 100%: pergunta **volumes** e **nº da nota fiscal** (e telefone/bairro), imprime **uma folha por volume** ("VOLUMES: 3" + rodapé "NF 012345 · VOLUME 1 DE 3"), depois pergunta se move para o histórico. Também pelo botão no card (100%) e no detalhe do Histórico.
+  - Campos novos no pedido: `telefone`, `bairro` (cadastro e edição), `volumes`, `notaFiscal`.
+  - Ainda não confirmado pelo usuário: se a etiqueta do pedido vai em impressora de etiqueta ou folha A4 (hoje o tamanho da página é 100 × 50 mm).

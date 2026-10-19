@@ -624,6 +624,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-group"><label class="form-label">Número do Pedido</label><input class="form-input" id="iNum" placeholder="ex: 29201"></div>
     <div class="form-group"><label class="form-label">Nome do Cliente</label><input class="form-input" id="iCliente" placeholder="Nome completo do cliente"></div>
     <div class="form-group"><label class="form-label">Endereço (Rua e Número)</label><input class="form-input" id="iEndereco" placeholder="ex: R Perboyre e Silva 111"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label">Bairro</label><input class="form-input" id="iBairro" placeholder="ex: Centro"></div>
+      <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="iTelefone" type="tel" placeholder="ex: (85) 3223-4289"></div>
+    </div>
     <div class="form-group"><label class="form-label">Cidade / UF</label><input class="form-input" id="iDestino" placeholder="ex: Fortaleza/CE"></div>
     <div class="form-group"><label class="form-label">CEP</label><input class="form-input" id="iCep" placeholder="ex: 60030-200" style="max-width:180px;"></div>
     <div class="form-group">
@@ -635,6 +639,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-group"><label class="form-label">Data de Envio Prevista</label><input class="form-input" id="iData" type="date"></div>
     <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="iResp" placeholder="Nome do separador"></div>
     <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="iObs" placeholder="Informações importantes..."></textarea></div>
+    <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;background:rgba(26,82,216,.06);border:1px solid rgba(26,82,216,.2);border-radius:8px;font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="iEtqAuto" checked style="width:18px;height:18px;accent-color:#1a52d8;" onchange="try{localStorage.setItem('volux_etq_auto',this.checked?'1':'0')}catch{}">
+      <span><strong>Imprimir etiqueta do pedido ao salvar</strong> (código de barras + QR para colar no papel)</span>
+    </label>
     <div id="infoItens" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--muted);">
       Os itens padrão serão adicionados automaticamente.
     </div>
@@ -716,6 +724,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-group"><label class="form-label">Número do Pedido</label><input class="form-input" id="eNum" placeholder="ex: 29201"></div>
     <div class="form-group"><label class="form-label">Nome do Cliente</label><input class="form-input" id="eCliente" placeholder="Nome completo do cliente"></div>
     <div class="form-group"><label class="form-label">Endereço (Rua e Número)</label><input class="form-input" id="eEndereco" placeholder="ex: R Perboyre e Silva 111"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label">Bairro</label><input class="form-input" id="eBairro" placeholder="ex: Centro"></div>
+      <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="eTelefone" type="tel" placeholder="ex: (85) 3223-4289"></div>
+    </div>
     <div class="form-group"><label class="form-label">Cidade / UF</label><input class="form-input" id="eDestino" placeholder="ex: Fortaleza/CE"></div>
     <div class="form-group"><label class="form-label">CEP</label><input class="form-input" id="eCep" placeholder="ex: 60030-200" style="max-width:180px;"></div>
     <div class="form-group">
@@ -778,6 +790,35 @@ textarea.form-input{resize:vertical;min-height:80px;}
     <div class="form-actions" style="display:flex;gap:8px;margin-top:14px;">
       <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mBarcode')">Fechar</button>
       <button class="btn btn-primary" style="flex:1" onclick="imprimirBarcode()">Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ETIQUETA DE CARREGAMENTO -->
+<div class="modal-overlay" id="mCarregamento" onclick="if(event.target===this)pularCarregamento()">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="carTitulo">Etiqueta de Carregamento</div>
+      <button class="modal-close" onclick="pularCarregamento()">×</button>
+    </div>
+    <div id="carAviso" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 12px;font-size:13px;color:#047857;margin-bottom:14px;">Pedido pronto! Confira os dados e imprima uma etiqueta para cada volume.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group"><label class="form-label" for="carVolumes">Volumes (caixas)</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="btn btn-outline" style="width:44px;height:44px;font-size:20px;padding:0;" aria-label="Menos um volume" onclick="const i=document.getElementById('carVolumes');i.value=Math.max(1,(+i.value||1)-1);atualizarBotaoCarregamento()">−</button>
+          <input class="form-input" id="carVolumes" type="number" min="1" max="99" value="1" style="width:70px;text-align:center;font-size:18px;font-weight:700;" oninput="atualizarBotaoCarregamento()">
+          <button type="button" class="btn btn-outline" style="width:44px;height:44px;font-size:20px;padding:0;" aria-label="Mais um volume" onclick="const i=document.getElementById('carVolumes');i.value=Math.min(99,(+i.value||0)+1);atualizarBotaoCarregamento()">+</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label" for="carNota">Nº da Nota Fiscal</label><input class="form-input" id="carNota" placeholder="ex: 012345"></div>
+      <div class="form-group"><label class="form-label" for="carTelefone">Telefone</label><input class="form-input" id="carTelefone" type="tel" placeholder="ex: 3223-4289"></div>
+      <div class="form-group"><label class="form-label" for="carBairro">Bairro</label><input class="form-input" id="carBairro" placeholder="ex: Centro"></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" id="carEndereco"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="pularCarregamento()">Agora não</button>
+      <button class="btn btn-primary" style="flex:2" id="carBtnImprimir" onclick="imprimirCarregamento()">Imprimir</button>
     </div>
   </div>
 </div>
@@ -960,6 +1001,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="sync.js"></script>
 <script>
 const API='/api/data';
@@ -2104,6 +2146,8 @@ function rCard(p){
           <button class="btn btn-outline btn-sm" onclick="editarPedido('${p.id}')">Editar</button>
           <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirCalculoEmbalagem('${p.id}')">Calcular Embalagem</button>
           <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirModalItemExtra('${p.id}')">+ Item Extra</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();imprimirEtiquetaPedido(S.pedidos.find(x=>x.id==='${p.id}'))">Etiqueta do Pedido</button>
+          ${v===100?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirCarregamento('${p.id}')">Etiqueta de Carregamento</button>`:''}
           ${v===100?`<button class="btn btn-primary btn-sm" onclick="concluirPedido('${p.id}')">Mover p/ Histórico</button>`:''}
           <button class="btn btn-ghost btn-sm" onclick="resetarPedido('${p.id}')">Reset</button>
           ${SESSAO.admin?`<button class="btn btn-danger btn-sm" onclick="excluirPedido('${p.id}')">Excluir</button>`:''}
@@ -2483,12 +2527,12 @@ function toggleItem(pid,iid,mid){
   const concEl=document.getElementById('pconcluido-'+pid);
   if(concEl)concEl.innerHTML=vP===100?`<div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-left:3px solid #10b981;border-radius:8px;padding:10px 14px;font-size:13px;color:#059669;margin-bottom:12px;">Todos os itens conferidos. Pedido pronto para envio.</div>`:'';
   // auto-move para histórico quando 100%
-  if(vP===100){
-    setTimeout(async()=>{
+  if(vP===100&&item.checked){
+    setTimeout(()=>abrirCarregamento(pid,async()=>{
       if(await confirmarVolux('Pedido #'+p.numero+' concluído!\nDeseja mover para o Histórico agora?')){
         concluirPedido(pid);
       }
-    },400);
+    }),400);
   }
 }
 
@@ -2562,7 +2606,9 @@ function criarPedido(){
     }
   });
   const modeloNome=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome}${m.qty>1?' x'+m.qty:''}`).join(' + ');
-  S.pedidos.unshift({id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,localizacao:localizacaoNovo,criadoEm:new Date().toISOString(),criadoPor:SESSAO.nome||SESSAO.usuario||''});
+  const novoPedido={id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),bairro:document.getElementById('iBairro').value.trim(),telefone:document.getElementById('iTelefone').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,localizacao:localizacaoNovo,criadoEm:new Date().toISOString(),criadoPor:SESSAO.nome||SESSAO.usuario||''};
+  S.pedidos.unshift(novoPedido);
+  if(document.getElementById('iEtqAuto').checked)imprimirEtiquetaPedido(novoPedido);
   save();fecharModal('mNovoPedido');tab='pedidos';filtro='todos';
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===0));render();
 }
@@ -2581,6 +2627,8 @@ function editarPedido(id){
   document.getElementById('eEndereco').value=p.endereco||'';
   document.getElementById('eDestino').value=p.destino||'';
   document.getElementById('eCep').value=p.cep||'';
+  document.getElementById('eBairro').value=p.bairro||'';
+  document.getElementById('eTelefone').value=p.telefone||'';
   document.getElementById('eData').value=p.data||'';
   document.getElementById('eResp').value=p.responsavel||'';
   document.getElementById('eObs').value=p.obs||'';
@@ -2631,6 +2679,8 @@ function salvarEdicao(){
   p.endereco=document.getElementById('eEndereco').value.trim();
   p.destino=document.getElementById('eDestino').value.trim();
   p.cep=document.getElementById('eCep').value.trim();
+  p.bairro=document.getElementById('eBairro').value.trim();
+  p.telefone=document.getElementById('eTelefone').value.trim();
   p.data=document.getElementById('eData').value;
   p.responsavel=document.getElementById('eResp').value.trim();
   p.obs=document.getElementById('eObs').value.trim();
@@ -2755,6 +2805,7 @@ function verHist(id){
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
       <button class="btn btn-outline" style="flex:1;" onclick="gerarRelatorio('${p.id}',true)">Gerar Relatório</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="fecharModal('mHist');abrirCarregamento('${p.id}')">Etiqueta de Carregamento</button>
       ${SESSAO.admin?`<button class="btn btn-danger" style="flex:1;" onclick="rmHist('${p.id}')">Excluir</button>`:''}
     </div>`;
   document.getElementById('mHist').classList.add('open');
@@ -2763,8 +2814,10 @@ function verHist(id){
 async function rmHist(id){if(!SESSAO.admin){mostrarAlerta('Apenas administradores podem excluir pedidos do histórico.');return;}if(!await confirmarVolux('Remover do histórico?'))return;S.historico=S.historico.filter(x=>x.id!==id);save();fecharModal('mHist');render();}
 
 function abrirNovoPedido(){
-  ['iNum','iCliente','iEndereco','iDestino','iCep','iResp','iObs'].forEach(id=>document.getElementById(id).value='');
+  ['iNum','iCliente','iEndereco','iBairro','iTelefone','iDestino','iCep','iResp','iObs'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('iData').value='';
+  let etqAuto=true;try{etqAuto=localStorage.getItem('volux_etq_auto')!=='0';}catch{}
+  document.getElementById('iEtqAuto').checked=etqAuto;
   document.getElementById('iFoto').value='';
   document.getElementById('fotoPreview').style.display='none';
   document.getElementById('ocrTexto').style.display='none';
@@ -4163,6 +4216,195 @@ function abrirCalculoEmbalagem(id){
 /* ── CÓDIGO DE BARRAS ── */
 let barcodeAtualPedido=null;
 
+// ── Etiquetas ────────────────────────────────────────────────────────
+// Endereço do Volux na rede (para o QR abrir no celular, e não "localhost").
+let VOLUX_URL_REDE='';
+function carregarUrlRede(){
+  fetch('/api/network-info').then(r=>r.json()).then(d=>{if(d&&d.url)VOLUX_URL_REDE=d.url;}).catch(()=>{});
+}
+function urlDoPedido(p){
+  const base=VOLUX_URL_REDE||location.origin;
+  return base+'/separacao-pedidos_1.html#pedido='+encodeURIComponent(p.numero);
+}
+function abrirJanelaImpressao(html){
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function fmtDataCurta(iso){if(!iso)return'';const d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('pt-BR');}
+
+// Etiqueta do pedido (100 × 50 mm): cola no papel do pedido; o leitor bipa o código e o celular lê o QR.
+function htmlEtiquetaPedido(p){
+  const tmp=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  try{JsBarcode(tmp,String(p.numero),{format:'CODE128',displayValue:false,height:60,margin:0,width:2});}catch{}
+  tmp.setAttribute('preserveAspectRatio','none');
+  let qrSvg='';
+  try{const q=qrcode(0,'M');q.addData(urlDoPedido(p));q.make();qrSvg=q.createSvgTag({cellSize:4,margin:0,scalable:true});}catch{}
+  return`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Etiqueta do pedido ${esc(p.numero)}</title>
+<style>
+@page{size:100mm 50mm;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff}
+.etq{width:100mm;height:50mm;padding:3mm 3.5mm;display:flex;gap:3mm;overflow:hidden}
+.esq{flex:1;min-width:0;display:flex;flex-direction:column}
+.topo{display:flex;align-items:center;gap:2mm;font-weight:700;font-size:7.5pt;letter-spacing:.6pt}
+.marca{background:#000;color:#fff;padding:.4mm 1.6mm;border-radius:.8mm;letter-spacing:1.2pt}
+.num{font-size:30pt;font-weight:900;line-height:1;margin-top:1mm}
+.cli{font-size:9.5pt;font-weight:700;margin-top:.8mm;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info{font-size:8pt;margin-top:.2mm;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barras{margin-top:auto;height:11mm}
+.barras svg{width:100%;height:100%}
+.dir{width:27mm;border-left:.3mm dashed #000;padding-left:2.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm}
+.dir svg{width:24mm;height:24mm}
+.dica{font-size:6pt;text-align:center;line-height:1.2}
+@media screen{body{background:#e5e7eb;padding:20px}.etq{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}}
+</style></head><body>
+<div class="etq">
+  <div class="esq">
+    <div class="topo"><span class="marca">VOLUX</span><span>PEDIDO DE SEPARAÇÃO</span></div>
+    <div class="num">#${esc(p.numero)}</div>
+    <div class="cli">${esc(p.cliente||'')}</div>
+    <div class="info">${esc(p.destino||'')}${p.criadoEm?' · criado em '+fmtDataCurta(p.criadoEm):''}</div>
+    <div class="barras">${tmp.outerHTML}</div>
+  </div>
+  <div class="dir">${qrSvg}<div class="dica">Aponte a câmera<br>para abrir no Volux</div></div>
+</div>
+<script>window.onload=()=>setTimeout(()=>window.print(),150);<\/script>
+</body></html>`;
+}
+function imprimirEtiquetaPedido(p){if(p)abrirJanelaImpressao(htmlEtiquetaPedido(p));}
+
+// Etiqueta de carregamento (A4, modelo do Canva): uma folha por volume.
+let carregamentoAtual=null,carregamentoDepois=null;
+function acharPedidoQualquer(id){return S.pedidos.find(x=>x.id===id)||S.historico.find(x=>x.id===id);}
+function abrirCarregamento(id,depois){
+  const p=acharPedidoQualquer(id);if(!p)return;
+  carregamentoAtual=id;carregamentoDepois=depois||null;
+  document.getElementById('carTitulo').textContent='Etiqueta de Carregamento — #'+p.numero;
+  document.getElementById('carAviso').style.display=depois?'':'none';
+  document.getElementById('carVolumes').value=p.volumes||1;
+  document.getElementById('carNota').value=p.notaFiscal||'';
+  document.getElementById('carTelefone').value=p.telefone||'';
+  document.getElementById('carBairro').value=p.bairro||'';
+  const podeEditar=S.pedidos.some(x=>x.id===p.id);
+  document.getElementById('carEndereco').innerHTML=`<strong>${esc(p.cliente||'')}</strong> · ${esc(p.endereco||'sem endereço')} · ${esc(p.destino||'')}${p.cep?' · CEP '+esc(p.cep):''}${podeEditar?` · <a href="#" onclick="event.preventDefault();corrigirEnderecoCarregamento()">corrigir endereço</a>`:''}`;
+  atualizarBotaoCarregamento();
+  document.getElementById('mCarregamento').classList.add('open');
+  setTimeout(()=>document.getElementById('carNota').focus(),150);
+}
+function corrigirEnderecoCarregamento(){
+  const id=carregamentoAtual;
+  carregamentoDepois=null;fecharModal('mCarregamento');carregamentoAtual=null;
+  editarPedido(id);
+}
+function atualizarBotaoCarregamento(){
+  const n=Math.max(1,parseInt(document.getElementById('carVolumes').value)||1);
+  document.getElementById('carBtnImprimir').textContent=n===1?'Imprimir 1 etiqueta':'Imprimir '+n+' etiquetas';
+}
+function fecharCarregamento(){
+  fecharModal('mCarregamento');
+  const depois=carregamentoDepois;carregamentoDepois=null;carregamentoAtual=null;
+  if(depois)setTimeout(depois,200);
+}
+function pularCarregamento(){fecharCarregamento();}
+function htmlCarregamento(p,n){
+  const up=v=>esc(String(v||'').toUpperCase());
+  const img=location.origin+'/etiqueta-oculos.png';
+  const folhas=Array.from({length:n},(_,i)=>`
+<section class="folha">
+  <div class="cliente">${up(p.cliente)}</div>
+  <div class="oculos"><span class="traco"></span><img src="${img}" alt=""><span class="traco"></span></div>
+  <div class="linha-grossa"></div>
+  <div class="tel">
+    <svg width="116" height="116" viewBox="0 0 116 116"><circle cx="58" cy="58" r="52" fill="none" stroke="#000" stroke-width="7"/><path d="M44 30c-4 1-9 6-9 13 1 17 21 39 39 41 7 1 12-4 13-8l-11-11c-2-1-4-1-5 0l-5 5c-6-3-13-10-16-16l5-5c1-1 1-3 0-5L44 30z" fill="#000"/></svg>
+    <div>TEL:&nbsp; ${esc(p.telefone||'')}</div>
+  </div>
+  <div class="end">
+    <svg width="104" height="142" viewBox="0 0 104 142"><path d="M52 2C24 2 2 24 2 52c0 30 50 88 50 88s50-58 50-88C102 24 80 2 52 2zm0 72a20 20 0 1 1 0-40 20 20 0 0 1 0 40z" fill="#000"/></svg>
+    <div class="end-txt">
+      <div class="end-rua">ENDEREÇO: ${up(p.endereco)}</div>
+      <div class="end-bairro">${up(p.bairro)}</div>
+      <div class="end-cidade">${up(p.destino)}</div>
+    </div>
+  </div>
+  <div class="espaco"></div>
+  <div class="pontos"><i></i>${'<b></b>'.repeat(26)}</div>
+  <div class="cep">CEP: ${esc(p.cep||'')}</div>
+  <div class="linha"></div>
+  <div class="vol">VOLUMES: ${n}</div>
+  <div class="linha"></div>
+  <div class="rodape">${p.notaFiscal?'NF '+esc(p.notaFiscal)+' · ':''}VOLUME ${i+1} DE ${n}</div>
+</section>`).join('');
+  return`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Carregamento ${esc(p.numero)}</title>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fff;color:#000;font-family:'League Spartan','Arial Black',Arial,sans-serif;font-weight:700}
+.folha{width:707px;height:1000px;zoom:1.1227;padding:30px 34px 20px;display:flex;flex-direction:column;page-break-after:always;break-after:page;overflow:hidden}
+.folha:last-child{page-break-after:auto;break-after:auto}
+.cliente{font-size:50px;line-height:1.02;padding-left:8px;max-height:156px;overflow:hidden}
+.oculos{display:flex;align-items:center;gap:22px;margin-top:12px;padding:0 12px}
+.oculos img{width:295px;height:105px;object-fit:contain}
+.traco{flex:1;height:6px;background:#000;border-radius:3px}
+.linha-grossa{height:7px;background:#000;border-radius:4px;margin-top:40px}
+.tel{display:flex;align-items:center;gap:22px;margin-top:56px;font-size:62px;font-weight:800;white-space:nowrap}
+.tel svg{flex-shrink:0}
+.end{display:flex;align-items:center;gap:24px;margin-top:56px}
+.end svg{flex-shrink:0}
+.end-txt{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.end-rua{font-size:30px;line-height:1.15}
+.end-bairro{font-size:38px}
+.end-cidade{font-size:36px;margin-top:14px}
+.espaco{flex:1}
+.pontos{display:flex;justify-content:space-between;align-items:center;position:relative;padding:0 8px}
+.pontos i{position:absolute;left:12px;right:12px;top:50%;height:1px;background:#000}
+.pontos b{width:9px;height:9px;border-radius:50%;background:#000;position:relative}
+.cep,.vol{font-size:44px;text-align:center}
+.cep{margin-top:36px}
+.vol{margin-top:14px}
+.linha{height:4px;background:#000;border-radius:2px;margin:16px 70px 0}
+.rodape{font-size:18px;text-align:center;margin-top:12px;letter-spacing:1px}
+@media screen{body{background:#e5e7eb}.folha{background:#fff;margin:20px auto;box-shadow:0 2px 12px rgba(0,0,0,.2)}}
+</style></head><body>${folhas}
+<script>
+window.onload=async()=>{
+  try{await document.fonts.ready;}catch(e){}
+  await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;})));
+  setTimeout(()=>window.print(),200);
+};
+<\/script>
+</body></html>`;
+}
+function imprimirCarregamento(){
+  const p=acharPedidoQualquer(carregamentoAtual);if(!p)return;
+  const n=Math.max(1,Math.min(99,parseInt(document.getElementById('carVolumes').value)||1));
+  p.volumes=n;
+  p.notaFiscal=document.getElementById('carNota').value.trim();
+  p.telefone=document.getElementById('carTelefone').value.trim();
+  p.bairro=document.getElementById('carBairro').value.trim();
+  save(true);
+  abrirJanelaImpressao(htmlCarregamento(p,n));
+  fecharCarregamento();
+}
+
+// QR da etiqueta: o link traz #pedido=NUMERO e o Volux abre o pedido sozinho.
+function abrirPedidoDaUrl(){
+  const m=location.hash.match(/pedido=([^&]+)/);
+  if(!m||!S)return;
+  const numero=decodeURIComponent(m[1]);
+  history.replaceState(null,'',location.pathname);
+  const btn=[...document.querySelectorAll('.nav-tab')].find(b=>(b.getAttribute('onclick')||'').includes("'pedidos'"));
+  if(btn&&tab!=='pedidos')mudarTab('pedidos',btn);
+  if(S.pedidos.some(p=>p.numero===numero))buscarPorNumero(numero);
+  else if(S.historico.some(p=>p.numero===numero))verHist(S.historico.find(p=>p.numero===numero).id);
+  else mostrarAlerta('Pedido #'+numero+' não encontrado.');
+}
+window.addEventListener('hashchange',abrirPedidoDaUrl);
+
 function verCodigoBarras(id){
   const p=S.pedidos.find(x=>x.id===id);if(!p)return;
   barcodeAtualPedido=p;
@@ -4173,6 +4415,7 @@ function verCodigoBarras(id){
 
 function imprimirBarcode(){
   if(!barcodeAtualPedido)return;
+  imprimirEtiquetaPedido(barcodeAtualPedido);return;
   const svg=document.getElementById('barcodeSvg').outerHTML;
   const html=`<!DOCTYPE html>
 <html lang="pt-BR">
@@ -4274,6 +4517,8 @@ async function iniciarApp(){
   }
   render();
   iniciarSincronizacao();
+  carregarUrlRede();
+  abrirPedidoDaUrl();
 }
 
 async function tentarRetomarSessao(){
