@@ -398,6 +398,23 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .map-info-row{display:flex;gap:8px;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(194,211,239,.5);}
 .map-info-row:last-child{border-bottom:none;}
 .map-info-row strong{min-width:90px;color:var(--muted);font-weight:600;}
+.map-legenda{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin:-6px 0 10px;}
+.map-legenda i,.mapa-res-linha i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;}
+.lg-entregue{background:#16a34a;}
+.lg-andamento{background:#f59e0b;}
+.map-geo-status{color:var(--accent,#2563eb);font-weight:600;}
+.mapa-pin{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);color:#fff;font:700 11px/18px 'Inter',sans-serif;text-align:center;cursor:pointer;transition:transform .15s;}
+.mapa-pin:hover{transform:scale(1.25);}
+.mapa-pin.entregue{background:#16a34a;}
+.mapa-pin.andamento{background:#f59e0b;}
+.mapa-res-titulo{font-size:14px;margin-bottom:8px;}
+.mapa-res-linha{display:grid;grid-template-columns:14px minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.5fr) auto;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;border-radius:6px;}
+.mapa-res-linha:last-child{border-bottom:none;}
+.mapa-res-linha:hover{background:var(--surface2);}
+.mapa-res-linha span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mapa-res-linha em{color:var(--danger);font-style:normal;font-size:11.5px;}
+.mapa-res-quando{font-size:11.5px;}
+@media(max-width:700px){.mapa-res-linha{grid-template-columns:14px minmax(0,1fr);}.mapa-res-linha span{grid-column:2;white-space:normal;}}
 
 /* ── ROTEIRO ── */
 .roteiro-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start;}
@@ -1585,30 +1602,61 @@ async function localizarEnderecoNoMapa(modo){
   }
 }
 
-/* ── MAPA: aba de consulta ── */
+/* ── MAPA: aba de consulta — onde estão as máquinas que vendemos ── */
+let mapaFiltroModelo='todos', mapaFiltroSit='todos', mapaGeocodando=false;
+
+// Local do pedido: pin marcado à mão ou endereço já localizado (guardado em p.geo).
+// p.geo.chave guarda o endereço usado; se o endereço mudar, localiza de novo.
+function chaveGeo(p){return[p.endereco,p.destino,p.cep].map(x=>String(x||'').trim().toLowerCase()).join('|');}
+function locDoPedido(p){
+  if(p.localizacao&&p.localizacao.lat&&p.localizacao.lon)return p.localizacao;
+  if(p.geo&&!p.geo.falhou&&p.geo.chave===chaveGeo(p))return p.geo;
+  return null;
+}
+
 function todasMaquinasFlat(){
   const out=[];
-  const addFrom=lista=>lista.forEach(p=>{
-    if(!p.localizacao)return;
-    (p.maquinas||[]).forEach(m=>{if(m.serial&&m.serial.trim())out.push({pedido:p,maquina:m});});
-  });
-  addFrom(S.pedidos);addFrom(S.historico);
+  const add=(lista,entregue)=>(lista||[]).forEach(p=>(p.maquinas||[]).forEach(m=>out.push({pedido:p,maquina:m,entregue})));
+  add(S.historico,true);add(S.pedidos,false);
   return out;
 }
 
+function nomeModeloMapa(k){
+  if(MODELOS[k])return MODELOS[k].nome;
+  const x=todasMaquinasFlat().find(x=>x.maquina.modelo===k);
+  return x?(x.maquina.nome||k):k;
+}
+
+function resumoMaquinas(ms){
+  const c={};ms.forEach(m=>{const n=m.nome||nomeModeloMapa(m.modelo);c[n]=(c[n]||0)+1;});
+  return Object.entries(c).map(([n,q])=>q>1?q+'× '+n:n).join(', ');
+}
+
 function rMapa(){
-  const modelos=Object.keys(MODELOS).map(k=>`<option value="${k}">${MODELOS[k].nome}</option>`).join('');
+  const todas=todasMaquinasFlat();
+  const cont={},nomes={};
+  Object.keys(MODELOS).forEach(k=>nomes[k]=MODELOS[k].nome);
+  todas.forEach(x=>{const k=x.maquina.modelo;cont[k]=(cont[k]||0)+1;if(!nomes[k])nomes[k]=x.maquina.nome||k;});
+  const ordem=Object.keys(nomes).sort((a,b)=>(cont[b]||0)-(cont[a]||0)||nomes[a].localeCompare(nomes[b]));
+  const opts=ordem.map(k=>`<option value="${esc(k)}">${esc(nomes[k])} (${cont[k]||0})</option>`).join('');
   return`<div class="map-toolbar">
-    <select id="mapFiltroModelo">
-      <option value="todos">Todos os Produtos</option>
-      ${modelos}
+    <select id="mapFiltroModelo" onchange="mapaFiltroModelo=this.value;atualizarMapa(true)">
+      <option value="todos">Todas as máquinas (${todas.length})</option>
+      ${opts}
     </select>
-    <input id="mapSerialBusca" placeholder="Número de série da máquina..." onkeydown="if(event.key==='Enter')buscarNoMapa()">
+    <select id="mapFiltroSit" onchange="mapaFiltroSit=this.value;atualizarMapa(true)" style="flex:0 1 210px;">
+      <option value="todos">Entregues e em separação</option>
+      <option value="entregues">Só as entregues</option>
+      <option value="andamento">Só em separação</option>
+    </select>
+    <input id="mapSerialBusca" placeholder="Nº de série ou cliente..." onkeydown="if(event.key==='Enter')buscarNoMapa()">
     <button class="btn btn-primary btn-sm" onclick="buscarNoMapa()">Buscar</button>
     <button class="btn btn-outline btn-sm" onclick="limparBuscaMapa()">Ver Todos</button>
   </div>
+  <div class="map-legenda"><span><i class="lg-entregue"></i>Entregue</span><span><i class="lg-andamento"></i>Em separação</span><span>O número no pino é a quantidade de máquinas</span><span id="mapaStatusGeo" class="map-geo-status"></span></div>
   <div class="map-wrap" id="mapaGeral"></div>
-  <div id="mapaInfoWrap"></div>`;
+  <div id="mapaInfoWrap"></div>
+  <div id="mapaResumo"></div>`;
 }
 
 function bindMapaClick(){
@@ -1618,81 +1666,171 @@ function bindMapaClick(){
   mapaGeralLeaflet=L.map(c,{scrollWheelZoom:true,minZoom:2,maxBounds:MAPA_LIMITES,maxBoundsViscosity:1.0}).setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
   criarTileLayer().addTo(mapaGeralLeaflet);
   mapaGeralMarkers=L.layerGroup().addTo(mapaGeralLeaflet);
-  const info=document.getElementById('mapaInfoWrap');
-  if(info)info.innerHTML='';
-  desenharPinsMapa('todos','');
-  setTimeout(()=>mapaGeralLeaflet&&mapaGeralLeaflet.invalidateSize(),80);
+  const sm=document.getElementById('mapFiltroModelo');
+  if(sm){sm.value=mapaFiltroModelo;if(sm.value!==mapaFiltroModelo){mapaFiltroModelo='todos';sm.value='todos';}}
+  const ss=document.getElementById('mapFiltroSit');if(ss)ss.value=mapaFiltroSit;
+  setTimeout(()=>{if(!mapaGeralLeaflet)return;mapaGeralLeaflet.invalidateSize();atualizarMapa(true);},80);
 }
 
-function desenharPinsMapa(modeloFiltro,serialFiltro){
+function maquinasFiltradasMapa(){
+  const el=document.getElementById('mapSerialBusca');
+  const busca=(el?el.value:'').trim().toLowerCase();
+  return todasMaquinasFlat().filter(x=>{
+    if(mapaFiltroModelo!=='todos'&&x.maquina.modelo!==mapaFiltroModelo)return false;
+    if(mapaFiltroSit==='entregues'&&!x.entregue)return false;
+    if(mapaFiltroSit==='andamento'&&x.entregue)return false;
+    if(busca){
+      const seriais=[x.maquina.serial,...(x.maquina.itens||[]).map(i=>i.serial)].filter(Boolean).join(' ').toLowerCase();
+      const txt=[x.pedido.cliente,x.pedido.numero,x.pedido.destino].join(' ').toLowerCase();
+      if(!seriais.includes(busca)&&!txt.includes(busca))return false;
+    }
+    return true;
+  });
+}
+
+function gruposMapa(){
+  const grupos={};
+  maquinasFiltradasMapa().forEach(x=>{
+    (grupos[x.pedido.id]=grupos[x.pedido.id]||{pedido:x.pedido,entregue:x.entregue,maquinas:[]}).maquinas.push(x.maquina);
+  });
+  return Object.values(grupos);
+}
+
+function atualizarMapa(enquadrar){
   if(!mapaGeralMarkers)return[];
   mapaGeralMarkers.clearLayers();
-  const todas=todasMaquinasFlat();
-  const sf=serialFiltro.trim().toLowerCase();
-  const encontrados=todas.filter(x=>{
-    const modeloOk=modeloFiltro==='todos'||x.maquina.modelo===modeloFiltro;
-    const serialOk=!sf||(x.maquina.serial||'').trim().toLowerCase().includes(sf);
-    return modeloOk&&serialOk;
-  });
-  const porPedido={};
-  encontrados.forEach(x=>{
-    if(!porPedido[x.pedido.id])porPedido[x.pedido.id]={pedido:x.pedido,maquinas:[]};
-    porPedido[x.pedido.id].maquinas.push(x.maquina);
-  });
-  Object.values(porPedido).forEach(g=>{
-    const loc=g.pedido.localizacao;
+  const gs=gruposMapa();
+  const usados={},pontos=[];
+  gs.forEach(g=>{
+    const loc=locDoPedido(g.pedido);
     if(!loc)return;
-    const marker=L.marker([loc.lat,loc.lon],{icon:iconVolux({clicavel:true})});
-    marker.bindTooltip(`#${esc(g.pedido.numero)} — ${esc(g.pedido.cliente)}`);
-    marker.on('click',()=>mostrarInfoPedidoMapa(g.pedido.id,g.maquinas));
-    marker.addTo(mapaGeralMarkers);
+    // clientes da mesma cidade caem no mesmo ponto: espalha um pouco para todos aparecerem
+    const k=(+loc.lat).toFixed(3)+','+(+loc.lon).toFixed(3);
+    const n=usados[k]=(usados[k]||0)+1;
+    const r=n>1?0.01*Math.sqrt(n-1):0,ang=n*2.4;
+    const lat=+loc.lat+r*Math.sin(ang),lon=+loc.lon+r*Math.cos(ang);
+    g.ponto=[lat,lon];
+    const qtd=g.maquinas.length;
+    const icon=L.divIcon({className:'volux-marker-wrap',html:`<div class="mapa-pin ${g.entregue?'entregue':'andamento'}">${qtd>1?qtd:''}</div>`,iconSize:[22,22],iconAnchor:[11,11]});
+    const mk=L.marker([lat,lon],{icon});
+    mk.bindTooltip(`<b>${esc(g.pedido.cliente||'#'+g.pedido.numero)}</b><br>${esc(resumoMaquinas(g.maquinas))}`);
+    mk.on('click',()=>mostrarInfoPedidoMapa(g.pedido.id,g.maquinas));
+    mk.addTo(mapaGeralMarkers);
+    pontos.push([lat,lon]);
   });
-  return encontrados;
+  renderResumoMapa(gs);
+  if(enquadrar&&mapaGeralLeaflet){
+    if(pontos.length===1)mapaGeralLeaflet.setView(pontos[0],11);
+    else if(pontos.length)mapaGeralLeaflet.fitBounds(pontos,{padding:[30,30],maxZoom:11});
+    else mapaGeralLeaflet.setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
+  }
+  geocodificarPendentesMapa();
+  return gs;
+}
+
+function renderResumoMapa(gs){
+  const el=document.getElementById('mapaResumo');
+  if(!el)return;
+  const nomeFiltro=mapaFiltroModelo==='todos'?'máquina(s)':nomeModeloMapa(mapaFiltroModelo);
+  if(!gs.length){
+    el.innerHTML=`<div class="map-info-card"><div style="color:var(--muted);">Nenhuma ${esc(nomeFiltro)} encontrada com esse filtro.</div></div>`;
+    return;
+  }
+  const totalMaq=gs.reduce((s,g)=>s+g.maquinas.length,0);
+  const clientes=new Set(gs.map(g=>String(g.pedido.cliente||g.pedido.id).trim().toLowerCase())).size;
+  const linhas=gs.slice().sort((a,b)=>String(a.pedido.cliente||'').localeCompare(String(b.pedido.cliente||''))).map(g=>{
+    const quando=g.entregue?(g.pedido.concluidoEm?'entregue '+fd(g.pedido.concluidoEm.slice(0,10)):'entregue'):'em separação';
+    return`<div class="mapa-res-linha" onclick="focarPedidoMapa('${g.pedido.id}')">
+      <i class="${g.entregue?'lg-entregue':'lg-andamento'}"></i>
+      <strong>${esc(g.pedido.cliente||'#'+g.pedido.numero)}</strong>
+      <span>${esc(g.pedido.destino||'—')}</span>
+      <span>${esc(resumoMaquinas(g.maquinas))}</span>
+      <span class="mapa-res-quando">${locDoPedido(g.pedido)?esc(quando):'<em>sem local no mapa</em>'}</span>
+    </div>`;}).join('');
+  el.innerHTML=`<div class="map-info-card">
+    <div class="mapa-res-titulo"><b>${totalMaq}</b> ${esc(nomeFiltro)} em <b>${clientes}</b> cliente${clientes>1?'s':''}</div>
+    ${linhas}
+  </div>`;
+}
+
+function focarPedidoMapa(id){
+  const g=gruposMapa().find(g=>g.pedido.id===id);
+  if(!g)return;
+  const loc=locDoPedido(g.pedido);
+  if(loc&&mapaGeralLeaflet){
+    mapaGeralLeaflet.setView([+loc.lat,+loc.lon],13);
+    document.getElementById('mapaGeral').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  mostrarInfoPedidoMapa(id,g.maquinas);
+}
+
+// Pedidos sem pin: localiza pelo endereço/cidade/CEP, um por vez (limite do Nominatim),
+// e guarda no pedido para não buscar de novo.
+async function geocodificarPendentesMapa(){
+  if(mapaGeocodando)return;
+  const umDia=24*3600*1000;
+  const pend=[...(S.historico||[]),...(S.pedidos||[])].filter(p=>
+    (p.maquinas||[]).length&&!locDoPedido(p)&&(p.destino||p.endereco||p.cep)&&
+    !(p.geo&&p.geo.falhou&&p.geo.chave===chaveGeo(p)&&Date.now()-p.geo.falhou<umDia));
+  if(!pend.length)return;
+  mapaGeocodando=true;
+  const status=t=>{const s=document.getElementById('mapaStatusGeo');if(s)s.textContent=t;};
+  try{
+    for(let i=0;i<pend.length;i++){
+      if(tab!=='mapa')break;
+      status(`Localizando endereços no mapa... ${i+1} de ${pend.length}`);
+      const p=pend[i];
+      const r=await geocodificarPedido(p);
+      const alvo=[...S.pedidos,...S.historico].find(x=>x.id===p.id);
+      if(alvo)alvo.geo=r?{lat:+r.lat.toFixed(5),lon:+r.lon.toFixed(5),chave:chaveGeo(alvo)}:{chave:chaveGeo(alvo),falhou:Date.now()};
+      save(true);
+      if(tab==='mapa')atualizarMapa(i===pend.length-1);
+      await new Promise(res=>setTimeout(res,1100));
+    }
+  }finally{
+    mapaGeocodando=false;
+    status('');
+  }
 }
 
 function buscarNoMapa(){
-  const modelo=document.getElementById('mapFiltroModelo').value;
-  const serial=document.getElementById('mapSerialBusca').value;
-  const encontrados=desenharPinsMapa(modelo,serial);
-  const info=document.getElementById('mapaInfoWrap');
-  if(!serial.trim()){info.innerHTML='';return;}
-  if(!encontrados.length){
-    info.innerHTML=`<div class="map-info-card"><div style="color:var(--danger);font-weight:600;">Nenhuma máquina encontrada com esse número de série${modelo!=='todos'?' para o produto selecionado':''}.</div></div>`;
-    return;
-  }
-  const first=encontrados[0];
-  if(first.pedido.localizacao&&mapaGeralLeaflet){
-    mapaGeralLeaflet.setView([first.pedido.localizacao.lat,first.pedido.localizacao.lon],14);
-  }
-  mostrarInfoPedidoMapa(first.pedido.id,[first.maquina]);
+  const gs=atualizarMapa(true);
+  const el=document.getElementById('mapSerialBusca');
+  if(el&&el.value.trim()&&gs.length===1)mostrarInfoPedidoMapa(gs[0].pedido.id,gs[0].maquinas);
+  else{const i=document.getElementById('mapaInfoWrap');if(i)i.innerHTML='';}
 }
 
 function limparBuscaMapa(){
+  mapaFiltroModelo='todos';mapaFiltroSit='todos';
   document.getElementById('mapSerialBusca').value='';
   document.getElementById('mapFiltroModelo').value='todos';
-  desenharPinsMapa('todos','');
+  document.getElementById('mapFiltroSit').value='todos';
   document.getElementById('mapaInfoWrap').innerHTML='';
-  if(mapaGeralLeaflet)mapaGeralLeaflet.setView(MAPA_CENTRO_PADRAO,MAPA_ZOOM_PADRAO);
+  atualizarMapa(true);
 }
 
 function mostrarInfoPedidoMapa(pedidoId,maquinasFiltradas){
   const p=S.pedidos.find(x=>x.id===pedidoId)||S.historico.find(x=>x.id===pedidoId);
   if(!p)return;
+  const entregue=!!S.historico.find(x=>x.id===pedidoId);
   const v=pct(p);
-  const statusLabel=v===100?'Concluído':v>0?'Separando':'Aguardando';
-  const statusClasse=v===100?'badge-done':v>0?'badge-progress':'badge-pending';
+  const statusLabel=entregue?'Entregue':v===100?'Pronto':v>0?'Separando':'Aguardando';
+  const statusClasse=entregue||v===100?'badge-done':v>0?'badge-progress':'badge-pending';
   const lista=(maquinasFiltradas&&maquinasFiltradas.length?maquinasFiltradas:(p.maquinas||[]));
-  const maqsHTML=lista.map(m=>`<div class="map-info-row"><strong>${esc(m.nome)}</strong><span>${m.serial?'Série: '+esc(m.serial):'sem série cadastrada'}</span></div>`).join('');
+  const serialDe=m=>m.serial||((m.itens||[]).find(i=>i.serial)||{}).serial||'';
+  const maqsHTML=lista.map(m=>`<div class="map-info-row"><strong>${esc(m.nome)}</strong><span>${serialDe(m)?'Série: '+esc(serialDe(m)):'sem série cadastrada'}</span></div>`).join('');
   document.getElementById('mapaInfoWrap').innerHTML=`<div class="map-info-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">#${esc(p.numero)} — ${esc(p.cliente)}</div>
       <span class="badge ${statusClasse}">${statusLabel}</span>
     </div>
-    <div class="map-info-row"><strong>Destino</strong><span>${p.destino||'—'}</span></div>
-    <div class="map-info-row"><strong>Endereço</strong><span>${p.endereco||'—'}${p.cep?' — '+p.cep:''}</span></div>
-    <div class="map-info-row"><strong>Responsável</strong><span>${p.responsavel||'—'}</span></div>
+    <div class="map-info-row"><strong>Destino</strong><span>${esc(p.destino||'—')}</span></div>
+    <div class="map-info-row"><strong>Endereço</strong><span>${esc(p.endereco||'—')}${p.cep?' — '+esc(p.cep):''}</span></div>
+    ${p.telefone?`<div class="map-info-row"><strong>Telefone</strong><span>${esc(p.telefone)}</span></div>`:''}
+    ${entregue&&p.concluidoEm?`<div class="map-info-row"><strong>Entregue</strong><span>${fdh(p.concluidoEm)}</span></div>`:''}
+    <div class="map-info-row"><strong>Responsável</strong><span>${esc(p.responsavel||'—')}</span></div>
     <div class="divider"></div>
-    ${maqsHTML||'<div style="color:var(--muted);font-size:13px;">Nenhuma máquina com número de série neste pedido.</div>'}
+    ${maqsHTML||'<div style="color:var(--muted);font-size:13px;">Nenhuma máquina neste pedido.</div>'}
   </div>`;
 }
 
@@ -1772,7 +1910,8 @@ function toggleRoteiroItem(id){
 }
 
 async function geocodificarPedido(p){
-  if(p.localizacao&&p.localizacao.lat&&p.localizacao.lon)return{lat:p.localizacao.lat,lon:p.localizacao.lon};
+  const ja=locDoPedido(p);
+  if(ja)return{lat:+ja.lat,lon:+ja.lon};
   // Destinos digitados de vários jeitos ("MOSSORO RN CEP: 59610-210", "FORTALEZA/CE"):
   // tenta o texto completo, depois só cidade/UF e por fim só o CEP.
   const destino=String(p.destino||'');

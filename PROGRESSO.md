@@ -74,3 +74,17 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
   - **Etiqueta de carregamento (A4):** cópia do modelo do Canva do usuário (imagem "ANA CAROLINA (3).png"; desenho dos óculos recortado em `public/etiqueta-oculos.png`, fonte League Spartan). Abre sozinha quando o pedido chega a 100%: pergunta **volumes** e **nº da nota fiscal** (e telefone/bairro), imprime **uma folha por volume** ("VOLUMES: 3" + rodapé "NF 012345 · VOLUME 1 DE 3"), depois pergunta se move para o histórico. Também pelo botão no card (100%) e no detalhe do Histórico.
   - Campos novos no pedido: `telefone`, `bairro` (cadastro e edição), `volumes`, `notaFiscal`.
   - Ainda não confirmado pelo usuário: se a etiqueta do pedido vai em impressora de etiqueta ou folha A4 (hoje o tamanho da página é 100 × 50 mm).
+
+## Sessão de 21/10/2026
+
+**Pedido:** "no mapa, quero que apareça onde está o gerador TL JR que entregamos para a VS Lab; quando eu escolher Fusion, aparecem todas as Fusion que vendemos".
+
+**Feito:** aba **Mapa** reformulada:
+- Mostra **todas** as máquinas dos pedidos (antes só apareciam as com nº de série e pino marcado à mão, por isso o mapa ficava vazio).
+- Filtro de produto com a quantidade vendida de cada um (ex.: "Blocadora Fusion (6)"); filtro "entregues / em separação".
+- Pino verde = entregue (Histórico), laranja = em separação; número no pino = quantidade de máquinas daquele pedido.
+- Pedidos sem pino são localizados sozinhos pelo endereço/cidade/CEP (Nominatim, 1 por segundo) e o resultado fica salvo no pedido (`p.geo` com `chave` do endereço; se o endereço mudar, localiza de novo; falha tenta de novo após 1 dia). O Roteiro também aproveita esse local salvo.
+- Lista abaixo do mapa: "6 Blocadora Fusion em 5 clientes" com cliente, cidade, máquinas e data de entrega; clicar centraliza o mapa e abre a ficha.
+- Busca por nº de série (da máquina ou dos itens) ou nome do cliente.
+
+**Conversas:** criado repo privado `conversas-claude` com `salvar_conversas.py`; falta o usuário rodar o primeiro salvamento e o `schtasks` (o Claude Code bloqueou rodar daqui).
