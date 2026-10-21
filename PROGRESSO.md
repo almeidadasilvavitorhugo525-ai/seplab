@@ -88,3 +88,4 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 - Busca por nº de série (da máquina ou dos itens) ou nome do cliente.
 
 **Conversas:** criado repo privado `conversas-claude` com `salvar_conversas.py`; falta o usuário rodar o primeiro salvamento e o `schtasks` (o Claude Code bloqueou rodar daqui).
+- **Mapa limpo** (pedido do usuário: "deixar o mapa limpo, e as informações aparecem só quando eu quiser"): botão "Mostrar informações / Mapa limpo" (lembrado em `localStorage` `volux_mapa_limpo`, padrão = limpo). No modo limpo só aparecem os pinos; clicar num pino abre um balão com cliente, cidade, máquinas e "Ver detalhes".

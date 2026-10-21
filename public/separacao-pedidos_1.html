@@ -414,6 +414,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .mapa-res-linha span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mapa-res-linha em{color:var(--danger);font-style:normal;font-size:11.5px;}
 .mapa-res-quando{font-size:11.5px;}
+.mapa-limpo .map-legenda,.mapa-limpo #mapaResumo,.mapa-limpo #mapaInfoWrap{display:none;}
+.mapa-popup{font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.45;min-width:170px;}
+.mapa-popup b{font-size:13.5px;}
+.mapa-popup-sit{color:#64748b;font-size:11.5px;margin:2px 0 8px;}
 @media(max-width:700px){.mapa-res-linha{grid-template-columns:14px minmax(0,1fr);}.mapa-res-linha span{grid-column:2;white-space:normal;}}
 
 /* ── ROTEIRO ── */
@@ -1604,6 +1608,24 @@ async function localizarEnderecoNoMapa(modo){
 
 /* ── MAPA: aba de consulta — onde estão as máquinas que vendemos ── */
 let mapaFiltroModelo='todos', mapaFiltroSit='todos', mapaGeocodando=false;
+// Mapa limpo: só os pinos; as informações aparecem ao clicar num pino ou no botão "Informações".
+let mapaLimpo=(()=>{try{return localStorage.getItem('volux_mapa_limpo')!=='0';}catch{return true;}})();
+
+function alternarMapaLimpo(){
+  mapaLimpo=!mapaLimpo;
+  try{localStorage.setItem('volux_mapa_limpo',mapaLimpo?'1':'0');}catch{}
+  const w=document.getElementById('mapaTela');
+  if(w)w.classList.toggle('mapa-limpo',mapaLimpo);
+  const b=document.getElementById('btnMapaInfo');
+  if(b)b.textContent=mapaLimpo?'Mostrar informações':'Mapa limpo';
+  if(mapaGeralLeaflet)mapaGeralLeaflet.closePopup();
+  atualizarMapa(false);
+}
+
+function verDetalhesMapa(id){
+  if(mapaLimpo)alternarMapaLimpo();
+  focarPedidoMapa(id);
+}
 
 // Local do pedido: pin marcado à mão ou endereço já localizado (guardado em p.geo).
 // p.geo.chave guarda o endereço usado; se o endereço mudar, localiza de novo.
@@ -1639,7 +1661,7 @@ function rMapa(){
   todas.forEach(x=>{const k=x.maquina.modelo;cont[k]=(cont[k]||0)+1;if(!nomes[k])nomes[k]=x.maquina.nome||k;});
   const ordem=Object.keys(nomes).sort((a,b)=>(cont[b]||0)-(cont[a]||0)||nomes[a].localeCompare(nomes[b]));
   const opts=ordem.map(k=>`<option value="${esc(k)}">${esc(nomes[k])} (${cont[k]||0})</option>`).join('');
-  return`<div class="map-toolbar">
+  return`<div id="mapaTela" class="${mapaLimpo?'mapa-limpo':''}"><div class="map-toolbar">
     <select id="mapFiltroModelo" onchange="mapaFiltroModelo=this.value;atualizarMapa(true)">
       <option value="todos">Todas as máquinas (${todas.length})</option>
       ${opts}
@@ -1652,11 +1674,12 @@ function rMapa(){
     <input id="mapSerialBusca" placeholder="Nº de série ou cliente..." onkeydown="if(event.key==='Enter')buscarNoMapa()">
     <button class="btn btn-primary btn-sm" onclick="buscarNoMapa()">Buscar</button>
     <button class="btn btn-outline btn-sm" onclick="limparBuscaMapa()">Ver Todos</button>
+    <button class="btn btn-ghost btn-sm" id="btnMapaInfo" onclick="alternarMapaLimpo()">${mapaLimpo?'Mostrar informações':'Mapa limpo'}</button>
   </div>
   <div class="map-legenda"><span><i class="lg-entregue"></i>Entregue</span><span><i class="lg-andamento"></i>Em separação</span><span>O número no pino é a quantidade de máquinas</span><span id="mapaStatusGeo" class="map-geo-status"></span></div>
   <div class="map-wrap" id="mapaGeral"></div>
   <div id="mapaInfoWrap"></div>
-  <div id="mapaResumo"></div>`;
+  <div id="mapaResumo"></div></div>`;
 }
 
 function bindMapaClick(){
@@ -1713,9 +1736,18 @@ function atualizarMapa(enquadrar){
     const qtd=g.maquinas.length;
     const icon=L.divIcon({className:'volux-marker-wrap',html:`<div class="mapa-pin ${g.entregue?'entregue':'andamento'}">${qtd>1?qtd:''}</div>`,iconSize:[22,22],iconAnchor:[11,11]});
     const mk=L.marker([lat,lon],{icon});
-    mk.bindTooltip(`<b>${esc(g.pedido.cliente||'#'+g.pedido.numero)}</b><br>${esc(resumoMaquinas(g.maquinas))}`);
-    mk.on('click',()=>mostrarInfoPedidoMapa(g.pedido.id,g.maquinas));
+    if(mapaLimpo){
+      mk.bindPopup(`<div class="mapa-popup"><b>${esc(g.pedido.cliente||'#'+g.pedido.numero)}</b>
+        <div>${esc(g.pedido.destino||'')}</div>
+        <div>${esc(resumoMaquinas(g.maquinas))}</div>
+        <div class="mapa-popup-sit">${g.entregue?'Entregue':'Em separação'}</div>
+        <button class="btn btn-outline btn-xs" onclick="verDetalhesMapa('${g.pedido.id}')">Ver detalhes</button></div>`);
+    }else{
+      mk.bindTooltip(`<b>${esc(g.pedido.cliente||'#'+g.pedido.numero)}</b><br>${esc(resumoMaquinas(g.maquinas))}`);
+      mk.on('click',()=>mostrarInfoPedidoMapa(g.pedido.id,g.maquinas));
+    }
     mk.addTo(mapaGeralMarkers);
+    g.mk=mk;
     pontos.push([lat,lon]);
   });
   renderResumoMapa(gs);
@@ -1796,7 +1828,10 @@ async function geocodificarPendentesMapa(){
 function buscarNoMapa(){
   const gs=atualizarMapa(true);
   const el=document.getElementById('mapSerialBusca');
-  if(el&&el.value.trim()&&gs.length===1)mostrarInfoPedidoMapa(gs[0].pedido.id,gs[0].maquinas);
+  if(el&&el.value.trim()&&gs.length===1){
+    if(mapaLimpo){if(gs[0].mk)gs[0].mk.openPopup();}
+    else mostrarInfoPedidoMapa(gs[0].pedido.id,gs[0].maquinas);
+  }
   else{const i=document.getElementById('mapaInfoWrap');if(i)i.innerHTML='';}
 }
 
