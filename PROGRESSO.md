@@ -16,7 +16,7 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
    3. 🟠 Conferência por bip (bipar a peça marca o item; peça errada bloqueia) — **FEITO**
    4. 🟠 Estoque integrado (baixa automática ao concluir o pedido, entradas e saídas) — **FEITO**
    5. 🟡 Prioridade/urgente e ordenar por prazo — **FEITO (29/10)**
-   6. 🟡 Localização das peças (prateleira/corredor)
+   6. 🟡 Localização das peças (prateleira/corredor) — **FEITO (29/10)**
    7. 🟡 Produtividade (tempo por pedido, itens por pessoa, gráficos)
    8. 🟡 Exportar para Excel
    9. 🟡 Inventário rotativo
@@ -113,3 +113,14 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
   - Pendente: o usuário escolher A ou B (ou misturar) antes de mexer no código.
   - Atenção: outra janela do Claude estava mexendo em `separacao-pedidos_1.html` e `tv.html` ao mesmo tempo (urgentes/ordem por prazo). Ela já fez o commit `22e1d97` (item 5 feito); o novo layout tem que manter o filtro Urgentes e a ordem por prazo.
 - Usuário: "será que conseguimos deixar mais profissional?" → criada a **C · Versão refinada** no mesmo protótipo (abaixo da A): menu lateral claro, barra superior com caminho e busca/bipe (F2), indicadores num bloco só, abas com contagem, tabela com sigla do cliente, prazo com "vencido há X dias", situação discreta e menu "⋯"; painel do pedido com resumo, abas Checklist/Detalhes/Atividade, itens feitos riscados e botões fixos "Etiqueta do pedido" / "Bipar próximo item". Botão Lista/Quadro junta a A e a B. Pendente: aprovação para aplicar no Volux.
+
+**Item 6 — Localização das peças** (pedido do usuário: "verifica o que está faltando, e pode continuar"):
+- **Catálogo › Peso & Medidas:** coluna nova **Local** (ex.: `A-03` = corredor A, prateleira 3), com sugestão dos locais já usados; a busca também acha pelo local; contador "X de Y itens com local". Campo `catalogoItens[nome].local`.
+- **Estoque:** campo "Local no almoxarifado" no cadastro/edição e coluna Local na tabela (`estoque.itens[].local`). Vale quando o item não tem local no Catálogo.
+- **Checklist do pedido:** cada peça mostra o local numa etiqueta azul ao lado da quantidade.
+- **Imprimir checklist:** coluna Local e peças em ordem de corredor (A-01, A-02, B-01...); peças sem local vão para o fim — o separador passa uma vez só por cada prateleira.
+- Testado numa cópia na porta 3999 (catálogo, estoque, card e impressão).
+- Os locais ainda precisam ser cadastrados pelo usuário no Catálogo (hoje nenhum item tem local).
+
+**Pendências que dependem do usuário:** escolher o layout A ou B da nova tela de Pedidos; etiqueta do pedido em rolo ou A4.
+**Próximo:** item 7 (produtividade: tempo por pedido, itens por pessoa, gráficos).

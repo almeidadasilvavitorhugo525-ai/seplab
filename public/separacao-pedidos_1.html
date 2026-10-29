@@ -186,6 +186,7 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .serial-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.5px;outline:none;transition:border .15s;max-width:220px;}
 .serial-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 3px var(--green-subtle);}
 .cl-item-qty{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);background:var(--surface3);padding:2px 8px;border-radius:5px;white-space:nowrap;margin-top:5px;display:inline-block;border:1px solid var(--border);}
+.cl-item-local{display:inline-flex;align-items:center;gap:3px;margin:5px 0 0 6px;padding:2px 7px;border-radius:5px;font-family:monospace;font-size:11.5px;font-weight:700;color:#1a52d8;background:rgba(26,82,216,.08);border:1px solid rgba(26,82,216,.25);white-space:nowrap;}
 
 .alerta-faltando{background:#fff5f5;border:1px solid rgba(229,62,62,.2);border-left:3px solid var(--danger);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:#c53030;margin-bottom:14px;line-height:1.5;}
 .obssep-box{background:var(--surface2,#f6f8fc);border:1px solid var(--border);border-left:3px solid #1a52d8;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;}
@@ -889,6 +890,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
         <option>Ferramenta</option><option>Outro</option>
       </select>
     </div>
+    <div class="form-group"><label class="form-label">Local no almoxarifado</label><input class="form-input" id="est-local" list="listaLocaisEst" placeholder="ex: A-03 (corredor A, prateleira 3)" style="text-transform:uppercase"><datalist id="listaLocaisEst"></datalist></div>
     <input type="hidden" id="est-id">
     <div class="form-actions" style="display:flex;gap:8px;margin-top:4px;">
       <button class="btn btn-ghost" style="flex:1" onclick="fecharModal('mEstoque')">Cancelar</button>
@@ -2252,6 +2254,7 @@ function rItemMaq(pid,mid,item){
     <div class="cl-item-right">
       <div id="nm-${item.id}" class="cl-item-name ${item.checked?'done':''}">${esc(item.nome)}</div>
       ${item.qty?`<span class="cl-item-qty">${esc(item.qty)}</span>`:''}
+      ${localTagHTML(item.nome)}
       <div id="quem-${item.id}" class="cl-item-quem">${quemMarcouHTML(item)}</div>
       ${item.temSerial?`<div class="cl-item-serial"><span class="serial-label">N° Série</span><input id="serial-${item.id}" class="serial-input" value="${esc(item.serial)}" placeholder="Digite o serial..." onchange="salvarSerial('${pid}','${item.id}',this.value,'${mid}')" onkeydown="if(event.key==='Enter'){this.blur();setTimeout(focarScanInput,30);}" onclick="event.stopPropagation()"></div>`:''}
     </div>
@@ -3660,9 +3663,11 @@ function imprimirPedidosSeparando(){
   const now=new Date();
 
   function tabelaItens(itens){
-    if(!itens.length)return'<tr><td colspan="4" style="color:#999;text-align:center;padding:10px;">Nenhum item</td></tr>';
-    return itens.map(item=>`<tr>
+    if(!itens.length)return'<tr><td colspan="5" style="color:#999;text-align:center;padding:10px;">Nenhum item</td></tr>';
+    // Na ordem dos corredores, para o separador passar uma vez só por cada prateleira.
+    return ordenarPorLocal(itens).map(item=>`<tr>
       <td style="width:26px;"><div style="width:14px;height:14px;border:1.5px solid #333;border-radius:3px;${item.checked?'background:#185FA5;border-color:#185FA5;':''}"></div></td>
+      <td style="width:70px;font-family:monospace;font-weight:bold;font-size:12.5px;">${esc(localDoItem(item.nome))||'<span style="color:#bbb">—</span>'}</td>
       <td><strong>${esc(item.nome)}</strong>${item.checked?' <span style="color:#185FA5;font-size:11px;">(separado)</span>':''}</td>
       <td style="text-align:center">${esc(item.qty)||'—'}</td>
       <td style="font-family:monospace;font-size:12px">${esc(item.serial)||''}</td>
@@ -3929,7 +3934,7 @@ function rTabEstoque(){
   const busca=estBusca.toLowerCase();
   const reservas=reservasEstoque();
   let lista=its.filter(i=>{
-    const m=i.codigo.toLowerCase().includes(busca)||i.descricao.toLowerCase().includes(busca);
+    const m=i.codigo.toLowerCase().includes(busca)||i.descricao.toLowerCase().includes(busca)||String(i.local||'').toLowerCase().includes(busca);
     if(!m)return false;
     if(estFiltro==='ok')return estStatus(i)==='ok';
     if(estFiltro==='baixo')return estStatus(i)==='baixo';
@@ -3946,7 +3951,7 @@ function rTabEstoque(){
   <div class="est-toolbar">
     <div class="est-search-wrap">
       <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input id="est-busca-input" placeholder="Buscar por código ou descrição..." value="${esc(estBusca)}" oninput="estBusca=this.value;rTabEstoque()">
+      <input id="est-busca-input" placeholder="Buscar por código, descrição ou local..." value="${esc(estBusca)}" oninput="estBusca=this.value;rTabEstoque()">
     </div>
     <div style="display:flex;gap:6px;">
       <button class="chip ${estFiltro==='todos'?'active':''}" onclick="estFiltro='todos';rTabEstoque()">Todos</button>
@@ -3958,7 +3963,7 @@ function rTabEstoque(){
   </div>
   <div class="est-table-wrap">
     <table>
-      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th title="Peças dos pedidos em aberto">Reservado</th><th title="Qtd − Reservado">Disponível</th><th>Mínimo</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Código</th><th>Descrição</th><th>Local</th><th>Categoria</th><th>Qtd</th><th title="Peças dos pedidos em aberto">Reservado</th><th title="Qtd − Reservado">Disponível</th><th>Mínimo</th><th>Status</th><th></th></tr></thead>
       <tbody>${lista.length?lista.map(i=>{
         const st=estStatus(i);
         const cor=st==='ok'?'var(--green)':st==='baixo'?'var(--warn)':'var(--danger)';
@@ -3966,6 +3971,7 @@ function rTabEstoque(){
         return`<tr>
           <td><span class="td-code">${esc(i.codigo)}</span></td>
           <td style="font-weight:500">${esc(i.descricao)}</td>
+          <td style="font-size:12px;font-weight:600">${esc(i.local||localDoItem(i.descricao))||'<span style="color:var(--muted)">—</span>'}</td>
           <td style="font-size:12px;color:var(--muted)">${esc(i.categoria)}</td>
           <td><span class="td-qty" style="color:${cor}">${esc(i.quantidade)}</span></td>
           <td style="color:var(--muted);font-size:13px">${reservas[i.id]||'—'}</td>
@@ -3979,15 +3985,16 @@ function rTabEstoque(){
             <button class="btn-edit btn btn-ghost btn-xs" onclick="editarItemEstoque('${i.id}')">Editar</button>
             <button class="btn-del btn btn-danger btn-xs" onclick="removerItemEstoque('${i.id}')">Remover</button>
           </td>
-        </tr>`;}).join(''):`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;
 }
 
 function abrirModalEstoque(){
-  ['est-id','est-codigo','est-descricao','est-quantidade','est-minimo'].forEach(id=>document.getElementById(id).value='');
+  ['est-id','est-codigo','est-descricao','est-quantidade','est-minimo','est-local'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('est-categoria').value='';
+  preencherLocaisEstoque();
   document.getElementById('mEstoque-titulo').textContent='Novo Item';
   document.getElementById('mEstoque').classList.add('open');
   setTimeout(()=>document.getElementById('est-codigo').focus(),150);
@@ -4002,7 +4009,12 @@ function editarItemEstoque(id){
   document.getElementById('est-quantidade').value=it.quantidade;
   document.getElementById('est-minimo').value=it.minimo;
   document.getElementById('est-categoria').value=it.categoria;
+  document.getElementById('est-local').value=it.local||'';
+  preencherLocaisEstoque();
   document.getElementById('mEstoque').classList.add('open');
+}
+function preencherLocaisEstoque(){
+  document.getElementById('listaLocaisEst').innerHTML=locaisCadastrados().map(l=>`<option value="${esc(l)}">`).join('');
 }
 
 function salvarItemEstoque(){
@@ -4012,6 +4024,8 @@ function salvarItemEstoque(){
   const descricao=document.getElementById('est-descricao').value.trim();
   if(!codigo||!descricao){mostrarAlerta('Preencha código e descrição.');return;}
   const it={id:id||u(),codigo,descricao,quantidade:parseInt(document.getElementById('est-quantidade').value)||0,minimo:parseInt(document.getElementById('est-minimo').value)||0,categoria:document.getElementById('est-categoria').value||'Outro'};
+  const local=normLocal(document.getElementById('est-local').value);
+  if(local)it.local=local;
   if(id){
     const idx=S.estoque.itens.findIndex(i=>i.id===id);
     if(idx>=0){
@@ -4036,6 +4050,35 @@ async function removerItemEstoque(id){
 
 /* ── CATÁLOGO: PESO/MEDIDAS E EMBALAGENS ── */
 let catalogoSubview='medidas', catBusca='';
+
+// Localização da peça no almoxarifado (ex.: "A-03" = corredor A, prateleira 3).
+// Vem do Catálogo; se lá estiver vazio, do item de estoque ligado a ela.
+function normLocal(v){return String(v||'').trim().toUpperCase().replace(/\s+/g,' ');}
+function localDoItem(nome){
+  const c=S.catalogoItens&&S.catalogoItens[nome];
+  if(c&&c.local)return c.local;
+  const e=estoqueDoItem(nome);
+  return e&&e.local?e.local:'';
+}
+function locaisCadastrados(){
+  const s=new Set();
+  Object.values(S.catalogoItens||{}).forEach(c=>{if(c.local)s.add(c.local);});
+  ((S.estoque&&S.estoque.itens)||[]).forEach(e=>{if(e.local)s.add(e.local);});
+  return[...s].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+}
+function datalistLocaisHTML(){return`<datalist id="listaLocais">${locaisCadastrados().map(l=>`<option value="${esc(l)}">`).join('')}</datalist>`;}
+// Ordem de coleta: pelo local (A-01, A-02, B-01...); peças sem local vão para o fim.
+function ordenarPorLocal(itens){
+  return itens.slice().sort((a,b)=>{
+    const la=localDoItem(a.nome),lb=localDoItem(b.nome);
+    if(!la!==!lb)return la?-1:1;
+    return la.localeCompare(lb,'pt-BR',{numeric:true});
+  });
+}
+function localTagHTML(nome){
+  const l=localDoItem(nome);
+  return l?`<span class="cl-item-local" title="Local no almoxarifado"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${esc(l)}</span>`:'';
+}
 
 function nomesItensConhecidos(){
   const nomes=new Set();
@@ -4070,7 +4113,8 @@ function rMedidasItens(){
   const nomes=nomesItensConhecidos();
   const cadastrados=nomes.filter(n=>{const c=S.catalogoItens[n];return c&&(c.peso||c.comprimento||c.largura||c.altura);}).length;
   const busca=catBusca.toLowerCase();
-  const lista=nomes.filter(n=>n.toLowerCase().includes(busca));
+  const lista=nomes.filter(n=>n.toLowerCase().includes(busca)||localDoItem(n).toLowerCase().includes(busca));
+  const comLocal=nomes.filter(n=>localDoItem(n)).length;
   cont.innerHTML=`
   <div class="card" style="margin-bottom:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -4080,17 +4124,19 @@ function rMedidasItens(){
     <div style="width:100%;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
       <div style="height:100%;background:var(--green);border-radius:3px;width:${nomes.length?Math.round(cadastrados/nomes.length*100):0}%;transition:width .4s;"></div>
     </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;">${comLocal} de ${nomes.length} itens com local no almoxarifado (ex.: A-03 = corredor A, prateleira 3). A busca também acha pelo local.</div>
   </div>
+  ${datalistLocaisHTML()}
   <div class="est-toolbar">
     <div class="est-search-wrap">
       <span class="est-search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input id="catBuscaInput" placeholder="Buscar item..." value="${esc(catBusca)}" oninput="catBusca=this.value;rMedidasItens()">
+      <input id="catBuscaInput" placeholder="Buscar item ou local..." value="${esc(catBusca)}" oninput="catBusca=this.value;rMedidasItens()">
     </div>
     <button class="btn btn-outline btn-sm" onclick="abrirModalImportarProdutos()">Importar Relatório</button>
   </div>
   <div class="est-table-wrap">
     <table>
-      <thead><tr><th>Item</th><th>Código de barras</th><th>Qtd. vendida (2 anos)</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
+      <thead><tr><th>Item</th><th>Código de barras</th><th title="Corredor/prateleira no almoxarifado">Local</th><th>Qtd. vendida (2 anos)</th><th>Peso (kg)</th><th>Compr. (cm)</th><th>Larg. (cm)</th><th>Alt. (cm)</th></tr></thead>
       <tbody>${lista.length?lista.map((nome,idx)=>{
         const c=S.catalogoItens[nome]||{};
         const pendente=!(c.peso||c.comprimento||c.largura||c.altura);
@@ -4098,12 +4144,13 @@ function rMedidasItens(){
         return`<tr style="${pendente?'border-left:3px solid var(--warn)':''}">
           <td style="font-weight:500">${esc(nome)}</td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px;min-width:120px;font-family:monospace" type="text" placeholder="Bipe aqui..." value="${esc(c.codigo||'')}" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onchange="salvarCodigoItem(${idx},this)"></td>
+          <td><input class="form-input" style="padding:6px 8px;font-size:13px;width:90px;text-transform:uppercase" type="text" list="listaLocais" placeholder="A-03" value="${esc(c.local||'')}" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onchange="salvarLocalItem(${idx},this)"></td>
           <td style="color:var(--muted)">${qtd!==null?qtd:'—'}</td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px;text-align:right" type="text" inputmode="decimal" placeholder="0,00" value="${esc(formatPesoValor(c.peso))}" oninput="maskPeso(this)" onchange="salvarMedidaItem(${idx},'peso',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.comprimento)}" onchange="salvarMedidaItem(${idx},'comprimento',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.largura)}" onchange="salvarMedidaItem(${idx},'largura',this.value)"></td>
           <td><input class="form-input" style="padding:6px 8px;font-size:13px" type="number" min="0" step="0.1" value="${esc(c.altura)}" onchange="salvarMedidaItem(${idx},'altura',this.value)"></td>
-        </tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
+        </tr>`;}).join(''):`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Nenhum item encontrado.</td></tr>`}
       </tbody>
     </table>
   </div>`;
@@ -4132,6 +4179,15 @@ function salvarCodigoItem(idx,el){
   if(cod)atual.codigo=cod;else delete atual.codigo;
   S.catalogoItens[nome]=atual;
   el.value=cod;
+  save();
+}
+function salvarLocalItem(idx,el){
+  const nome=window._medidasLista&&window._medidasLista[idx];if(!nome)return;
+  const local=normLocal(el.value);
+  const atual=S.catalogoItens[nome]||{};
+  if(local)atual.local=local;else delete atual.local;
+  S.catalogoItens[nome]=atual;
+  el.value=local;
   save();
 }
 function formatPesoValor(v){
