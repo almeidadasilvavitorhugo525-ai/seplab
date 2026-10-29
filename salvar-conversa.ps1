@@ -5,10 +5,12 @@ $destino  = "$env:USERPROFILE\seplab\backup-conversas"
 New-Item -ItemType Directory -Force $destino | Out-Null
 
 # Conversas abertas dentro da pasta seplab (atalho "Continuar Projeto Seplab") entram todas;
-# as abertas na pasta do usuario so entram se falarem do SepLab/Volux.
+# as abertas na pasta do usuario so entram se usaram /seplab ou trabalharam dentro da pasta seplab
+# (a palavra "seplab" sozinha nao serve: a lista de memorias aparece em toda conversa).
+$filtro   = '"cwd":"C:\\\\Users\\\\PC-ESTOQUE-0365\\\\seplab|command-name>/seplab'
 $arquivos = @(Get-ChildItem "$projetos\C--Users-PC-ESTOQUE-0365-seplab*" -Filter *.jsonl -Recurse -ErrorAction SilentlyContinue) +
             @(Get-ChildItem "$projetos\C--Users-PC-ESTOQUE-0365" -Filter *.jsonl -ErrorAction SilentlyContinue |
-              Where-Object { Select-String -Path $_.FullName -Pattern 'seplab|volux' -Quiet })
+              Where-Object { Select-String -Path $_.FullName -Pattern $filtro -Quiet })
 
 $arquivos | Where-Object { $_.LastWriteTime -gt (Get-Date).AddDays(-2) } | ForEach-Object {
     $data = $_.CreationTime.ToString('yyyy-MM-dd')
