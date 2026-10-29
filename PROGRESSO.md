@@ -15,7 +15,7 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
    2. 🟠 Registrar quem marcou cada item e quando — **FEITO**
    3. 🟠 Conferência por bip (bipar a peça marca o item; peça errada bloqueia) — **FEITO**
    4. 🟠 Estoque integrado (baixa automática ao concluir o pedido, entradas e saídas) — **FEITO**
-   5. 🟡 Prioridade/urgente e ordenar por prazo
+   5. 🟡 Prioridade/urgente e ordenar por prazo — **FEITO (29/10)**
    6. 🟡 Localização das peças (prateleira/corredor)
    7. 🟡 Produtividade (tempo por pedido, itens por pessoa, gráficos)
    8. 🟡 Exportar para Excel
@@ -89,3 +89,17 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 
 **Conversas:** criado repo privado `conversas-claude` com `salvar_conversas.py`; falta o usuário rodar o primeiro salvamento e o `schtasks` (o Claude Code bloqueou rodar daqui).
 - **Mapa limpo** (pedido do usuário: "deixar o mapa limpo, e as informações aparecem só quando eu quiser"): botão "Mostrar informações / Mapa limpo" (lembrado em `localStorage` `volux_mapa_limpo`, padrão = limpo). No modo limpo só aparecem os pinos; clicar num pino abre um balão com cliente, cidade, máquinas e "Ver detalhes".
+
+## Sessão de 29/10/2026
+
+**Retomada e salvamento:** criado o comando `/seplab` (retoma o projeto lendo este arquivo, o Git e a última conversa salva) e o atalho "Continuar Projeto Seplab.bat" na Área de Trabalho. A tarefa do Windows "Salvar Conversa Seplab" roda `salvar-conversa.ps1` a cada 30 min e guarda as conversas em `backup-conversas\` (fora do Git, pode ter dados de clientes).
+
+**Item 5 — Prioridade e prazo** (pedido do usuário: "pode começar pelo item 5"):
+- Botão de bandeira no card do pedido marca/desmarca **Urgente** (grava quem e quando: `prioridade`, `prioridadeEm`, `prioridadePor`). Também dá para marcar no cadastro e na edição ("Pedido urgente").
+- Lista de pedidos ordenada por **urgentes primeiro → prazo de envio mais próximo → sem data**; prontos (100%) vão para o fim. Seletor "Ordem: urgentes e prazo / mais recentes" (lembrado no aparelho, `volux_ordem_pedidos`).
+- Filtro novo **Urgentes** com a contagem; selo vermelho "Urgente" no card e nas listas do Painel.
+- A data de envio mostra quanto falta: "hoje", "amanhã", "em 3 dias" ou "X dias de atraso" (em vermelho quando falta 1 dia ou menos).
+- **Painel da TV:** urgentes no topo com a faixa vermelha "URGENTE" piscando; depois separando, aguardando e prontos, cada grupo pelo prazo.
+- Testado numa cópia na porta 3999: o urgente sobe para o topo sem fechar o card aberto, fica gravado no servidor, e a TV mostra em primeiro.
+
+**Próximo:** item 6 (localização das peças: prateleira/corredor). Ainda pendente: confirmar se a etiqueta do pedido vai em rolo ou A4.

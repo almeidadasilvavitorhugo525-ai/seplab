@@ -122,6 +122,15 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .sp-sep{background:#dbeafe;color:#1e3a8a;border:1px solid #93c5fd;}
 .sp-done{background:#dcfce7;color:#14532d;border:1px solid #86efac;}
 .sp-atrasado{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5;}
+.sp-urgente{background:#dc2626;color:#fff;border:1px solid #b91c1c;margin-right:4px;}
+.pedido-card.card-urgente{border-left-color:#dc2626;box-shadow:0 0 0 1px rgba(220,38,38,.35);}
+.btn-urgente{padding:4px 6px;color:var(--muted);}
+.btn-urgente.on{color:#dc2626;}
+.prazo-perto{color:var(--danger);}
+.urgente-check{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.25);border-radius:8px;font-size:13px;cursor:pointer;}
+.urgente-check input{width:18px;height:18px;accent-color:#dc2626;}
+.chip-urgente.active{background:#dc2626;border-color:#dc2626;}
+.ordem-select{margin-left:auto;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;}
 .ph-spacer{flex:1;}
 .ph-bar-wrap{display:flex;align-items:center;gap:8px;}
 .ph-bar{width:90px;height:5px;background:var(--surface3);border-radius:4px;overflow:hidden;}
@@ -658,6 +667,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
       <div class="map-hint" id="mapHintNovo">Clique no mapa ou use o endereço exato acima para marcar onde a máquina vai ficar.</div>
     </div>
     <div class="form-group"><label class="form-label">Data de Envio Prevista</label><input class="form-input" id="iData" type="date"></div>
+    <label class="urgente-check"><input type="checkbox" id="iUrgente"><span><strong>Pedido urgente</strong> (vai para o topo da separação e do painel da TV)</span></label>
     <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="iResp" placeholder="Nome do separador"></div>
     <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="iObs" placeholder="Informações importantes..."></textarea></div>
     <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 12px;background:rgba(26,82,216,.06);border:1px solid rgba(26,82,216,.2);border-radius:8px;font-size:13px;cursor:pointer;">
@@ -758,6 +768,7 @@ textarea.form-input{resize:vertical;min-height:80px;}
       <div class="map-hint" id="mapHintEdit">Clique no mapa ou use o endereço exato acima para marcar onde a máquina vai ficar.</div>
     </div>
     <div class="form-group"><label class="form-label">Data de Envio Prevista</label><input class="form-input" id="eData" type="date"></div>
+    <label class="urgente-check"><input type="checkbox" id="eUrgente"><span><strong>Pedido urgente</strong> (vai para o topo da separação e do painel da TV)</span></label>
     <div class="form-group"><label class="form-label">Responsável pela Separação</label><input class="form-input" id="eResp" placeholder="Nome do separador"></div>
     <div class="form-group"><label class="form-label">Observações</label><textarea class="form-input" id="eObs" placeholder="Informações importantes..."></textarea></div>
     <div style="display:flex;gap:8px;">
@@ -1489,6 +1500,43 @@ function atrasado(p){
   const hoje=new Date();hoje.setHours(0,0,0,0);
   return new Date(y,m-1,d)<hoje;
 }
+// Prioridade: pedido urgente vai para o topo; os outros seguem pelo prazo (data de envio prevista).
+function urgente(p){return p.prioridade==='urgente';}
+function diasAtePrazo(p){
+  if(!p.data)return Infinity;
+  const[y,m,d]=p.data.split('-').map(Number);
+  if(!y||!m||!d)return Infinity;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  return Math.round((new Date(y,m-1,d)-hoje)/864e5);
+}
+function ordenarPedidos(lista){
+  const grupo=p=>pct(p)>=100?2:urgente(p)?0:1; // prontos ficam no fim
+  return lista.slice().sort((a,b)=>grupo(a)-grupo(b)||diasAtePrazo(a)-diasAtePrazo(b));
+}
+let ordemPedidos=(()=>{try{return localStorage.getItem('volux_ordem_pedidos')||'prioridade';}catch{return'prioridade';}})();
+function setOrdemPedidos(v){
+  ordemPedidos=v;
+  try{localStorage.setItem('volux_ordem_pedidos',v);}catch{}
+  render();
+}
+function alternarUrgente(id){
+  const p=S.pedidos.find(x=>x.id===id);if(!p)return;
+  if(urgente(p)){delete p.prioridade;delete p.prioridadeEm;delete p.prioridadePor;}
+  else{p.prioridade='urgente';p.prioridadeEm=new Date().toISOString();p.prioridadePor=SESSAO.nome||SESSAO.usuario||'';}
+  save(true);
+  atualizarTelaRemota(); // reordena sem fechar os cards abertos
+}
+function urgentePillHTML(p){
+  if(!urgente(p))return'';
+  const t=p.prioridadePor?`Marcado como urgente por ${esc(p.prioridadePor)}${p.prioridadeEm?' em '+fdh(p.prioridadeEm):''}`:'Urgente';
+  return`<span class="status-pill sp-urgente" title="${t}">Urgente</span>`;
+}
+function prazoHTML(p){
+  if(!p.data)return'';
+  const n=diasAtePrazo(p);
+  const falta=pct(p)>=100||n===Infinity?'':n<0?` · ${-n} ${n===-1?'dia':'dias'} de atraso`:n===0?' · hoje':n===1?' · amanhã':n<=3?` · em ${n} dias`:'';
+  return`${fd(p.data)}${falta?`<span class="${n<=1?'prazo-perto':''}">${falta}</span>`:''}`;
+}
 function statusClassFor(p){
   if(atrasado(p))return'status-atrasado';
   const v=pct(p);
@@ -2140,6 +2188,9 @@ function rPedidos(){
   else if(filtro==='separando')list=list.filter(p=>pct(p)>0&&pct(p)<100);
   else if(filtro==='concluido')list=list.filter(p=>pct(p)===100);
   else if(filtro==='atrasado')list=list.filter(p=>atrasado(p));
+  else if(filtro==='urgente')list=list.filter(p=>urgente(p));
+  if(ordemPedidos==='prioridade')list=ordenarPedidos(list);
+  const nUrg=S.pedidos.filter(p=>urgente(p)&&pct(p)<100).length;
   const nAg=S.pedidos.filter(p=>pct(p)===0).length;
   const nSep=S.pedidos.filter(p=>pct(p)>0&&pct(p)<100).length;
   const nPron=S.pedidos.filter(p=>pct(p)===100).length;
@@ -2177,6 +2228,11 @@ function rPedidos(){
     <button class="chip ${filtro==='separando'?'active':''}" onclick="setFiltro('separando')">Separando · ${nSep}</button>
     <button class="chip ${filtro==='concluido'?'active':''}" onclick="setFiltro('concluido')">Prontos · ${nPron}</button>
     <button class="chip ${filtro==='atrasado'?'active':''}" onclick="setFiltro('atrasado')">Atrasados · ${nAtr}</button>
+    <button class="chip chip-urgente ${filtro==='urgente'?'active':''}" onclick="setFiltro('urgente')">Urgentes · ${nUrg}</button>
+    <select class="ordem-select" onchange="setOrdemPedidos(this.value)" title="Ordem da lista">
+      <option value="prioridade" ${ordemPedidos==='prioridade'?'selected':''}>Ordem: urgentes e prazo</option>
+      <option value="recentes" ${ordemPedidos==='recentes'?'selected':''}>Ordem: mais recentes</option>
+    </select>
   </div>`;
   const scanBar=`<div class="est-toolbar">
     <div class="est-search-wrap">
@@ -2280,14 +2336,16 @@ function rCard(p){
   if(p.destino) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${esc(p.destino)}</strong></div>`);
   if(p.endereco) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg> <strong>${esc(p.endereco)}${p.cep?' — '+esc(p.cep):''}</strong></div>`);
   if(p.responsavel) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <strong>${esc(p.responsavel)}</strong></div>`);
-  if(p.data) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <strong>${fd(p.data)}</strong></div>`);
-  return`<div class="pedido-card ${statusClass}" id="card-${p.id}" data-numero="${esc(p.numero)}" data-cliente="${esc((p.cliente||'').toLowerCase())}">
+  if(p.data) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <strong>${prazoHTML(p)}</strong></div>`);
+  return`<div class="pedido-card ${statusClass}${urgente(p)?' card-urgente':''}" id="card-${p.id}" data-numero="${esc(p.numero)}" data-cliente="${esc((p.cliente||'').toLowerCase())}">
     <div class="pedido-header" onclick="toggleCard('${p.id}')">
       <div class="ph-row1">
         <span class="ph-order-num"># ${esc(p.numero)}</span>
         <button class="btn btn-ghost btn-xs" title="Código de barras" onclick="event.stopPropagation();verCodigoBarras('${p.id}')" style="padding:4px 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/></svg></button>
+        ${urgentePillHTML(p)}
         <span id="ppill-${p.id}">${statusPill}</span>
         <div class="ph-spacer"></div>
+        <button class="btn btn-ghost btn-xs btn-urgente ${urgente(p)?'on':''}" title="${urgente(p)?'Tirar a urgência':'Marcar como urgente'}" onclick="event.stopPropagation();alternarUrgente('${p.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="${urgente(p)?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
         <div class="ph-bar-wrap">
           <div class="ph-bar"><div id="pbarfill-${p.id}" class="ph-bar-fill ${st}" style="width:${v}%"></div></div>
           <span id="ppct-${p.id}" class="ph-pct ${st}">${v}%</span>
@@ -2365,10 +2423,10 @@ function rHistorico(){
 
 // Painel: clicar num card mostra a lista desses pedidos logo abaixo; clicar de novo esconde.
 const PAINEL_FILTROS={
-  aberto:{titulo:'Pedidos em aberto',cor:'var(--text)',lista:()=>S.pedidos},
+  aberto:{titulo:'Pedidos em aberto',cor:'var(--text)',lista:()=>ordenarPedidos(S.pedidos)},
   concluidos:{titulo:'Pedidos concluídos',cor:'var(--green)',lista:()=>S.historico.slice().reverse(),hist:true},
-  aguardando:{titulo:'Aguardando separação',cor:'var(--muted)',lista:()=>S.pedidos.filter(p=>pct(p)===0)},
-  separando:{titulo:'Em separação',cor:'var(--warn)',lista:()=>S.pedidos.filter(p=>pct(p)>0&&pct(p)<100)},
+  aguardando:{titulo:'Aguardando separação',cor:'var(--muted)',lista:()=>ordenarPedidos(S.pedidos.filter(p=>pct(p)===0))},
+  separando:{titulo:'Em separação',cor:'var(--warn)',lista:()=>ordenarPedidos(S.pedidos.filter(p=>pct(p)>0&&pct(p)<100))},
   prontos:{titulo:'Prontos',cor:'var(--green)',lista:()=>S.pedidos.filter(p=>pct(p)===100)}
 };
 function filtrarPainel(f){
@@ -2396,7 +2454,7 @@ function rPainelLista(){
         :(p.data?'Envio '+fd(p.data)+' · ':'')+(p.responsavel?esc(p.responsavel)+' · ':'')+feitos+'/'+its.length+' itens';
       return`<div class="painel-linha" onclick="${f.hist?`verHist('${p.id}')`:`abrirPedidoDoPainel('${p.id}')`}" title="Abrir pedido">
         <div style="min-width:0;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">#${esc(p.numero)} — ${esc(p.cliente)}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${!f.hist?urgentePillHTML(p):''}#${esc(p.numero)} — ${esc(p.cliente)}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.destino?esc(p.destino)+' · ':''}${info}</div>
           ${p.obsSeparacao?`<div style="font-size:12px;color:#1e3a8a;margin-top:3px;">📝 ${esc(p.obsSeparacao)}</div>`:''}
         </div>
@@ -2781,6 +2839,7 @@ function criarPedido(){
   });
   const modeloNome=maquinasSelecionadas.map(m=>`${MODELOS[m.modelo].nome}${m.qty>1?' x'+m.qty:''}`).join(' + ');
   const novoPedido={id:u(),numero,cliente,endereco:document.getElementById('iEndereco').value.trim(),bairro:document.getElementById('iBairro').value.trim(),telefone:document.getElementById('iTelefone').value.trim(),destino:document.getElementById('iDestino').value.trim(),cep:document.getElementById('iCep').value.trim(),data:document.getElementById('iData').value,responsavel:document.getElementById('iResp').value.trim(),obs:document.getElementById('iObs').value.trim(),modelo:modeloNome,maquinas,localizacao:localizacaoNovo,criadoEm:new Date().toISOString(),criadoPor:SESSAO.nome||SESSAO.usuario||''};
+  if(document.getElementById('iUrgente').checked)Object.assign(novoPedido,{prioridade:'urgente',prioridadeEm:novoPedido.criadoEm,prioridadePor:novoPedido.criadoPor});
   S.pedidos.unshift(novoPedido);
   if(document.getElementById('iEtqAuto').checked)imprimirEtiquetaPedido(novoPedido);
   save();fecharModal('mNovoPedido');tab='pedidos';filtro='todos';
@@ -2804,6 +2863,7 @@ function editarPedido(id){
   document.getElementById('eBairro').value=p.bairro||'';
   document.getElementById('eTelefone').value=p.telefone||'';
   document.getElementById('eData').value=p.data||'';
+  document.getElementById('eUrgente').checked=urgente(p);
   document.getElementById('eResp').value=p.responsavel||'';
   document.getElementById('eObs').value=p.obs||'';
   renderEditMaquinas();
@@ -2856,6 +2916,9 @@ function salvarEdicao(){
   p.bairro=document.getElementById('eBairro').value.trim();
   p.telefone=document.getElementById('eTelefone').value.trim();
   p.data=document.getElementById('eData').value;
+  const urg=document.getElementById('eUrgente').checked;
+  if(urg&&!urgente(p))Object.assign(p,{prioridade:'urgente',prioridadeEm:new Date().toISOString(),prioridadePor:SESSAO.nome||SESSAO.usuario||''});
+  else if(!urg){delete p.prioridade;delete p.prioridadeEm;delete p.prioridadePor;}
   p.responsavel=document.getElementById('eResp').value.trim();
   p.obs=document.getElementById('eObs').value.trim();
   p.maquinas=editMaquinas;
@@ -2990,6 +3053,7 @@ async function rmHist(id){if(!SESSAO.admin){mostrarAlerta('Apenas administradore
 function abrirNovoPedido(){
   ['iNum','iCliente','iEndereco','iBairro','iTelefone','iDestino','iCep','iResp','iObs'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('iData').value='';
+  document.getElementById('iUrgente').checked=false;
   let etqAuto=true;try{etqAuto=localStorage.getItem('volux_etq_auto')!=='0';}catch{}
   document.getElementById('iEtqAuto').checked=etqAuto;
   document.getElementById('iFoto').value='';

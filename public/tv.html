@@ -84,6 +84,10 @@ tr.st-separando td:first-child{border-left-color:#60a5fa;}
 tr.st-concluido td:first-child{border-left-color:#34d399;}
 
 .td-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;color:#4a5f8a;background:#0a1228;padding:3px 9px;border-radius:5px;display:inline-block;border:1px solid #12204a;}
+.tv-urgente{margin-top:6px;display:inline-block;background:#dc2626;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;padding:3px 8px;border-radius:5px;animation:tvPisca 1.6s ease-in-out infinite;}
+tr.tr-urgente td{background:rgba(220,38,38,.12);}
+tr.tr-urgente td:first-child{box-shadow:inset 4px 0 0 #dc2626;}
+@keyframes tvPisca{50%{opacity:.55;}}
 .td-cliente{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:.3px;color:#e8eeff;line-height:1.1;}
 .td-dest{font-size:12px;color:#4a5f8a;margin-top:3px;}
 .td-modelo{font-size:13px;color:#8ea3c8;line-height:1.4;}
@@ -373,13 +377,10 @@ function renderTable(data){
     return;
   }
 
-  // Ordenar: separando primeiro, depois aguardando, depois concluído
-  const sorted = [...pedidos].sort((a,b)=>{
-    const va=pct(a), vb=pct(b);
-    const pa = va>0&&va<100?0:va===0?1:2;
-    const pb = vb>0&&vb<100?0:vb===0?1:2;
-    return pa-pb;
-  });
+  // Ordenar: urgentes primeiro, depois separando, aguardando e concluído; empate pelo prazo de envio
+  const grupo = p=>{ const v=pct(p); return v===100?3:p.prioridade==='urgente'?0:v>0?1:2; };
+  const prazo = p=>p.data||'9999-99-99';
+  const sorted = [...pedidos].sort((a,b)=>grupo(a)-grupo(b)||prazo(a).localeCompare(prazo(b)));
 
   const rows = sorted.map(p=>{
     const v = pct(p);
@@ -397,9 +398,11 @@ function renderTable(data){
       </div>`;
     }).join('');
 
-    return `<tr class="${si.cls}">
+    const urg = p.prioridade==='urgente' && v<100;
+    return `<tr class="${si.cls}${urg?' tr-urgente':''}">
       <td>
         <div class="td-num">#${esc(p.numero)}</div>
+        ${urg?'<div class="tv-urgente">URGENTE</div>':''}
       </td>
       <td>
         <div class="td-cliente">${esc(p.cliente||'—')}</div>
