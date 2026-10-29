@@ -103,3 +103,12 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 - Testado numa cópia na porta 3999: o urgente sobe para o topo sem fechar o card aberto, fica gravado no servidor, e a TV mostra em primeiro.
 
 **Próximo:** item 6 (localização das peças: prateleira/corredor). Ainda pendente: confirmar se a etiqueta do pedido vai em rolo ou A4.
+
+## Sessão de 29/10/2026
+- Criado o comando `/seplab` e o salvamento automático das conversas (tarefa "Salvar Conversa Seplab", minutos :28 e :58, pasta `backup-conversas/` fora do Git).
+- **Tela de Pedidos mais profissional** — pedido do usuário: "assim ela está ficando muito minimizada" e "parece uma coisa muito de iniciante, quero algo mais profissional". Hoje a tela usa só ~1140 px no centro de um monitor de 1870 px, com letras pequenas e tudo em caixa alta condensada.
+  - Protótipo com 2 propostas: https://claude.ai/artifact/JCEnqSu3bE4M7shau5MFNq
+    - **A · Lista + painel lateral:** menu lateral escuro, indicadores, lista em tabela (pedido, cliente/máquinas, destino, prazo, barra de separação, situação) e o checklist do pedido aberto num painel à direita.
+    - **B · Quadro por etapa:** colunas Aguardando / Separando / Prontos para carregar.
+  - Pendente: o usuário escolher A ou B (ou misturar) antes de mexer no código.
+  - Atenção: outra janela do Claude estava mexendo em `separacao-pedidos_1.html` e `tv.html` ao mesmo tempo (urgentes/ordem por prazo, sem commit). Esperar ela terminar antes de aplicar o novo layout.
