@@ -111,4 +111,4 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
     - **A · Lista + painel lateral:** menu lateral escuro, indicadores, lista em tabela (pedido, cliente/máquinas, destino, prazo, barra de separação, situação) e o checklist do pedido aberto num painel à direita.
     - **B · Quadro por etapa:** colunas Aguardando / Separando / Prontos para carregar.
   - Pendente: o usuário escolher A ou B (ou misturar) antes de mexer no código.
-  - Atenção: outra janela do Claude estava mexendo em `separacao-pedidos_1.html` e `tv.html` ao mesmo tempo (urgentes/ordem por prazo, sem commit). Esperar ela terminar antes de aplicar o novo layout.
+  - Atenção: outra janela do Claude estava mexendo em `separacao-pedidos_1.html` e `tv.html` ao mesmo tempo (urgentes/ordem por prazo). Ela já fez o commit `22e1d97` (item 5 feito); o novo layout tem que manter o filtro Urgentes e a ordem por prazo.
