@@ -161,6 +161,13 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .tot-maq-info{display:flex;flex-direction:column;min-width:0;}
 .tot-maq-nome{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tot-maq-sub{font-size:11px;color:var(--muted);}
+.tot-maq-item:focus-visible{outline:2px solid var(--green);outline-offset:2px;}
+.tot-maq-item.curto{border-color:rgba(220,38,38,.45);}
+.tm-est{font-size:11px;font-weight:600;margin-top:2px;}
+.tm-est-ok{color:#059669;}
+.tm-est-falta{color:var(--danger);}
+.tm-est-sem{color:var(--warn);text-decoration:underline;cursor:pointer;}
+.tot-maq-alerta{color:var(--danger);font-weight:600;margin-right:10px;}
 .maq-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;color:var(--muted);}
 .ph-info-strip{display:flex;align-items:stretch;background:var(--bg2);border-top:1px solid var(--border);flex-wrap:wrap;}
 .ph-info-item{display:flex;align-items:center;gap:5px;padding:8px 14px;font-size:12px;color:var(--muted);border-right:1px solid var(--border);}
@@ -2256,25 +2263,51 @@ function totaisMaquinas(){
   }));
   return[...g.values()].sort((a,b)=>(b.total-b.prontas)-(a.total-a.prontas)||b.total-a.total||a.nome.localeCompare(b.nome));
 }
+// Acha a máquina no Estoque: pelo código/descrição do item (igual à baixa do pedido)
+// e, se não achar, pela descrição sem acentos (igual ou contendo o nome da máquina).
+function semAcento(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+function estoqueDaMaquina(nome){
+  const e=estoqueDoItem(nome);if(e)return e;
+  const its=(S.estoque&&S.estoque.itens)||[];
+  const n=semAcento(nome);if(!n)return null;
+  return its.find(x=>semAcento(x.descricao)===n)||its.find(x=>semAcento(x.descricao).includes(n))||null;
+}
+function cadastrarMaquinaEstoque(i){
+  const t=(window._maqTotais||[])[i];if(!t)return;
+  abrirModalEstoque();
+  document.getElementById('est-descricao').value=t.nome;
+  document.getElementById('est-minimo').value='0';
+}
 function filtrarMaquina(i){const k=(window._maqChaves||[])[i]||'';maqFiltro=maqFiltro===k?'':k;render();}
 function totalMaquinasHTML(){
   const ts=totaisMaquinas();
   window._maqChaves=ts.map(t=>t.chave);
+  window._maqTotais=ts;
   if(!ts.length)return'';
   const faltaGeral=ts.reduce((a,t)=>a+t.total-t.prontas,0);
   const totalGeral=ts.reduce((a,t)=>a+t.total,0);
+  let nCurto=0,nSemCad=0;
+  const cards=ts.map((t,i)=>{
+    const falta=t.total-t.prontas;
+    const peds=[...t.pedidos.entries()].map(([n,q])=>'#'+n+(q>1?' ('+q+')':'')).join(', ');
+    const e=estoqueDaMaquina(t.nome);
+    const qtdEst=e?(Number(e.quantidade)||0):0;
+    let est;
+    if(!falta)est='';
+    else if(!e){nSemCad++;est=`<span class="tm-est tm-est-sem" onclick="event.stopPropagation();cadastrarMaquinaEstoque(${i})" title="Esta máquina não está cadastrada no Estoque. Clique para cadastrar.">sem cadastro no estoque · cadastrar</span>`;}
+    else if(qtdEst>=falta)est=`<span class="tm-est tm-est-ok" title="${esc(e.codigo||'')} ${esc(e.descricao)}${e.local?' · local '+esc(e.local):''}">estoque ${qtdEst} · dá para separar</span>`;
+    else{nCurto++;est=`<span class="tm-est tm-est-falta" title="${esc(e.codigo||'')} ${esc(e.descricao)}${e.local?' · local '+esc(e.local):''}">estoque ${qtdEst} · faltam ${falta-qtdEst} no estoque</span>`;}
+    return`<div role="button" tabindex="0" class="tot-maq-item ${maqFiltro===t.chave?'on':''} ${falta?'':'ok'} ${est.includes('tm-est-falta')?'curto':''}" onclick="filtrarMaquina(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filtrarMaquina(${i})}" title="Pedidos: ${esc(peds)}\nClique para ver só esses pedidos">
+      <span class="tot-maq-num">${t.total}</span>
+      <span class="tot-maq-info"><span class="tot-maq-nome">${esc(t.nome)}</span><span class="tot-maq-sub">${falta?`faltam ${falta}`:'todas separadas'}${t.prontas&&falta?` · ${t.prontas} pronta${t.prontas>1?'s':''}`:''} · ${t.pedidos.size} pedido${t.pedidos.size>1?'s':''}</span>${est}</span>
+    </div>`;}).join('');
+  const alertaEst=nCurto?`<span class="tot-maq-alerta">${nCurto} ${nCurto===1?'máquina sem estoque suficiente':'máquinas sem estoque suficiente'}</span>`:'';
   return`<div class="tot-maq">
     <div class="tot-maq-head">
       <span class="tot-maq-tit">Máquinas para separar · todos os pedidos abertos</span>
-      <span class="tot-maq-geral"><b>${faltaGeral}</b> faltam de ${totalGeral}${maqFiltro?` · <a href="#" onclick="event.preventDefault();maqFiltro='';render()">mostrar todos os pedidos</a>`:''}</span>
+      <span class="tot-maq-geral">${alertaEst}<b>${faltaGeral}</b> faltam de ${totalGeral}${maqFiltro?` · <a href="#" onclick="event.preventDefault();maqFiltro='';render()">mostrar todos os pedidos</a>`:''}</span>
     </div>
-    <div class="tot-maq-lista">${ts.map((t,i)=>{
-      const falta=t.total-t.prontas;
-      const peds=[...t.pedidos.entries()].map(([n,q])=>'#'+n+(q>1?' ('+q+')':'')).join(', ');
-      return`<button class="tot-maq-item ${maqFiltro===t.chave?'on':''} ${falta?'':'ok'}" onclick="filtrarMaquina(${i})" title="Pedidos: ${esc(peds)}\nClique para ver só esses pedidos">
-        <span class="tot-maq-num">${t.total}</span>
-        <span class="tot-maq-info"><span class="tot-maq-nome">${esc(t.nome)}</span><span class="tot-maq-sub">${falta?`faltam ${falta}`:'todas separadas'}${t.prontas&&falta?` · ${t.prontas} pronta${t.prontas>1?'s':''}`:''} · ${t.pedidos.size} pedido${t.pedidos.size>1?'s':''}</span></span>
-      </button>`;}).join('')}</div>
+    <div class="tot-maq-lista">${cards}</div>
   </div>`;
 }
 
