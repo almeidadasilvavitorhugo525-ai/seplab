@@ -137,3 +137,4 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 - Atenção: só conta itens marcados depois que o carimbo existe. Pedidos antigos sem `item.em` não aparecem. O tempo de um pedido que ficou parado de um dia para o outro inclui a noite.
 
 **Próximo:** pendências do usuário: layout A/B/C da tela de Pedidos, etiqueta em rolo ou A4, cadastrar os locais das peças e copiar `data.json`/`users.json` do PC antigo.
+- **Senha do admin neste PC:** a senha criada em 11/11 se perdeu. O `users.json` antigo foi guardado como `users.json.bak-2026-11-13` (fica fora do Git) e o Volux criou um `admin` novo. O usuário entrou e funcionou. Falta trocar a senha em "Usuários" e cadastrar os funcionários.
