@@ -4,3 +4,5 @@ backups/
 data.json
 users.json
 backup-conversas/
+
+users.json.bak*
