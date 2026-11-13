@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const VoluxSync = require('./public/sync.js');
+const db = require('./db.js');
 
 const app = express();
 const DATA_FILE = path.join(__dirname, 'data.json');
@@ -125,12 +126,16 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => res.redirect('/separacao-pedidos_1.html'));
 app.use(express.static(path.join(__dirname, 'public'), { etag: false, lastModified: false }));
 
+// Os dados ficam em memória (CACHE) e são gravados no banco MariaDB/MySQL
+// e também no data.json, que fica como cópia de segurança.
+let CACHE = null;
+function lerArquivo() {
+  try { return fs.readFileSync(DATA_FILE, 'utf8'); } catch { return null; }
+}
 function readData() {
-  try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-  } catch {
-    return null;
-  }
+  const s = CACHE != null ? CACHE : lerArquivo();
+  if (s == null) return null;
+  try { return JSON.parse(s); } catch { return null; }
 }
 
 function backupData() {
@@ -150,8 +155,53 @@ function backupData() {
 
 function writeData(data) {
   backupData();
+  CACHE = JSON.stringify(data);
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+  db.gravar(CACHE);
   REV = Math.max(Date.now(), REV + 1);
+}
+
+// Ao ligar: conecta no banco. Se o banco estiver vazio, importa o data.json.
+// Se o banco já tiver dados, eles valem (o data.json diferente é guardado em backups/).
+async function iniciarBanco() {
+  try {
+    const cfg = await db.conectar();
+    const estado = await db.lerEstado();
+    let doBanco = estado ? estado.dados : null;
+    const doArquivo = lerArquivo();
+    // Se o data.json foi alterado depois da última gravação no banco (ex.: o Volux rodou
+    // com o MySQL desligado), o arquivo é o mais novo: manda ele para o banco.
+    let mtime = 0;
+    try { mtime = fs.statSync(DATA_FILE).mtimeMs; } catch {}
+    if (doBanco && doArquivo && mtime > estado.em + 5000) {
+      try {
+        const arq = JSON.stringify(JSON.parse(doArquivo));
+        if (arq !== doBanco) {
+          console.log(' ↻ O data.json é mais novo que o banco: atualizando o banco com ele.');
+          doBanco = null;
+        }
+      } catch {}
+    }
+    if (doBanco) {
+      CACHE = doBanco;
+      let arqNormal = null;
+      try { arqNormal = doArquivo ? JSON.stringify(JSON.parse(doArquivo)) : null; } catch {}
+      if (doArquivo && arqNormal !== doBanco) {
+        if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        fs.copyFileSync(DATA_FILE, path.join(BACKUP_DIR, `data-antes-do-banco-${stamp}.json`));
+      }
+      fs.writeFileSync(DATA_FILE, JSON.stringify(JSON.parse(doBanco), null, 2), 'utf8');
+      console.log(` ✔ Banco de dados "${cfg.database}" conectado (${cfg.host}:${cfg.port}).`);
+    } else {
+      if (doArquivo) { CACHE = JSON.stringify(JSON.parse(doArquivo)); db.gravar(CACHE); }
+      console.log(` ✔ Banco de dados "${cfg.database}" criado e preenchido com o data.json.`);
+    }
+  } catch (e) {
+    CACHE = null;
+    console.log(' ⚠ Banco de dados indisponível (' + e.message + '). Usando só o data.json.');
+    console.log('   Ligue o MySQL no XAMPP e reinicie o Volux para voltar a gravar no banco.');
+  }
 }
 
 function getLocalIP() {
@@ -350,7 +400,7 @@ app.get('/api/backup-download', requireAuth, requireAdmin, (req, res) => {
   const stamp = new Date().toISOString().slice(0, 10);
   res.setHeader('Content-Disposition', `attachment; filename="volux-backup-${stamp}.json"`);
   res.setHeader('Content-Type', 'application/json');
-  res.send(fs.readFileSync(DATA_FILE, 'utf8'));
+  res.send(CACHE != null ? JSON.stringify(JSON.parse(CACHE), null, 2) : fs.readFileSync(DATA_FILE, 'utf8'));
 });
 
 app.get('/api/network-info', (req, res) => {
@@ -363,7 +413,7 @@ const localIP = getLocalIP();
 
 const usuarioSeedCriado = seedUsuarioAdmin();
 
-app.listen(PORT, '0.0.0.0', () => {
+iniciarBanco().then(() => app.listen(PORT, '0.0.0.0', () => {
   console.log('\n ╔══════════════════════════════════════════╗');
   console.log(' ║              VOLUX - ATIVO               ║');
   console.log(' ╠══════════════════════════════════════════╣');
@@ -380,4 +430,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('   Anote essa senha agora — ela não será exibida de novo.');
     console.log('   Depois de entrar, cadastre os demais funcionários em "Usuários".\n');
   }
-});
+}));
