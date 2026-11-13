@@ -149,3 +149,10 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 - Limite: editar as tabelas direto no phpMyAdmin **não** muda o Volux (elas são uma cópia para leitura). Os usuários ficam na tabela `usuarios` (ver abaixo).
 - O MySQL do XAMPP precisa estar ligado **antes** de abrir o Volux.
 - **Usuários no banco** (pedido do usuário: "pode colocar as senhas no banco de dados"): tabela `usuarios` (id, nome, usuario, senha_hash, senha_salt, admin, atualizado_em). A senha nunca é gravada, só o hash scrypt com salt. O `users.json` continua como cópia; vale o mais novo entre o banco e o arquivo. O admin só é criado sozinho se não existir nenhum usuário (nem no banco, nem no arquivo). Testado: apagando o `users.json`, os logins continuaram funcionando pelo banco e a senha errada foi recusada.
+- **Revisão do dia** (pedido do usuário: "faça revisão de tudo"). Corrigido:
+  - Cadastrar uma máquina no Estoque pelo quadro da tela de Pedidos trocava a tela para a lista do Estoque. Agora continua na tela de Pedidos.
+  - "Forno" era ligado ao item "Armário do Forno" do Estoque (busca por "contém"). Agora o nome tem que ser igual, sem contar acentos e maiúsculas.
+  - Banco: o documento principal (`volux_estado`) é gravado antes e separado das tabelas de consulta. Um erro nelas não trava mais a gravação nem fica repetindo. Observações longas foram limitadas para caber na coluna.
+  - Usuários: a comparação banco × users.json não depende mais da ordem. Antes, cada vez que o Volux ligava, criava uma cópia à toa.
+  - `db-config.json` (pode ter senha do banco) fora do Git.
+- **Pendente (decisão do usuário):** a máquina em si não sai do Estoque quando o pedido é concluído. A baixa só desconta as peças do checklist. Então a quantidade de máquinas no Estoque precisa ser baixada à mão, ou dá para fazer a baixa automática.

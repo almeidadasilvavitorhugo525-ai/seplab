@@ -2264,13 +2264,14 @@ function totaisMaquinas(){
   return[...g.values()].sort((a,b)=>(b.total-b.prontas)-(a.total-a.prontas)||b.total-a.total||a.nome.localeCompare(b.nome));
 }
 // Acha a máquina no Estoque: pelo código/descrição do item (igual à baixa do pedido)
-// e, se não achar, pela descrição sem acentos (igual ou contendo o nome da máquina).
+// e, se não achar, pela descrição igual sem acentos/maiúsculas. (Não usa "contém":
+// "Forno" acharia o "Armário do Forno".)
 function semAcento(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
 function estoqueDaMaquina(nome){
   const e=estoqueDoItem(nome);if(e)return e;
   const its=(S.estoque&&S.estoque.itens)||[];
   const n=semAcento(nome);if(!n)return null;
-  return its.find(x=>semAcento(x.descricao)===n)||its.find(x=>semAcento(x.descricao).includes(n))||null;
+  return its.find(x=>semAcento(x.descricao)===n)||null;
 }
 function cadastrarMaquinaEstoque(i){
   const t=(window._maqTotais||[])[i];if(!t)return;
@@ -4326,7 +4327,8 @@ function salvarItemEstoque(){
   }
   else S.estoque.itens.push(it);
   save();fecharModal('mEstoque');
-  rTabEstoque();
+  // pode ter sido aberto pelo quadro de máquinas da tela de Pedidos
+  if(tab==='estoque')rTabEstoque();else render();
 }
 
 async function removerItemEstoque(id){

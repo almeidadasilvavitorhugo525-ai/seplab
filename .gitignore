@@ -7,3 +7,4 @@ backup-conversas/
 
 users.json.bak*
 servidor.log*
+db-config.json

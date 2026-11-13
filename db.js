@@ -107,7 +107,7 @@ function linhas(data) {
       txt(p.cep, 20), txt(p.telefone, 60), txt(p.data, 20), txt(p.responsavel, 120), situacao,
       todos.length ? Math.round(feitos / todos.length * 100) : 0, todos.length, feitos,
       p.prioridade === 'urgente' ? 1 : 0, dataHora(p.criadoEm), txt(p.criadoPor, 120), dataHora(p.concluidoEm),
-      txt(p.concluidoPor, 120), txt(p.notaFiscal, 60), num(p.volumes), txt(p.obs, 65000), txt(p.obsSeparacao, 65000),
+      txt(p.concluidoPor, 120), txt(p.notaFiscal, 60), num(p.volumes), txt(p.obs, 16000), txt(p.obsSeparacao, 16000),
     ]);
     const item = (i, mid) => its.push([
       txt(p.id, 64), txt(mid, 64), txt(i.id, 64), txt(i.nome), txt(i.categoria, 120), txt(i.qty, 40),
@@ -142,12 +142,22 @@ async function inserir(conn, tabela, colunas, rows) {
 }
 
 async function gravarAgora(json) {
-  const data = JSON.parse(json);
+  // 1º o documento completo (é ele que o Volux lê ao ligar). Se falhar, a fila tenta de novo.
+  await pool.query('REPLACE INTO volux_estado (id, dados, atualizado_em) VALUES (1, ?, NOW())', [json]);
+  // 2º as tabelas de consulta. Um erro aqui (ex.: um valor fora do tamanho) não pode
+  // travar a gravação principal: só avisa no log.
+  try {
+    await gravarTabelas(JSON.parse(json));
+  } catch (e) {
+    console.log(' ⚠ Tabelas de consulta do banco não foram atualizadas:', e.message);
+  }
+}
+
+async function gravarTabelas(data) {
   const L = linhas(data);
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    await conn.query('REPLACE INTO volux_estado (id, dados, atualizado_em) VALUES (1, ?, NOW())', [json]);
     for (const t of ['pedido_itens', 'pedido_maquinas', 'pedidos', 'estoque', 'estoque_movimentos']) await conn.query(`DELETE FROM ${t}`);
     await inserir(conn, 'pedidos', 'id,numero,cliente,destino,endereco,bairro,cep,telefone,data_envio,responsavel,situacao,progresso,total_itens,itens_separados,urgente,criado_em,criado_por,concluido_em,concluido_por,nota_fiscal,volumes,obs,obs_separacao', L.ped);
     await inserir(conn, 'pedido_maquinas', 'pedido_id,maquina_id,ordem,nome,modelo,total_itens,itens_separados', L.maq);

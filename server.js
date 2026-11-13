@@ -174,7 +174,9 @@ async function iniciarUsuariosNoBanco() {
   try { doArquivo = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8')); } catch {}
   let mtime = 0;
   try { mtime = fs.statSync(USERS_FILE).mtimeMs; } catch {}
-  const iguais = JSON.stringify(doBanco.lista) === JSON.stringify(doArquivo);
+  // compara sem depender da ordem (o banco devolve por nome de usuário)
+  const chave = l => JSON.stringify([...l].sort((a, b) => String(a.id).localeCompare(String(b.id))).map(u => [u.id, u.nome, u.usuario, u.salt, u.hash, !!u.admin]));
+  const iguais = chave(doBanco.lista) === chave(doArquivo);
   if (doBanco.lista.length && (iguais || !doArquivo.length || mtime <= doBanco.em + 5000)) {
     if (!iguais && doArquivo.length) {
       if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
