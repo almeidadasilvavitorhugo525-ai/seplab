@@ -147,6 +147,16 @@ main{padding:20px;max-width:1140px;margin:0 auto;padding-bottom:48px;}
 .ph-row2{padding:0 16px 12px;}
 .ph-client{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.3px;color:var(--text);margin-bottom:8px;line-height:1.1;}
 .ph-machines{display:flex;flex-wrap:wrap;gap:5px;}
+.maq-tag-qtd{color:var(--green);font-weight:800;}
+.maq-tag.maq-tag-total{background:var(--green);border-color:var(--green);color:#fff;}
+.resumo-maq{border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;background:var(--surface);}
+.resumo-maq-tit{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.resumo-maq table{width:100%;border-collapse:collapse;font-size:13px;}
+.resumo-maq th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:4px 6px;border-bottom:1px solid var(--border);}
+.resumo-maq th+th,.resumo-maq .rm-num{text-align:center;}
+.resumo-maq td{padding:6px;border-bottom:1px solid var(--border);}
+.resumo-maq .rm-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;white-space:nowrap;}
+.resumo-maq tfoot td{border-bottom:none;border-top:2px solid var(--border);font-weight:700;}
 .maq-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;color:var(--muted);}
 .ph-info-strip{display:flex;align-items:stretch;background:var(--bg2);border-top:1px solid var(--border);flex-wrap:wrap;}
 .ph-info-item{display:flex;align-items:center;gap:5px;padding:8px 14px;font-size:12px;color:var(--muted);border-right:1px solid var(--border);}
@@ -2364,6 +2374,46 @@ function salvarObsSeparacao(id,valor){
   save(true);
 }
 
+// Agrupa as máquinas do pedido por modelo: "Cilíndrica (1)", "Cilíndrica (2)" -> 2× Cilíndrica
+function gruposMaquinas(p){
+  const g=new Map();
+  (p.maquinas||[]).forEach(m=>{
+    const chave=m.modelo||m.nome;
+    const nome=(MODELOS[m.modelo]&&MODELOS[m.modelo].nome)||String(m.nome||'').replace(/\s*\(\d+\)$/,'');
+    const o=g.get(chave)||{nome,qtd:0,prontas:0,itens:0,feitos:0};
+    o.qtd++;
+    if(pctMaq(m)===100)o.prontas++;
+    o.itens+=m.itens.length;
+    o.feitos+=m.itens.filter(i=>i.checked).length;
+    g.set(chave,o);
+  });
+  return[...g.values()];
+}
+function resumoMaquinasHTML(p){
+  const gs=gruposMaquinas(p);
+  if(!gs.length)return'';
+  const tot=gs.reduce((a,g)=>({qtd:a.qtd+g.qtd,prontas:a.prontas+g.prontas,itens:a.itens+g.itens,feitos:a.feitos+g.feitos}),{qtd:0,prontas:0,itens:0,feitos:0});
+  const cor=(f,t)=>f===t&&t?'var(--green)':f?'var(--warn)':'var(--muted)';
+  return`<div class="resumo-maq">
+    <div class="resumo-maq-tit">Total do pedido</div>
+    <table>
+      <thead><tr><th>Máquina</th><th>Qtd</th><th>Prontas</th><th>Itens separados</th></tr></thead>
+      <tbody>${gs.map(g=>`<tr>
+        <td>${esc(g.nome)}</td>
+        <td class="rm-num">${g.qtd}</td>
+        <td class="rm-num" style="color:${cor(g.prontas,g.qtd)}">${g.prontas}/${g.qtd}</td>
+        <td class="rm-num" style="color:${cor(g.feitos,g.itens)}">${g.feitos}/${g.itens}</td>
+      </tr>`).join('')}</tbody>
+      <tfoot><tr>
+        <td>Total</td>
+        <td class="rm-num">${tot.qtd} ${tot.qtd===1?'máquina':'máquinas'}</td>
+        <td class="rm-num" style="color:${cor(tot.prontas,tot.qtd)}">${tot.prontas}/${tot.qtd}</td>
+        <td class="rm-num" style="color:${cor(tot.feitos,tot.itens)}">${tot.feitos}/${tot.itens}</td>
+      </tr></tfoot>
+    </table>
+  </div>`;
+}
+
 function rCard(p){
   const v=pct(p);
   const its=todosItens(p);
@@ -2373,8 +2423,10 @@ function rCard(p){
   const st=v===100?'s-ok':v>0?'s-sep':'s-wait';
   const statusClass=statusClassFor(p);
   const statusPill=statusPillHTML(p);
-  const maqTags=p.maquinas&&p.maquinas.length
-    ?`<div class="ph-machines">${p.maquinas.map(m=>`<span class="maq-tag">${esc(m.nome)}</span>`).join('')}</div>`
+  const grupos=gruposMaquinas(p);
+  const totMaq=p.maquinas?p.maquinas.length:0;
+  const maqTags=totMaq
+    ?`<div class="ph-machines">${grupos.map(g=>`<span class="maq-tag"><b class="maq-tag-qtd">${g.qtd}×</b> ${esc(g.nome)}</span>`).join('')}${grupos.length>1||totMaq>1?`<span class="maq-tag maq-tag-total">Total ${totMaq} ${totMaq===1?'máquina':'máquinas'}</span>`:''}</div>`
     :'';
   const infoItems=[];
   if(p.destino) infoItems.push(`<div class="ph-info-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${esc(p.destino)}</strong></div>`);
@@ -2416,6 +2468,7 @@ function rCard(p){
         </div>
         <div id="pfaltando-${p.id}">${faltando.length>0&&v>0?`<div class="alerta-faltando"><strong>Faltando ${faltando.length} ${faltando.length===1?'item':'itens'}:</strong> ${faltando.slice(0,6).map(i=>esc(i.nome)).join(', ')}${faltando.length>6?` e mais ${faltando.length-6}...`:''}</div>`:''}</div>
         <div id="pconcluido-${p.id}">${v===100?`<div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-left:3px solid #10b981;border-radius:8px;padding:10px 14px;font-size:13px;color:#059669;margin-bottom:12px;">Todos os itens conferidos. Pedido pronto para envio.</div>`:''}</div>
+        ${totMaq?`<div id="resumo-maq-${p.id}">${resumoMaquinasHTML(p)}</div>`:''}
         ${maquinasHTML}
         <div id="pbotoes-${p.id}" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="gerarRelatorio('${p.id}')">Relatório</button>
@@ -2938,6 +2991,8 @@ function toggleItem(pid,iid,mid){
   const st=vP===100?'s-ok':vP>0?'s-sep':'s-wait';
   const faltando=its.filter(i=>!i.checked);
   // badge de itens
+  const resumoEl=document.getElementById('resumo-maq-'+pid);
+  if(resumoEl)resumoEl.innerHTML=resumoMaquinasHTML(p);
   const badgeEl=document.getElementById('pbadge-'+pid);
   if(badgeEl)badgeEl.innerHTML=`<span>${doneP}</span>/ ${its.length} itens`;
   // barra de progresso
