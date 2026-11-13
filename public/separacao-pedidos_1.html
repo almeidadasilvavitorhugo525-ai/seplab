@@ -230,6 +230,39 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .stat-card.stat-ativo{border-color:var(--stat-cor,var(--green));box-shadow:0 0 0 2px var(--stat-cor,var(--green));}
 .stat-card.stat-ativo::before{opacity:1;}
 .stat-card.hl::before{opacity:1;}
+.prod-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);}
+.prod-seg button{border:0;background:none;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:600;}
+.prod-seg button+button{border-left:1px solid var(--border);}
+.prod-seg button.on{background:var(--green);color:#fff;}
+.prod-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.prod-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.prod-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px;}
+.prod-grid>.card{margin:0;}
+.prod-chart{display:flex;align-items:stretch;gap:3px;height:190px;padding-top:4px;}
+.prod-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0;}
+.prod-val{font-size:10px;color:var(--muted);height:14px;line-height:14px;}
+.prod-barbox{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;}
+.prod-bar{width:100%;max-width:34px;background:var(--green);opacity:.55;border-radius:4px 4px 0 0;transition:height .3s,opacity .15s;}
+.prod-col:hover .prod-bar,.prod-bar-hl{opacity:1;}
+.prod-rot{font-size:10px;color:var(--muted);height:16px;line-height:16px;margin-top:4px;white-space:nowrap;border-top:1px solid var(--border);width:100%;text-align:center;overflow:visible;}
+.prod-pessoa{padding:8px 6px;border-radius:6px;cursor:pointer;}
+.prod-pessoa:hover{background:var(--surface3);}
+.prod-pessoa.on{background:var(--surface3);box-shadow:inset 3px 0 0 var(--green);}
+.prod-pessoa.off{opacity:.5;}
+.prod-pessoa-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.prod-nome{font-size:14px;font-weight:600;}
+.prod-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--green);}
+.prod-pessoa-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.prod-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;flex:1;}
+.prod-fill{height:100%;background:var(--green);border-radius:3px;}
+.prod-tab{width:100%;border-collapse:collapse;font-size:13px;}
+.prod-tab th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.prod-tab td{padding:8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.prod-tab tr:last-child td{border-bottom:none;}
+.prod-dur{display:flex;align-items:center;gap:8px;min-width:160px;}
+.prod-dur span{min-width:80px;text-align:right;font-weight:600;}
+.prod-tag{font-size:10px;background:rgba(26,82,216,.1);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:700;}
+@media(max-width:820px){.prod-kpis{grid-template-columns:repeat(2,1fr);}.prod-grid{grid-template-columns:1fr;}}
 .stat-card:hover{box-shadow:0 4px 20px rgba(12,45,107,.10);transform:translateY(-1px);}
 .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--text);}
 .stat-card.hl .stat-num{color:var(--green);}
@@ -575,6 +608,10 @@ textarea.form-input{resize:vertical;min-height:80px;}
   <button class="nav-tab" onclick="mudarTab('painel',this)">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
     Painel
+  </button>
+  <button class="nav-tab" onclick="mudarTab('produtividade',this)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Produtividade
   </button>
   <button class="nav-tab" onclick="mudarTab('itens',this)">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
@@ -1457,6 +1494,9 @@ function mudarTab(t,el){
   } else if(t==='mapa'){
     btnAcao.style.display='none';
     logoSub.textContent='Mapa';
+  } else if(t==='produtividade'){
+    btnAcao.style.display='none';
+    logoSub.textContent='Produtividade';
   } else if(t==='roteiro'){
     btnAcao.style.display='none';
     logoSub.textContent='Roteiro';
@@ -1482,6 +1522,7 @@ function render(){
   if(tab==='pedidos'){app.innerHTML=rPedidos();focarScanInput();}
   else if(tab==='historico')app.innerHTML=rHistorico();
   else if(tab==='painel')app.innerHTML=rPainel();
+  else if(tab==='produtividade')app.innerHTML=rProdutividade();
   else if(tab==='mapa'){app.innerHTML=rMapa();bindMapaClick();}
   else if(tab==='roteiro'){app.innerHTML=rRoteiro();bindRoteiro();return;}
   else if(tab==='itens'){rTabItens();return;}
@@ -2536,6 +2577,162 @@ function rPainel(){
       <span style="flex:1;font-size:14px">${esc(nome)}</span>
       <span style="background:rgba(224,85,85,.12);color:#e07878;padding:2px 10px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;">${qtd} ped.</span>
     </div>`).join('')}</div>`:`<div class="empty-state" style="padding:20px"><p>Nenhum item pendente.</p></div>`}`;
+}
+
+// ===== PRODUTIVIDADE (item 7) =====
+// Usa o carimbo que o checklist já grava em cada item (item.por / item.em).
+let prodPeriodo=(()=>{try{return localStorage.getItem('volux_prod_periodo')||'30';}catch(e){return'30';}})();
+let prodPessoa='';
+function mudarProdPeriodo(v){prodPeriodo=v;try{localStorage.setItem('volux_prod_periodo',v);}catch(e){}render();}
+function filtrarProdPessoa(i){const n=(window._prodNomes||[])[i]||'';prodPessoa=prodPessoa===n?'':n;render();}
+function fmtDuracao(ms){
+  if(ms==null||isNaN(ms))return'—';
+  const min=Math.round(ms/60000);
+  if(min<1)return'< 1 min';
+  if(min<60)return min+' min';
+  const h=Math.floor(min/60),m=min%60;
+  if(h<24)return h+' h'+(m?' '+m+' min':'');
+  const d=Math.floor(h/24),hh=h%24;
+  return d+' d'+(hh?' '+hh+' h':'');
+}
+function dadosProdutividade(pessoa){
+  const dias=prodPeriodo==='tudo'?null:Number(prodPeriodo);
+  const ini=dias?new Date(new Date().setHours(0,0,0,0)-(dias-1)*864e5):null;
+  const iniMs=ini?ini.getTime():-Infinity;
+  const marcacoes=[],pedidos=[];
+  const todos=[...S.historico.map(p=>({p,concl:true})),...S.pedidos.map(p=>({p,concl:false}))];
+  todos.forEach(({p,concl})=>{
+    const its=todosItens(p);
+    const ems=[];
+    its.forEach(i=>{
+      if(!i.checked||!i.em)return;
+      const t=new Date(i.em).getTime();
+      if(isNaN(t))return;
+      ems.push(t);
+      const quem=i.por||'(sem nome)';
+      if(t>=iniMs&&(!pessoa||quem===pessoa))marcacoes.push({pessoa:quem,t,pid:p.id});
+    });
+    if(!its.length||!its.every(i=>i.checked)||!ems.length)return;
+    const fim=Math.max(...ems);
+    if(fim<iniMs)return;
+    const i0=p.iniciadoEm?new Date(p.iniciadoEm).getTime():NaN;
+    const inicio=Math.min(isNaN(i0)?Infinity:i0,...ems);
+    const pessoas=[...new Set(its.map(i=>i.por).filter(Boolean))];
+    if(pessoa&&!pessoas.includes(pessoa))return;
+    pedidos.push({p,concl,inicio,fim,dur:fim-inicio,itens:its.length,pessoas});
+  });
+  return{dias,marcacoes,pedidos};
+}
+function prodBaldes(d){
+  // agrupa por dia (até 30 dias), semana (90 dias) ou mês (12 meses / tudo)
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const b=[];
+  if(d.dias&&d.dias<=31){
+    for(let k=d.dias-1;k>=0;k--){const a=new Date(hoje.getTime()-k*864e5);b.push({de:a.getTime(),ate:a.getTime()+864e5,rot:a.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),dica:a.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'})});}
+  }else if(d.dias&&d.dias<=90){
+    const fimSem=hoje.getTime()+864e5;
+    for(let k=Math.ceil(d.dias/7)-1;k>=0;k--){const ate=fimSem-k*7*864e5,de=ate-7*864e5;const a=new Date(de);b.push({de,ate,rot:a.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),dica:'Semana de '+a.toLocaleDateString('pt-BR')});}
+  }else{
+    let primeiro=new Date(hoje.getFullYear(),hoje.getMonth()-11,1);
+    if(!d.dias&&d.marcacoes.length){
+      const pm=new Date(Math.min(...d.marcacoes.map(x=>x.t)));
+      const cand=new Date(pm.getFullYear(),pm.getMonth(),1);
+      const lim=new Date(hoje.getFullYear(),hoje.getMonth()-23,1);
+      if(cand<primeiro)primeiro=cand<lim?lim:cand;
+    }
+    for(let a=new Date(primeiro);a<=hoje;a=new Date(a.getFullYear(),a.getMonth()+1,1)){const prox=new Date(a.getFullYear(),a.getMonth()+1,1);b.push({de:a.getTime(),ate:prox.getTime(),rot:a.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''),dica:a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})});}
+  }
+  b.forEach(x=>{x.v=d.marcacoes.filter(m=>m.t>=x.de&&m.t<x.ate).length;x.extra=d.pedidos.filter(p=>p.fim>=x.de&&p.fim<x.ate).length+' pedido(s) terminado(s)';});
+  return b;
+}
+function prodGraficoBarras(b,unidade){
+  const max=Math.max(1,...b.map(x=>x.v));
+  const passo=b.length>16?Math.ceil(b.length/10):1;
+  return`<div class="prod-chart">${b.map((x,i)=>`
+    <div class="prod-col" title="${esc(x.dica)}: ${x.v} ${unidade}${x.extra?' · '+esc(x.extra):''}">
+      <div class="prod-val">${x.v&&b.length<=16?x.v:''}</div>
+      <div class="prod-barbox"><div class="prod-bar ${x.destaque?'prod-bar-hl':''}" style="height:${x.v?Math.max(3,x.v/max*100):0}%"></div></div>
+      <div class="prod-rot">${i%passo===0||i===b.length-1?esc(x.rot):''}</div>
+    </div>`).join('')}</div>`;
+}
+function rProdutividade(){
+  const d=dadosProdutividade(prodPessoa);
+  const nomesPer={'7':'últimos 7 dias','30':'últimos 30 dias','90':'últimos 90 dias','365':'últimos 12 meses','tudo':'todo o período'};
+  const totItens=d.marcacoes.length,totPed=d.pedidos.length;
+  const durs=d.pedidos.map(x=>x.dur).sort((a,b)=>a-b);
+  const media=durs.length?durs.reduce((a,v)=>a+v,0)/durs.length:null;
+  const mediana=durs.length?(durs.length%2?durs[(durs.length-1)/2]:(durs[durs.length/2-1]+durs[durs.length/2])/2):null;
+  const itensPedMed=totPed?Math.round(d.pedidos.reduce((a,x)=>a+x.itens,0)/totPed):0;
+  // ranking sempre com todas as pessoas, para não sumir ao filtrar
+  const dTodos=prodPessoa?dadosProdutividade(''):d;
+  const porPessoa={};
+  dTodos.marcacoes.forEach(m=>{const o=porPessoa[m.pessoa]||(porPessoa[m.pessoa]={itens:0,peds:new Set(),ult:0,dias:new Set()});o.itens++;o.peds.add(m.pid);o.ult=Math.max(o.ult,m.t);o.dias.add(new Date(m.t).toDateString());});
+  const ranking=Object.entries(porPessoa).sort((a,b)=>b[1].itens-a[1].itens);
+  window._prodNomes=ranking.map(r=>r[0]);
+  const maxP=ranking.length?ranking[0][1].itens:1;
+  const baldes=prodBaldes(d);
+  if(d.dias&&d.dias<=31&&baldes.length)baldes[baldes.length-1].destaque=true;
+  const porHora=Array.from({length:24},(_,h)=>({h,v:0}));
+  d.marcacoes.forEach(m=>porHora[new Date(m.t).getHours()].v++);
+  let hMin=porHora.findIndex(x=>x.v),hMax=23-[...porHora].reverse().findIndex(x=>x.v);
+  if(hMin<0){hMin=7;hMax=18;}
+  hMin=Math.min(hMin,7);hMax=Math.max(hMax,18);
+  const horas=porHora.slice(hMin,hMax+1);
+  const pico=horas.reduce((a,x)=>x.v>a.v?x:a,{v:0});
+  const horasB=horas.map(x=>({v:x.v,rot:x.h+'h',dica:x.h+'h às '+(x.h+1)+'h',destaque:x.v&&x===pico}));
+  const pedidosTab=d.pedidos.slice().sort((a,b)=>b.fim-a.fim);
+  const maxDur=Math.max(1,...pedidosTab.map(x=>x.dur));
+  const dataHora=t=>{const x=new Date(t);return x.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});};
+  const sub=t=>`<span style="text-transform:none;letter-spacing:0;font-weight:500">${t}</span>`;
+  return`
+  <div class="toolbar" style="flex-wrap:wrap;gap:10px;">
+    <div class="sec-title" style="margin:0">Produtividade · ${nomesPer[prodPeriodo]||''}${prodPessoa?' · '+esc(prodPessoa):''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      ${prodPessoa?`<button class="btn btn-sm" onclick="prodPessoa='';render()" title="Mostrar todos">✕ ${esc(prodPessoa)}</button>`:''}
+      <div class="prod-seg">${[['7','7 dias'],['30','30 dias'],['90','90 dias'],['365','12 meses'],['tudo','Tudo']].map(([v,r])=>`<button class="${prodPeriodo===v?'on':''}" onclick="mudarProdPeriodo('${v}')">${r}</button>`).join('')}</div>
+    </div>
+  </div>
+  <div class="prod-kpis">
+    <div class="stat-card"><div class="stat-num">${totItens}</div><div class="stat-label">Itens separados</div></div>
+    <div class="stat-card"><div class="stat-num">${totPed}</div><div class="stat-label">Pedidos separados</div><div class="prod-sub">${totPed?'média de '+itensPedMed+' itens cada':'&nbsp;'}</div></div>
+    <div class="stat-card"><div class="stat-num" style="font-size:24px">${fmtDuracao(media)}</div><div class="stat-label">Tempo médio por pedido</div><div class="prod-sub">${mediana!=null?'metade leva até '+fmtDuracao(mediana):'&nbsp;'}</div></div>
+    <div class="stat-card"><div class="stat-num">${prodPessoa?1:ranking.length}</div><div class="stat-label">${prodPessoa?'Separador':'Separadores'}</div><div class="prod-sub">${ranking.length&&!prodPessoa?'quem mais separou: '+esc(ranking[0][0]):'&nbsp;'}</div></div>
+  </div>
+  ${!totItens&&!totPed?`<div class="card"><div class="empty-state" style="padding:24px"><p>Nenhum item separado nesse período.</p><p style="font-size:12px;color:var(--muted);margin-top:6px">Os números aparecem conforme os itens são marcados no checklist (o Volux grava quem marcou e quando).</p></div></div>`:`
+  <div class="prod-grid">
+    <div class="card">
+      <div class="sec-title">Itens separados por ${d.dias&&d.dias<=31?'dia':d.dias&&d.dias<=90?'semana':'mês'}</div>
+      ${prodGraficoBarras(baldes,'itens')}
+    </div>
+    <div class="card">
+      <div class="sec-title">Itens por pessoa ${sub('· clique para filtrar')}</div>
+      ${ranking.map(([nome,o],idx)=>`
+        <div class="prod-pessoa ${prodPessoa===nome?'on':''} ${prodPessoa&&prodPessoa!==nome?'off':''}" onclick="filtrarProdPessoa(${idx})" title="Último item: ${dataHora(o.ult)}">
+          <div class="prod-pessoa-top"><span class="prod-nome">${esc(nome)}</span><span class="prod-num">${o.itens}</span></div>
+          <div class="prod-track"><div class="prod-fill" style="width:${o.itens/maxP*100}%"></div></div>
+          <div class="prod-pessoa-sub">${o.peds.size} pedido(s) · ${o.dias.size} dia(s) com separação · ${Math.round(o.itens/o.dias.size)} itens/dia</div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <div class="sec-title">Itens por hora do dia ${pico.v?sub('· pico às '+pico.h+'h'):''}</div>
+    ${prodGraficoBarras(horasB,'itens')}
+  </div>
+  <div class="card">
+    <div class="sec-title">Tempo por pedido ${sub('· do 1º ao último item marcado')}</div>
+    ${pedidosTab.length?`<div style="overflow-x:auto"><table class="prod-tab">
+      <thead><tr><th>Pedido</th><th>Cliente</th><th style="text-align:right">Itens</th><th>Início</th><th>Fim</th><th>Tempo</th><th>Quem separou</th></tr></thead>
+      <tbody>${pedidosTab.slice(0,50).map(x=>`<tr>
+        <td><strong>${esc(x.p.numero)}</strong>${x.concl?'':' <span class="prod-tag">pronto</span>'}</td>
+        <td>${esc(x.p.cliente)}</td>
+        <td style="text-align:right">${x.itens}</td>
+        <td>${dataHora(x.inicio)}</td>
+        <td>${dataHora(x.fim)}</td>
+        <td><div class="prod-dur"><div class="prod-track"><div class="prod-fill" style="width:${x.dur/maxDur*100}%"></div></div><span>${fmtDuracao(x.dur)}</span></div></td>
+        <td>${x.pessoas.length?x.pessoas.map(esc).join(', '):'—'}</td>
+      </tr>`).join('')}</tbody></table></div>${pedidosTab.length>50?`<p style="font-size:12px;color:var(--muted);margin-top:8px">Mostrando os 50 mais recentes de ${pedidosTab.length}.</p>`:''}`
+    :`<p style="color:var(--muted);font-size:13px">Nenhum pedido terminou de ser separado nesse período.</p>`}
+  </div>`}`;
 }
 
 function rTabItens(){

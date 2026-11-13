@@ -124,3 +124,16 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
 
 **Pendências que dependem do usuário:** escolher o layout A ou B da nova tela de Pedidos; etiqueta do pedido em rolo ou A4.
 **Próximo:** item 7 (produtividade: tempo por pedido, itens por pessoa, gráficos).
+
+## Sessão de 13/11/2026
+
+**Item 7 — Produtividade** (pedido do usuário: "roda o item 7"; a sessão de 12/11 caiu por erro de conexão no meio):
+- Aba nova **Produtividade** no menu (depois do Painel). Usa o carimbo que o checklist já grava em cada item (`item.por` = quem marcou, `item.em` = quando). Não precisa de campo novo.
+- Período: 7 dias / 30 dias / 90 dias / 12 meses / Tudo (lembrado no aparelho, `volux_prod_periodo`).
+- Indicadores: itens separados, pedidos separados (média de itens), **tempo médio por pedido** (e a mediana: "metade leva até…") e separadores.
+- Gráficos: itens separados por dia/semana/mês, **itens por pessoa** (pedidos, dias com separação, itens/dia; clicar filtra a tela toda por aquela pessoa) e itens por **hora do dia** (mostra o horário de pico).
+- Tabela **Tempo por pedido**: do 1º ao último item marcado, com início, fim, duração e quem separou (os 50 mais recentes). Entram os pedidos do Histórico e os que estão 100% prontos.
+- Testado numa cópia na porta 3999 com 50 pedidos de exemplo (filtro por pessoa, troca de período, sem erros no console).
+- Atenção: só conta itens marcados depois que o carimbo existe. Pedidos antigos sem `item.em` não aparecem. O tempo de um pedido que ficou parado de um dia para o outro inclui a noite.
+
+**Próximo:** pendências do usuário: layout A/B/C da tela de Pedidos, etiqueta em rolo ou A4, cadastrar os locais das peças e copiar `data.json`/`users.json` do PC antigo.
