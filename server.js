@@ -21,16 +21,21 @@ let REV = Date.now();
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12h
 const sessions = new Map(); // token -> {expiraEm, usuarioId, usuario, nome, admin}
 
+// Usuários: ficam em memória e são gravados na tabela `usuarios` do banco
+// e no users.json (cópia de segurança). A senha nunca é guardada, só o hash (scrypt + salt).
+let USERS_CACHE = null;
 function lerUsuarios() {
   try {
-    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    return JSON.parse(USERS_CACHE != null ? USERS_CACHE : fs.readFileSync(USERS_FILE, 'utf8'));
   } catch {
     return [];
   }
 }
 
 function salvarUsuarios(lista) {
+  USERS_CACHE = JSON.stringify(lista);
   fs.writeFileSync(USERS_FILE, JSON.stringify(lista, null, 2), 'utf8');
+  db.gravarUsuarios(lista);
 }
 
 function gerarHashSenha(senha, salt) {
@@ -56,7 +61,7 @@ function gerarSenhaAleatoria() {
 }
 
 function seedUsuarioAdmin() {
-  if (fs.existsSync(USERS_FILE)) return null;
+  if (lerUsuarios().length) return null;
   const usuarioPadrao = process.env.VOLUX_USUARIO || 'admin';
   const senhaPadrao = process.env.VOLUX_SENHA || gerarSenhaAleatoria();
   const { salt, hash } = criarCredenciais(senhaPadrao);
@@ -161,6 +166,30 @@ function writeData(data) {
   REV = Math.max(Date.now(), REV + 1);
 }
 
+// Usuários: se a tabela estiver vazia (ou o users.json for mais novo), manda o users.json
+// para o banco; senão o banco vale e o users.json é reescrito a partir dele.
+async function iniciarUsuariosNoBanco() {
+  const doBanco = await db.lerUsuarios();
+  let doArquivo = [];
+  try { doArquivo = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8')); } catch {}
+  let mtime = 0;
+  try { mtime = fs.statSync(USERS_FILE).mtimeMs; } catch {}
+  const iguais = JSON.stringify(doBanco.lista) === JSON.stringify(doArquivo);
+  if (doBanco.lista.length && (iguais || !doArquivo.length || mtime <= doBanco.em + 5000)) {
+    if (!iguais && doArquivo.length) {
+      if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
+      fs.copyFileSync(USERS_FILE, path.join(BACKUP_DIR, `users-antes-do-banco-${new Date().toISOString().replace(/[:.]/g, '-')}.json`));
+    }
+    USERS_CACHE = JSON.stringify(doBanco.lista);
+    if (!iguais) fs.writeFileSync(USERS_FILE, JSON.stringify(doBanco.lista, null, 2), 'utf8');
+    console.log(` ✔ ${doBanco.lista.length} usuário(s) lidos do banco.`);
+  } else if (doArquivo.length) {
+    USERS_CACHE = JSON.stringify(doArquivo);
+    db.gravarUsuarios(doArquivo);
+    console.log(` ✔ ${doArquivo.length} usuário(s) do users.json gravados no banco.`);
+  }
+}
+
 // Ao ligar: conecta no banco. Se o banco estiver vazio, importa o data.json.
 // Se o banco já tiver dados, eles valem (o data.json diferente é guardado em backups/).
 async function iniciarBanco() {
@@ -197,6 +226,7 @@ async function iniciarBanco() {
       if (doArquivo) { CACHE = JSON.stringify(JSON.parse(doArquivo)); db.gravar(CACHE); }
       console.log(` ✔ Banco de dados "${cfg.database}" criado e preenchido com o data.json.`);
     }
+    await iniciarUsuariosNoBanco();
   } catch (e) {
     CACHE = null;
     console.log(' ⚠ Banco de dados indisponível (' + e.message + '). Usando só o data.json.');
@@ -411,9 +441,9 @@ app.get('/api/network-info', (req, res) => {
 const PORT = Number(process.env.PORT) || 3000;
 const localIP = getLocalIP();
 
-const usuarioSeedCriado = seedUsuarioAdmin();
+let usuarioSeedCriado = null;
 
-iniciarBanco().then(() => app.listen(PORT, '0.0.0.0', () => {
+iniciarBanco().then(() => { usuarioSeedCriado = seedUsuarioAdmin(); }).then(() => app.listen(PORT, '0.0.0.0', () => {
   console.log('\n ╔══════════════════════════════════════════╗');
   console.log(' ║              VOLUX - ATIVO               ║');
   console.log(' ╠══════════════════════════════════════════╣');

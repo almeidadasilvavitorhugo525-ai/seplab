@@ -29,6 +29,12 @@ const TABELAS = [
     dados LONGTEXT NOT NULL,
     atualizado_em DATETIME NOT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+  `CREATE TABLE IF NOT EXISTS usuarios (
+    id VARCHAR(64) PRIMARY KEY,
+    nome VARCHAR(120), usuario VARCHAR(80) NOT NULL UNIQUE,
+    senha_hash CHAR(128) NOT NULL, senha_salt CHAR(32) NOT NULL,
+    admin TINYINT NOT NULL DEFAULT 0, atualizado_em DATETIME NOT NULL
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
   `CREATE TABLE IF NOT EXISTS pedidos (
     id VARCHAR(64) PRIMARY KEY,
     numero VARCHAR(64), cliente VARCHAR(255), destino VARCHAR(255), endereco VARCHAR(255),
@@ -157,28 +163,60 @@ async function gravarAgora(json) {
   }
 }
 
-// Fila: grava uma vez por vez; se chegarem várias mudanças seguidas, grava só a mais nova.
-let pendente = null, gravando = false;
-function gravar(json) {
-  if (!pool) return;
-  pendente = json;
-  if (gravando) return;
-  gravando = true;
-  (async () => {
-    while (pendente) {
-      const atual = pendente; pendente = null;
-      try {
-        await gravarAgora(atual);
-        if (ultimoErro) { console.log(' ✔ Banco de dados voltou a gravar.'); ultimoErro = ''; }
-      } catch (e) {
-        if (e.message !== ultimoErro) console.log(' ⚠ Não consegui gravar no banco de dados:', e.message, '(os dados continuam salvos no data.json)');
-        ultimoErro = e.message;
-        if (!pendente) pendente = atual;
-        await new Promise(r => setTimeout(r, 5000));
-      }
-    }
-    gravando = false;
-  })();
+// ---- usuários (só o hash da senha, nunca a senha) ----
+async function lerUsuarios() {
+  const [rows] = await pool.query('SELECT id, nome, usuario, senha_salt, senha_hash, admin, UNIX_TIMESTAMP(atualizado_em) AS ts FROM usuarios ORDER BY atualizado_em, usuario');
+  return {
+    lista: rows.map(r => ({ id: r.id, nome: r.nome, usuario: r.usuario, salt: r.senha_salt, hash: r.senha_hash, admin: !!r.admin })),
+    em: rows.reduce((a, r) => Math.max(a, Number(r.ts) * 1000), 0),
+  };
+}
+async function gravarUsuariosAgora(json) {
+  const lista = JSON.parse(json);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM usuarios');
+    const agora = dataHora(new Date());
+    const rows = lista.filter(u => u && u.id && u.usuario && u.hash && u.salt)
+      .map(u => [String(u.id).slice(0, 64), txt(u.nome, 120), String(u.usuario).slice(0, 80), u.hash, u.salt, u.admin ? 1 : 0, agora]);
+    if (rows.length) await conn.query('INSERT INTO usuarios (id,nome,usuario,senha_hash,senha_salt,admin,atualizado_em) VALUES ?', [rows]);
+    await conn.commit();
+  } catch (e) {
+    try { await conn.rollback(); } catch {}
+    throw e;
+  } finally {
+    conn.release();
+  }
 }
 
-module.exports = { conectar, lerEstado, gravar, ativo: () => !!pool, ultimoErro: () => ultimoErro, lerConfig };
+// Fila: grava uma vez por vez; se chegarem várias mudanças seguidas, grava só a mais nova.
+function criarFila(fn, arquivo) {
+  let pendente = null, gravando = false;
+  return function (json) {
+    if (!pool) return;
+    pendente = json;
+    if (gravando) return;
+    gravando = true;
+    (async () => {
+      while (pendente) {
+        const atual = pendente; pendente = null;
+        try {
+          await fn(atual);
+          if (ultimoErro) { console.log(' ✔ Banco de dados voltou a gravar.'); ultimoErro = ''; }
+        } catch (e) {
+          if (e.message !== ultimoErro) console.log(' ⚠ Não consegui gravar no banco de dados:', e.message, `(continua salvo no ${arquivo})`);
+          ultimoErro = e.message;
+          if (!pendente) pendente = atual;
+          await new Promise(r => setTimeout(r, 5000));
+        }
+      }
+      gravando = false;
+    })();
+  };
+}
+const gravar = criarFila(gravarAgora, 'data.json');
+const filaUsuarios = criarFila(gravarUsuariosAgora, 'users.json');
+const gravarUsuarios = lista => filaUsuarios(JSON.stringify(lista));
+
+module.exports = { conectar, lerEstado, gravar, lerUsuarios, gravarUsuarios, ativo: () => !!pool, ultimoErro: () => ultimoErro, lerConfig };
