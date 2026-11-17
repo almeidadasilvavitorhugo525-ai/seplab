@@ -156,3 +156,15 @@ Registro do que foi feito em cada sessão, para retomar de onde parou.
   - Usuários: a comparação banco × users.json não depende mais da ordem. Antes, cada vez que o Volux ligava, criava uma cópia à toa.
   - `db-config.json` (pode ter senha do banco) fora do Git.
 - **Pendente (decisão do usuário):** a máquina em si não sai do Estoque quando o pedido é concluído. A baixa só desconta as peças do checklist. Então a quantidade de máquinas no Estoque precisa ser baixada à mão, ou dá para fazer a baixa automática.
+
+## Sessão de 17/11/2026
+
+**Mapa de vendas no mundo** (pedido do usuário: "quero um mapa-múndi onde conseguimos selecionar os países e ver o lugar exato onde a máquina está", e depois "uma barra de pesquisa para pesquisar por nome ou pelo código"). Protótipo aprovado: https://claude.ai/artifact/V6g8qVdMFre2LLbtyh52R9 (mapa-múndi + pesquisa). Os protótipos anteriores, de relatório por país/região (https://claude.ai/artifact/6QDcGBTib4xdUeYVun3UvJ) e de cadastro com País/Estado/Cidade (https://claude.ai/artifact/3yK1xiHyJn44haXm4ktyCn), ficaram como referência.
+- Aba **Mapa** refeita: mapa (Leaflet/OpenStreetMap, zoom até a rua) + painel à direita com **Mundo › País › Estado › Cidade › pedido/máquina**. Cada nível mostra quantas máquinas foram vendidas ali e quais. Clicar entra no lugar e o mapa aproxima. A trilha no topo volta de nível.
+- **Pesquisa** por nome da máquina ou **nº de série** (também cliente e nº do pedido), no mundo todo. O mapa fica só com os pinos encontrados e a parte que bateu aparece destacada. Enter abre a ficha quando só uma máquina é encontrada.
+- **Ficha da máquina**: nº de série, cliente, pedido, situação/data, local, endereço e coordenadas.
+- Filtros: produto, situação, **ano** e **mês** (data de conclusão; para pedidos em separação, a data de criação).
+- **País/estado/cidade de cada pedido** (`p.lugar`): o Nominatim devolve o endereço completo (`addressdetails=1`). Para pedidos que já tinham local, busca pelo ponto (reverse). Enquanto não tem, lê do destino escrito. Pedidos fora do Brasil agora são localizados no país certo (antes a busca era só no Brasil). Pedidos sem endereço reconhecido aparecem em "Sem local definido".
+- Testado numa cópia com pedidos na Bahia, no Panamá e no Paraguai: todos localizados. O caminho Brasil › Bahia › cidades e a pesquisa "gt26" (2 máquinas em 2 países, ficha com zoom no local) funcionaram, sem erros no console.
+- Diferença do protótipo: os países não ficam coloridos pela quantidade vendida (mapa de ruas do OpenStreetMap). A quantidade aparece no painel.
+- Pendente: campo País/Estado/Cidade no cadastro do pedido (protótipo feito, não aprovado) e envio deste commit para o GitHub (precisa do pedido do usuário).
